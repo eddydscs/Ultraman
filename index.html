@@ -288,44 +288,69 @@ function endBattle(){let won=mHp<=0,g=bCorrect*15;score+=g;if(won){monstersDef++
 let sIdx=0,sCorrect=0,sData=[];
 function initSpeech(){
     let SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if(!SpeechRecognition){recognition=null;return;}
+    if(!SpeechRecognition){
+        console.log('SpeechRecognition not supported');
+        recognition=null;
+        return;
+    }
     try{
         recognition=new SpeechRecognition();
         recognition.lang='en-US';
         recognition.continuous=false;
-        recognition.interimResults=true;
+        recognition.interimResults=false;
         recognition.maxAlternatives=1;
         
         recognition.onstart=()=>{console.log('Speech started');};
-        recognition.onspeechstart=()=>{document.getElementById('speechResult').innerHTML='<div style="color:#00ff88;">🎤 检测到声音，继续说...</div>';};
         recognition.onresult=(e)=>{
-            let final='',interim='';
-            for(let i=e.resultIndex;i<e.results.length;i++){
-                if(e.results[i].isFinal)final+=e.results[i][0].transcript;
-                else interim+=e.results[i][0].transcript;
-            }
-            if(final){checkSpeech(final.toLowerCase(),e.results[e.results.length-1][0].confidence||0.8);}
-            else if(interim){document.getElementById('speechResult').innerHTML=`<div style="color:#ffd93d;">🎤 ${interim}</div>`;}
+            console.log('Result received', e.results);
+            let transcript=e.results[0][0].transcript;
+            let confidence=e.results[0][0].confidence;
+            checkSpeech(transcript.toLowerCase(),confidence);
         };
         recognition.onerror=(e)=>{
-            console.error('Error:',e.error);
+            console.error('Speech error:', e.error, e);
             isRecording=false;
-            document.getElementById('recordBtn').classList.remove('recording');
-            document.getElementById('recordText').textContent='点击录音';
-            let msg='识别失败，请重试';
-            if(e.error==='not-allowed')msg='❌ 请允许麦克风权限\n点击地址栏左侧🔒图标';
-            else if(e.error==='no-speech')msg='❌ 没听到声音，请大声说';
-            else if(e.error==='aborted')msg='已停止';
-            document.getElementById('speechResult').innerHTML=`<div style="color:#ff6b6b;white-space:pre-line;">${msg}</div>`;
+            let btn=document.getElementById('recordBtn');
+            if(btn)btn.classList.remove('recording');
+            let txt=document.getElementById('recordText');
+            if(txt)txt.textContent='点击录音';
+            let res=document.getElementById('speechResult');
+            if(!res)return;
+            if(e.error==='not-allowed')res.innerHTML='<div style="color:#ff6b6b;">❌ 请允许麦克风权限<br><small>点击地址栏🔒图标 → 允许麦克风</small></div>';
+            else if(e.error==='no-speech')res.innerHTML='<div style="color:#ff6b6b;">❌ 没听到声音，请重试</div>';
+            else if(e.error==='aborted')res.innerHTML='<div style="color:#ffd93d;">⏹ 已停止</div>';
+            else res.innerHTML='<div style="color:#ff6b6b;">❌ 错误: '+e.error+'<br><small>建议用Chrome浏览器</small></div>';
         };
-        recognition.onend=()=>{isRecording=false;document.getElementById('recordBtn').classList.remove('recording');document.getElementById('recordText').textContent='点击录音';};
-    }catch(e){recognition=null;}
+        recognition.onend=()=>{
+            console.log('Speech ended');
+            isRecording=false;
+            let btn=document.getElementById('recordBtn');
+            if(btn)btn.classList.remove('recording');
+            let txt=document.getElementById('recordText');
+            if(txt)txt.textContent='点击录音';
+        };
+        console.log('SpeechRecognition initialized');
+    }catch(e){console.error('Init error:',e);recognition=null;}
 }
 function startSpeaking(){sIdx=0;sCorrect=0;sData=[];selectedUnits.forEach(u=>{sData=sData.concat(ALL_WORDS[u].words.map(w=>({eng:w[0],chn:w[1]})));});sData=shuffle(sData);showSQ();show('speakingGame');}
 function showSQ(){if(sIdx>=sData.length){endSpeech();return;}let item=sData[sIdx];currentSpeakingText=item.eng;document.getElementById('speakingWord').textContent=item.eng;document.getElementById('speakingMeaning').textContent=item.chn;document.getElementById('speakingProgress').textContent=`第${sIdx+1}/${sData.length}题`;document.getElementById('speechResult').innerHTML='<div style="color:#aaa;font-size:13px;">点击按钮开始录音</div>';setTimeout(()=>speak(item.eng,'speakingVoiceBtn'),300);}
-function toggleRecord(){if(!recognition){alert('你的浏览器不支持语音识别\n请使用Chrome浏览器');return;}if(isRecording){stopRec();recognition.stop();}else{startRec();}}
-function startRec(){if(!recognition){alert('浏览器不支持语音识别\n请使用Chrome或Edge浏览器');return;}if(isRecording)return;isRecording=true;document.getElementById('recordBtn').classList.add('recording');document.getElementById('recordText').textContent='点击停止';document.getElementById('speechResult').innerHTML='<div style="color:#ffd93d;">🎤 正在启动...</div>';try{recognition.stop();}catch(e){}setTimeout(()=>{try{recognition.start();}catch(e){isRecording=false;document.getElementById('recordBtn').classList.remove('recording');document.getElementById('recordText').textContent='点击录音';document.getElementById('speechResult').innerHTML='<div style="color:#ff6b6b;">启动失败，请重试</div>';}},100);}
-function stopRec(){if(!isRecording)return;isRecording=false;document.getElementById('recordBtn').classList.remove('recording');document.getElementById('recordText').textContent='点击录音';try{recognition.stop();}catch(e){}}
+function toggleRecord(){
+    if(!recognition){
+        document.getElementById('speechResult').innerHTML='<div style="color:#ff6b6b;">❌ 浏览器不支持语音识别<br><small>请用Chrome或Edge浏览器</small></div>';
+        return;
+    }
+    if(isRecording){
+        isRecording=false;
+        try{recognition.stop();}catch(e){}
+    }else{
+        isRecording=true;
+        document.getElementById('recordBtn').classList.add('recording');
+        document.getElementById('recordText').textContent='点击停止';
+        document.getElementById('speechResult').innerHTML='<div style="color:#ffd93d;">🎤 请说英文...</div>';
+        try{recognition.start();}catch(e){console.error('Start error:',e);isRecording=false;document.getElementById('recordBtn').classList.remove('recording');document.getElementById('recordText').textContent='点击录音';document.getElementById('speechResult').innerHTML='<div style="color:#ff6b6b;">❌ 启动失败: '+e.message+'</div>';}
+    }
+}
+function stopRec(){isRecording=false;try{recognition.stop();}catch(e){}}
 function checkSpeech(spoken,conf){if(!spoken||!currentSpeakingText){console.log('Missing data');return;}let correct=currentSpeakingText.toLowerCase();let isOk=spoken.includes(correct)||correct.includes(spoken);console.log('Checking:',{spoken,correct,isOk,conf});if(isOk&&conf>0.5){sCorrect++;score+=20;addExp(10);document.getElementById('speechResult').innerHTML=`<div style="color:#27ae60;font-size:18px;">✅ 正确！</div><div style="color:#aaa;font-size:13px;">你说：${spoken}</div><div style="color:#00d4ff;font-size:12px;">准确度：${Math.round(conf*100)}%</div>`;}else{document.getElementById('speechResult').innerHTML=`<div style="color:#e74c3c;font-size:18px;">❌ 再试一次</div><div style="color:#aaa;font-size:13px;">你说：${spoken}</div><div style="color:#ffd93d;font-size:13px;">答案：${correct}</div>`;}updateUI();setTimeout(()=>{sIdx++;showSQ();},2000);}
 function endSpeech(){let g=sCorrect*20;score+=g;document.getElementById('resultEmoji').textContent='🎤';document.getElementById('resultTitle').textContent='口语挑战完成！';document.getElementById('resultScore').textContent='+'+g;document.getElementById('resultMsg').textContent=`正确：${sCorrect}/${sData.length}`;document.getElementById('resultStars').innerHTML='⭐'.repeat(Math.ceil(sCorrect/2));updateUI();show('result');}
 
