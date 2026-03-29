@@ -102,7 +102,7 @@
         
         .letters-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin: 10px 0; }
         .letter-btn { width: 40px; height: 40px; border: 2px solid #00d4ff; border-radius: 8px; background: rgba(0,200,255,0.1); color: #00d4ff; font-size: 18px; font-weight: bold; cursor: pointer; }
-        .letter-btn.used { opacity: 0.3; pointer-events: none; }
+        .letter-btn.used { background: #00d4ff; color: #0a0a1a; }
         
         .input-display { text-align: center; font-size: 24px; color: #00d4ff; margin: 10px 0; min-height: 30px; letter-spacing: 4px; }
     </style>
@@ -124,7 +124,7 @@
             </div>
             <div class="progress">选择关卡挑战怪兽</div>
             <div class="stage-grid" id="stageGrid"></div>
-            <button class="game-btn btn-battle" onclick="startBattle()">⚔️ 开始战斗</button>
+            <button class="game-btn btn-battle" onclick="startStageSelect()">⚔️ 开始战斗</button>
             <button class="game-btn btn-free" onclick="startFreeMode()">🎮 自由练习</button>
             <button class="game-btn btn-speak" onclick="startSpeakingPractice()">🎤 口语练习</button>
         </div>
@@ -143,6 +143,15 @@
             <div class="monster-info"><div class="monster-name" id="monsterName">小怪兽</div><div class="monster-desc" id="monsterDesc">打败它！</div></div>
             <div class="progress" id="battleProgress">第 1/5 题</div>
             <div id="questionArea"></div>
+            <button class="game-btn" style="background:#555" onclick="backToMenu()">🏠 返回</button>
+        </div>
+        
+        <!-- 单元选择（战斗前） -->
+        <div id="unitSelect" class="card hidden">
+            <div class="title">⚔️ 选择战斗单元</div>
+            <div class="progress">每个单元对应一个怪兽</div>
+            <div class="stage-grid" id="battleUnitSelector" style="grid-template-columns: repeat(5, 1fr);"></div>
+            <button class="game-btn btn-battle" onclick="confirmUnitAndStart()">⚔️ 开始战斗</button>
             <button class="game-btn" style="background:#555" onclick="backToMenu()">🏠 返回</button>
         </div>
         
@@ -192,7 +201,7 @@
                 <div class="result-score" id="resultScore">+100</div>
                 <div class="progress" id="resultMsg">正确：5/5</div>
                 <div class="result-stars" id="resultStars"></div>
-                <button class="game-btn btn-battle" id="nextBtn" onclick="nextStage()">🚀 下一关</button>
+                <button class="game-btn btn-battle" onclick="backToMenu()">🚀 继续战斗</button>
                 <button class="game-btn" style="background:#555" onclick="backToMenu()">🏠 返回</button>
             </div>
         </div>
@@ -232,7 +241,10 @@ let selectedUnit=1, qIdx=0, correctCount=0;
 let mHp=100, zHp=100, currentMonster=null;
 let currentText='';
 let recognition=null, isRecording=false;
+let currentMonsterIndex=0;
 let stageCompleted = [];
+let battleScore=0;
+let qIdx=0;
 
 // 预加载语音列表
 if('speechSynthesis' in window){
@@ -352,20 +364,105 @@ function backToMenu(){
     show('menu');
 }
 
-// ========== 主线战斗模式 ==========
+// ========== 战斗单元选择 ==========
+let battleUnits=[1]; // 可选多个单元
+
+function startStageSelect(){
+    let selector=document.getElementById('battleUnitSelector');
+    selector.innerHTML='';
+    for(let i=1;i<=10;i++){
+        let btn=document.createElement('button');
+        btn.className='stage-btn '+(battleUnits.includes(i)?'current':'unlocked');
+        btn.innerHTML='<span>U</span><span class="stage-num">'+i+'</span>';
+        btn.onclick=function(){
+            if(battleUnits.includes(i)){
+                if(battleUnits.length>1){
+                    battleUnits=battleUnits.filter(function(u){return u!==i;});
+                    btn.classList.remove('current');
+                }
+            }else{
+                battleUnits.push(i);
+                btn.classList.add('current');
+            }
+        };
+        selector.appendChild(btn);
+    }
+    show('unitSelect');
+}
+
+function confirmUnitAndStart(){
+    if(battleUnits.length===0) battleUnits=[1];
+    // 打乱单元顺序，每关随机选择一个单元的词汇
+    startBattle();
+}
+
+let battleQuestionPool=[]; // 战斗题目池（不重复）
+
 function startBattle(){
     qIdx=0;correctCount=0;mHp=100;zHp=100;
-    currentMonster=MONSTERS[currentStage-1];
+    battleQuestionPool=[]; // 重置题目池
     
-    document.getElementById('stageNum').textContent=currentStage;
-    document.getElementById('monsterEmoji').textContent=currentMonster.emoji;
-    document.getElementById('monsterName').textContent=currentMonster.name;
-    document.getElementById('monsterDesc').textContent=currentMonster.desc;
-    document.getElementById('monsterHpName').textContent=currentMonster.name;
+    // 生成不重复的题目池
+    battleUnits.forEach(function(u){
+        ALL_WORDS[u].words.forEach(function(w){
+            battleQuestionPool.push({type:'word', eng:w[0], chn:w[1]});
+        });
+        ALL_WORDS[u].sentences.forEach(function(s){
+            battleQuestionPool.push({type:'sentence', eng:s[0], chn:s[1]});
+        });
+    });
+    // 打乱题目顺序
+    battleQuestionPool=shuffle(battleQuestionPool);
     
+    startBattleRound();
+}
+
+function startBattleRound(){
+    let difficulty = getDifficulty(1); // 固定从第1关开始
+    
+    document.getElementById('stageNum').textContent=1;
+    document.getElementById('monsterEmoji').textContent='👾';
+    document.getElementById('monsterName').textContent='准备战斗！';
+    document.getElementById('monsterDesc').textContent='打败10个怪兽！';
+    document.getElementById('monsterHpName').textContent='怪兽';
+    
+    currentMonsterIndex=0;
     updateHP();
-    showQuestion();
+    showBattleQuestion();
     show('battleGame');
+}
+
+function getDifficulty(round){
+    // 根据关卡难度调整（round: 1-10）
+    let difficulty = {
+        questionCount: 5,
+        wordRatio: 0.7,
+        types: ['choice','match','puzzle']
+    };
+    
+    if(round<=2){
+        difficulty.questionCount=3;
+        difficulty.wordRatio=1.0;
+        difficulty.types=['choice','match'];
+    }else if(round<=4){
+        difficulty.questionCount=4;
+        difficulty.wordRatio=0.9;
+        difficulty.types=['choice','match','puzzle'];
+    }else if(round<=6){
+        difficulty.questionCount=5;
+        difficulty.wordRatio=0.8;
+        difficulty.types=['choice','match','puzzle'];
+    }else if(round<=8){
+        difficulty.questionCount=6;
+        difficulty.wordRatio=0.7;
+        difficulty.types=['choice','match','hearing','puzzle'];
+    }else{
+        difficulty.questionCount=7;
+        difficulty.wordRatio=0.6;
+        difficulty.types=['choice','match','hearing','puzzle'];
+    }
+    
+    return difficulty;
 }
 
 function updateHP(){
@@ -373,36 +470,84 @@ function updateHP(){
     document.getElementById('zeroHp').style.width=zHp+'%';
 }
 
-// 生成题目：4种类型随机（暂时移除口语）
-function showQuestion(){
-    if(qIdx>=5 || mHp<=0 || zHp<=0){
+function showBattleQuestion(){
+    if(currentMonsterIndex>=10){
+        // 通关
+        endAllBattles();
+        return;
+    }
+    
+    if(mHp<=0){
+        // 打败当前怪兽，进入下一关
+        currentMonsterIndex++;
+        mHp=100;zHp=100;
+        currentMonster=MONSTERS[currentMonsterIndex];
+        
+        document.getElementById('stageNum').textContent=currentMonsterIndex+1;
+        document.getElementById('monsterEmoji').textContent=currentMonster.emoji;
+        document.getElementById('monsterName').textContent=currentMonster.name;
+        document.getElementById('monsterDesc').textContent=currentMonster.desc;
+        document.getElementById('monsterHpName').textContent=currentMonster.name;
+        
+        updateHP();
+    }
+    
+    if(zHp<=0){
+        // 失败
         endBattle();
         return;
     }
     
-    document.getElementById('battleProgress').textContent='第 '+(qIdx+1)+'/5 题';
+    qIdx=0;
+    showRoundQuestion();
+}
+
+function showRoundQuestion(){
+    let difficulty = getDifficulty(currentMonsterIndex+1);
     
-    // 随机选择题型（暂时移除口语挑战）
-    let types=['choice','match','hearing','puzzle'];
-    let type=types[Math.floor(Math.random()*types.length)];
+    if(qIdx>=difficulty.questionCount || mHp<=0){
+        // 当前回合结束，判断胜负
+        if(mHp<=0){
+            // 胜利，进入下一关
+            showBattleQuestion();
+        }else{
+            // 本关没打过，继续
+            showRoundQuestion();
+        }
+        return;
+    }
     
-    // 根据关卡选择单元词汇
-    let unitData = ALL_WORDS[currentStage];
-    let words = unitData.words;
-    let word = words[Math.floor(Math.random()*words.length)];
+    document.getElementById('battleProgress').textContent='第 '+(currentMonsterIndex+1)+'/10 关 · '+(qIdx+1)+'/'+difficulty.questionCount+' 题';
+    
+    // 从题目池取出题目（不重复）
+    if(battleQuestionPool.length===0){
+        // 题目用完了，重新生成
+        battleUnits.forEach(function(u){
+            ALL_WORDS[u].words.forEach(function(w){
+                battleQuestionPool.push({type:'word', eng:w[0], chn:w[1]});
+            });
+            ALL_WORDS[u].sentences.forEach(function(s){
+                battleQuestionPool.push({type:'sentence', eng:s[0], chn:s[1]});
+            });
+        });
+        battleQuestionPool=shuffle(battleQuestionPool);
+    }
+    
+    let item=battleQuestionPool.pop(); // 取出一题
+    
+    // 根据题型选择
+    let type=difficulty.types[Math.floor(Math.random()*difficulty.types.length)];
     
     let area = document.getElementById('questionArea');
     
     if(type==='choice'){
-        showChoiceQuestion(area, word, words);
-    }else if(type==='speak'){
-        showSpeakQuestion(area, word);
+        showChoiceQuestion(area, [item.eng, item.chn], battleQuestionPool.filter(function(i){return i.type==='word';}).slice(0,3));
     }else if(type==='match'){
-        showMatchQuestion(area, word, words);
+        showMatchQuestion(area, [item.eng, item.chn], battleQuestionPool.filter(function(i){return i.type==='word';}).slice(0,3));
     }else if(type==='hearing'){
-        showHearingQuestion(area, word, words);
+        showHearingQuestion(area, [item.eng, item.chn], battleQuestionPool.filter(function(i){return i.type==='sentence';}).slice(0,3));
     }else if(type==='puzzle'){
-        showPuzzleQuestion(area, word);
+        showPuzzleQuestion(area, [item.eng, item.chn]);
     }
 }
 
@@ -411,7 +556,6 @@ function showChoiceQuestion(area, word, words){
     currentText=word[0];
     area.innerHTML='<div class="question-type">单词选择</div>'+
         '<div class="word-display">'+word[0]+'</div>'+
-        '<div class="meaning-display">'+word[1]+'</div>'+
         '<div class="voice-btn-container"><button class="voice-btn" id="choiceVoiceBtn" onclick="speakWord(\''+word[0]+'\',\'choiceVoiceBtn\')"><span>🔊</span><span>听发音</span></button></div>'+
         '<div id="options"></div>';
     
@@ -552,7 +696,8 @@ function checkAnswer(correct, btn){
         if(btn) btn.classList.add('wrong');
     }
     updateHP();
-    setTimeout(function(){qIdx++;showQuestion();},800);
+    qIdx++;
+    setTimeout(function(){showRoundQuestion();},800);
 }
 
 function showEff(e){
@@ -564,39 +709,35 @@ function showEff(e){
 }
 
 function endBattle(){
-    let won=mHp<=0;
-    let g=correctCount*20;
-    score+=g;
+    // 失败
+    document.getElementById('resultEmoji').textContent='💪';
+    document.getElementById('resultTitle').textContent='继续努力！';
+    document.getElementById('resultScore').textContent='+'+battleScore;
+    document.getElementById('resultMsg').textContent='闯过 '+currentMonsterIndex+'/10 关';
+    document.getElementById('resultStars').innerHTML='⭐'.repeat(currentMonsterIndex);
+    document.getElementById('nextBtn').style.display='none';
     
-    if(won){
-        monstersDef++;
-        if(!stageCompleted.includes(currentStage)){
-            stageCompleted.push(currentStage);
-        }
-        if(currentStage<10 && !stageCompleted.includes(currentStage+1)){
-            currentStage++;
-        }
-        saveProgress();
-    }
-    
-    document.getElementById('resultEmoji').textContent=won?'🏆':'💪';
-    document.getElementById('resultTitle').textContent=won?'打败了 '+currentMonster.name+'！':'继续努力！';
-    document.getElementById('resultScore').textContent='+'+g;
-    document.getElementById('resultMsg').textContent='正确：'+correctCount+'/5';
-    document.getElementById('resultStars').innerHTML='⭐'.repeat(correctCount);
-    document.getElementById('nextBtn').style.display=won&&currentStage<=10?'block':'none';
-    
+    score+=battleScore;
     updateUI();
     show('result');
 }
 
-function nextStage(){
-    if(currentStage<=10){
-        startBattle();
-    }else{
-        backToMenu();
-    }
+function endAllBattles(){
+    // 通关
+    document.getElementById('resultEmoji').textContent='🏆';
+    document.getElementById('resultTitle').textContent='恭喜通关！';
+    document.getElementById('resultScore').textContent='+'+battleScore;
+    document.getElementById('resultMsg').textContent='打败了所有怪兽！';
+    document.getElementById('resultStars').innerHTML='⭐'.repeat(10);
+    document.getElementById('nextBtn').style.display='none';
+    
+    score+=battleScore;
+    monstersDef+=10;
+    updateUI();
+    show('result');
 }
+
+
 
 // ========== 自由练习模式 ==========
 function startFreeMode(){
@@ -680,6 +821,8 @@ function showSpeakQuestion(){
 }
 
 function startHoldRecord(){
+    if(isRecording) return; // 防止重复启动
+    
     let SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if(!SpeechRecognition){
         document.getElementById('speakResult').innerHTML='<div style="color:#ff6b6b;">不支持语音识别，请用Chrome</div>';
@@ -692,6 +835,7 @@ function startHoldRecord(){
     recognition.interimResults=false;
     
     recognition.onresult=function(e){
+        if(!isRecording) return;
         let spoken=e.results[0][0].transcript.toLowerCase();
         let correct=currentText.toLowerCase();
         
@@ -704,7 +848,21 @@ function startHoldRecord(){
     };
     
     recognition.onerror=function(e){
+        if(e.error==='aborted') return; // 忽略 aborted 错误
         document.getElementById('speakResult').innerHTML='<div style="color:#ff6b6b;">错误：'+e.error+'</div>';
+    };
+    
+    recognition.onend=function(){
+        // 识别结束，更新状态
+        if(isRecording){
+            isRecording=false;
+            document.getElementById('recBtn').classList.remove('recording');
+            document.getElementById('recText').textContent='按住录音';
+            setTimeout(function(){
+                speakIdx++;
+                showSpeakQuestion();
+            },1500);
+        }
     };
     
     isRecording=true;
@@ -716,17 +874,12 @@ function startHoldRecord(){
 }
 
 function stopHoldRecord(){
-    if(!isRecording) return;
+    if(!isRecording) return; // 防止重复停止
     isRecording=false;
     document.getElementById('recBtn').classList.remove('recording');
     document.getElementById('recText').textContent='按住录音';
     
     try{recognition.stop();}catch(e){}
-    
-    setTimeout(function(){
-        speakIdx++;
-        showSpeakQuestion();
-    },1500);
 }
 
 function endSpeaking(){
