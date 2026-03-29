@@ -25,7 +25,6 @@
             z-index: 1; 
         }
         
-        /* 电脑端全屏适配 */
         @media (min-width: 768px) {
             body { padding: 0; margin: 0; min-height: 100vh; }
             .container {
@@ -116,7 +115,6 @@
 <body>
     <div class="stars" id="stars"></div>
     <div class="container">
-        <!-- 主菜单 -->
         <div id="menu" class="card">
             <div class="zero-header">
                 <div class="zero-icon">🦸</div>
@@ -141,7 +139,6 @@
             <button class="game-btn btn-puzzle" onclick="startPuzzle()">🧩 单词拼图</button>
         </div>
         
-        <!-- 战斗模式 -->
         <div id="battleGame" class="card hidden">
             <div class="title">⚔️ 战斗模式</div>
             <div class="battle-arena">
@@ -153,7 +150,7 @@
                 <div><span class="fighter">🦸</span><span class="vs-text" style="font-size:16px;margin:0 10px;">⚔️</span><span class="fighter" id="monsterEmoji">👾</span></div>
             </div>
             <div class="monster-info"><div class="monster-name" id="monsterName">小怪兽</div><div class="monster-desc" id="monsterDesc">打败它！</div></div>
-            <div class="progress" id="battleProgress">回答问题攻击！</div>
+            <div class="progress" id="battleProgress">回答问题攻击怪兽</div>
             <div class="type-badge" id="battleType">单词</div>
             <div class="word-display" id="battleWord">APPLE</div>
             <div class="voice-btn-container"><button class="voice-btn" id="battleVoiceBtn" onclick="playBattleVoice()"><span>🔊</span><span>听发音</span></button></div>
@@ -161,7 +158,6 @@
             <button class="game-btn" style="background:#555" onclick="backToMenu()">🏠 返回</button>
         </div>
         
-        <!-- 口语挑战 -->
         <div id="speakingGame" class="card hidden">
             <div class="title">🎤 口语挑战</div>
             <div class="progress" id="speakingProgress">第 1 题</div>
@@ -174,7 +170,6 @@
             <button class="game-btn" style="background:#555" onclick="backToMenu()">🏠 返回</button>
         </div>
         
-        <!-- 单词配对 -->
         <div id="matchGame" class="card hidden">
             <div class="title">🎯 单词配对</div>
             <div class="progress" id="matchProgress">第 1 题</div>
@@ -185,7 +180,6 @@
             <button class="game-btn" style="background:#555" onclick="backToMenu()">🏠 返回</button>
         </div>
         
-        <!-- 听力 -->
         <div id="hearingGame" class="card hidden">
             <div class="title">🎧 听力挑战</div>
             <div class="progress" id="hearingProgress">第 1 题</div>
@@ -196,7 +190,6 @@
             <button class="game-btn" style="background:#555" onclick="backToMenu()">🏠 返回</button>
         </div>
         
-        <!-- 拼图 -->
         <div id="puzzleGame" class="card hidden">
             <div class="title">🧩 单词拼图</div>
             <div class="progress" id="puzzleProgress">第 1 题</div>
@@ -205,11 +198,10 @@
             <div class="word-display" id="puzzleLetters" style="font-size:24px;color:#ff6b35;">A P P L E</div>
             <div class="voice-btn-container"><button class="voice-btn" id="puzzleVoiceBtn" onclick="playPuzzleVoice()"><span>🔊</span><span>听发音</span></button></div>
             <input type="text" class="option-btn" id="puzzleInput" placeholder="输入英文单词" style="text-align:center;font-size:18px;">
-            <button class="game-btn btn-puzzle" onclick="checkPuzzle()">⚡ 发射！</button>
+            <button class="game-btn btn-puzzle" onclick="checkPuzzle()">🚀 发射！</button>
             <button class="game-btn" style="background:#555" onclick="backToMenu()">🏠 返回</button>
         </div>
         
-        <!-- 结果 -->
         <div id="result" class="card hidden">
             <div class="result">
                 <div style="font-size:55px;" id="resultEmoji">🏆</div>
@@ -217,13 +209,13 @@
                 <div class="result-score" id="resultScore">+100</div>
                 <div class="progress" id="resultMsg">正确率：10/10</div>
                 <div class="result-stars" id="resultStars"></div>
-                <button class="game-btn btn-battle" onclick="backToMenu()">⚡ 继续战斗</button>
+                <button class="game-btn btn-battle" onclick="backToMenu()">🚀 继续战斗</button>
             </div>
         </div>
     </div>
 
 <script>
-// 词汇表
+// 词汇库
 const ALL_WORDS = {
     1:{words:[["hello","你好"],["hi","嗨"],["goodbye","再见"],["good morning","早上好"],["name","名字"],["I","我"],["am","是"],["nice","高兴"],["meet","遇见"],["too","也"],["please","请"],["thank","谢谢"]],sentences:[["Hello!","你好！"],["What's your name?","你叫什么名字？"],["Nice to meet you.","很高兴认识你。"],["Goodbye!","再见！"]]},
     2:{words:[["one","一"],["two","二"],["three","三"],["four","四"],["five","五"],["six","六"],["seven","七"],["eight","八"],["nine","九"],["ten","十"]],sentences:[["How many?","有多少？"],["One, two, three!","一、二、三！"],["I can count.","我会数数。"]]},
@@ -239,14 +231,14 @@ const ALL_WORDS = {
 
 const MONSTERS = [
     {emoji:"👾",name:"小怪兽",desc:"外太空来的捣蛋鬼"},
-    {emoji:"🤖",name:"机器兽",desc:"邪恶科学家的作品"},
+    {emoji:"🤖",name:"机器人",desc:"邪恶科学家的作品"},
     {emoji:"👹",name:"红魔",desc:"火焰山的恶魔"},
     {emoji:"👺",name:"天狗",desc:"传说中的妖怪"},
     {emoji:"👻",name:"幽灵王",desc:"黑暗统治者"},
     {emoji:"💀",name:"骷髅将军",desc:"不死军团首领"},
-    {emoji:"🎃",name:"南瓜魔王",desc:"万圣节恶魔"},
+    {emoji:"🎃",name:"南瓜魔王",desc:"万圣节恶灵"},
     {emoji:"👽",name:"外星霸主",desc:"银河系威胁"},
-    {emoji:"🦖",name:"暴龙兽",desc:"远古恐龙王"},
+    {emoji:"🦖",name:"暴龙兽",desc:"远古恐龙复活"},
     {emoji:"🐉",name:"暗黑龙",desc:"邪恶巨龙"}
 ];
 
@@ -261,31 +253,202 @@ function init(){
     updateUI();
     initSpeech();
 }
-function createStars(){for(let i=0;i<50;i++){let s=document.createElement('div');s.className='star';s.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*100}%;width:${Math.random()*3+1}px;height:${s.style.width}`;document.getElementById('stars').appendChild(s);}}
-function createUnits(){let c=document.getElementById('unitSelector');c.innerHTML='';for(let i=1;i<=10;i++){let b=document.createElement('button');b.className='unit-btn'+(selectedUnits.includes(i)?' active':'');b.textContent='U'+i;b.onclick=()=>{if(selectedUnits.includes(i)){if(selectedUnits.length>1){selectedUnits=selectedUnits.filter(u=>u!==i);b.classList.remove('active');}}else{selectedUnits.push(i);b.classList.add('active');}};c.appendChild(b);}}
-function getData(){let d=[];selectedUnits.forEach(u=>{d=d.concat(ALL_WORDS[u].words.map(w=>({type:'word',eng:w[0],chn:w[1]})));d=d.concat(ALL_WORDS[u].sentences.map(s=>({type:'sentence',eng:s[0],chn:s[1]})));});return shuffle(d);}
-function shuffle(a){return[...a].sort(()=>Math.random()-0.5);}
-function updateUI(){document.getElementById('totalScore').textContent=score;document.getElementById('level').textContent=level;document.getElementById('monstersDefeated').textContent=monstersDef;document.getElementById('expText').textContent=`${exp}/${expNext}`;document.getElementById('expBar').style.width=(exp/expNext*100)+'%';}
-function addExp(n){exp+=n;if(exp>=expNext){exp-=expNext;level++;expNext=Math.floor(expNext*1.5);alert(`🎉 升级！${level}级`);}updateUI();}
-function show(id){document.querySelectorAll('.card').forEach(c=>c.classList.add('hidden'));document.getElementById(id).classList.remove('hidden');}
-function backToMenu(){window.speechSynthesis.cancel();show('menu');updateUI();}
-function speak(t,btnId,cb){if(!t)return;let btn=btnId?document.getElementById(btnId):null;if(btn){btn.classList.add('playing');btn.querySelector('span:last-child').textContent='播放中...';}if('speechSynthesis'in window){window.speechSynthesis.cancel();let u=new SpeechSynthesisUtterance(t);u.lang='en-US';u.rate=0.85;u.onend=()=>{if(btn){btn.classList.remove('playing');btn.querySelector('span:last-child').textContent='听发音';}if(cb)cb();};window.speechSynthesis.speak(u);}}
+
+function createStars(){
+    for(let i=0;i<50;i++){
+        let s=document.createElement('div');
+        s.className='star';
+        s.style.cssText='left:'+Math.random()*100+'%;top:'+Math.random()*100+'%;width:'+(Math.random()*3+1)+'px;height:'+(Math.random()*3+1)+'px';
+        document.getElementById('stars').appendChild(s);
+    }
+}
+
+function createUnits(){
+    let c=document.getElementById('unitSelector');
+    c.innerHTML='';
+    for(let i=1;i<=10;i++){
+        let b=document.createElement('button');
+        b.className='unit-btn'+(selectedUnits.includes(i)?' active':'');
+        b.textContent='U'+i;
+        b.onclick=function(){
+            if(selectedUnits.includes(i)){
+                if(selectedUnits.length>1){
+                    selectedUnits=selectedUnits.filter(function(u){return u!==i;});
+                    b.classList.remove('active');
+                }
+            }else{
+                selectedUnits.push(i);
+                b.classList.add('active');
+            }
+        };
+        c.appendChild(b);
+    }
+}
+
+function getData(){
+    let d=[];
+    selectedUnits.forEach(function(u){
+        d=d.concat(ALL_WORDS[u].words.map(function(w){return{type:'word',eng:w[0],chn:w[1]};}));
+        d=d.concat(ALL_WORDS[u].sentences.map(function(s){return{type:'sentence',eng:s[0],chn:s[1]};}));
+    });
+    return shuffle(d);
+}
+
+function shuffle(a){
+    return a.slice().sort(function(){return Math.random()-0.5;});
+}
+
+function updateUI(){
+    document.getElementById('totalScore').textContent=score;
+    document.getElementById('level').textContent=level;
+    document.getElementById('monstersDefeated').textContent=monstersDef;
+    document.getElementById('expText').textContent=exp+'/'+expNext;
+    document.getElementById('expBar').style.width=(exp/expNext*100)+'%';
+}
+
+function addExp(n){
+    exp+=n;
+    if(exp>=expNext){
+        exp-=expNext;
+        level++;
+        expNext=Math.floor(expNext*1.5);
+        alert('🎉 升级到 '+level+' 级！');
+    }
+    updateUI();
+}
+
+function show(id){
+    document.querySelectorAll('.card').forEach(function(c){c.classList.add('hidden');});
+    document.getElementById(id).classList.remove('hidden');
+}
+
+function backToMenu(){
+    if(window.speechSynthesis) window.speechSynthesis.cancel();
+    show('menu');
+    updateUI();
+}
+
+function speak(t,btnId,cb){
+    if(!t) return;
+    let btn=btnId?document.getElementById(btnId):null;
+    if(btn){
+        btn.classList.add('playing');
+        btn.querySelector('span:last-child').textContent='播放中...';
+    }
+    if('speechSynthesis' in window){
+        window.speechSynthesis.cancel();
+        let u=new SpeechSynthesisUtterance(t);
+        u.lang='en-US';
+        u.rate=0.85;
+        u.onend=function(){
+            if(btn){
+                btn.classList.remove('playing');
+                btn.querySelector('span:last-child').textContent='听发音';
+            }
+            if(cb) cb();
+        };
+        window.speechSynthesis.speak(u);
+    }
+}
+
 function playBattleVoice(){speak(currentBattleText,'battleVoiceBtn');}
 function playMatchVoice(){speak(currentMatchText,'matchVoiceBtn');}
 function playHearingVoice(){speak(currentHearingText,'hearingVoiceBtn');}
 function playPuzzleVoice(){speak(currentPuzzleText,'puzzleVoiceBtn');}
 function playSpeakingVoice(){speak(currentSpeakingText,'speakingVoiceBtn');}
 
-// 战斗
+// 战斗模式
 let bIdx=0,bCorrect=0,mHp=100,zHp=100;
-function startBattle(){bIdx=0;bCorrect=0;mHp=100;zHp=100;gameData=getData();let mi=Math.min(Math.floor(level/2),MONSTERS.length-1);currentMonster=MONSTERS[Math.floor(Math.random()*(mi+1))];document.getElementById('monsterEmoji').textContent=currentMonster.emoji;document.getElementById('monsterName').textContent=currentMonster.name;document.getElementById('monsterDesc').textContent=currentMonster.desc;document.getElementById('monsterHpName').textContent=currentMonster.name;updateHP();showBQ();show('battleGame');}
-function updateHP(){document.getElementById('monsterHp').style.width=mHp+'%';document.getElementById('zeroHp').style.width=zHp+'%';}
-function showBQ(){if(bIdx>=gameData.length||mHp<=0||zHp<=0){endBattle();return;}let item=gameData[bIdx];document.getElementById('battleType').textContent=item.type==='word'?'单词':'句子';currentBattleText=item.eng;document.getElementById('battleWord').textContent=item.eng;document.getElementById('battleProgress').textContent=`攻击！第${bIdx+1}/${gameData.length}回合`;let btn=document.getElementById('battleVoiceBtn');btn.classList.remove('playing');btn.querySelector('span:last-child').textContent='听发音';let wrong=gameData.filter((_,i)=>i!==bIdx).map(x=>x.chn);let opts=shuffle([item.chn,...wrong.slice(0,3)]);let ct=document.getElementById('battleOptions');ct.innerHTML='';opts.forEach(o=>{let b=document.createElement('button');b.className='option-btn';b.textContent=o;b.onclick=()=>{ct.querySelectorAll('.option-btn').forEach(x=>x.onclick=null);if(o===item.chn){b.classList.add('correct');mHp-=20;bCorrect++;showEff('💥');}else{b.classList.add('wrong');zHp-=15;showEff('💢');}updateHP();setTimeout(()=>{bIdx++;showBQ();},800);};ct.appendChild(b);});setTimeout(()=>speak(item.eng,'battleVoiceBtn'),300);}
-function showEff(e){let d=document.createElement('div');d.className='attack-effect';d.textContent=e;document.body.appendChild(d);setTimeout(()=>d.remove(),500);}
-function endBattle(){let won=mHp<=0,g=bCorrect*15;score+=g;if(won){monstersDef++;addExp(50+bCorrect*5);}document.getElementById('resultEmoji').textContent=won?'🏆':'💪';document.getElementById('resultTitle').textContent=won?`打败了${currentMonster.name}！`:'继续努力！';document.getElementById('resultScore').textContent='+'+g;document.getElementById('resultMsg').textContent=`正确：${bCorrect}/${gameData.length}`;document.getElementById('resultStars').innerHTML='⭐'.repeat(Math.ceil(bCorrect/3));updateUI();show('result');}
 
-// 口语
+function startBattle(){
+    bIdx=0;bCorrect=0;mHp=100;zHp=100;
+    gameData=getData();
+    let mi=Math.min(Math.floor(level/2),MONSTERS.length-1);
+    currentMonster=MONSTERS[Math.floor(Math.random()*(mi+1))];
+    document.getElementById('monsterEmoji').textContent=currentMonster.emoji;
+    document.getElementById('monsterName').textContent=currentMonster.name;
+    document.getElementById('monsterDesc').textContent=currentMonster.desc;
+    document.getElementById('monsterHpName').textContent=currentMonster.name;
+    updateHP();
+    showBQ();
+    show('battleGame');
+}
+
+function updateHP(){
+    document.getElementById('monsterHp').style.width=mHp+'%';
+    document.getElementById('zeroHp').style.width=zHp+'%';
+}
+
+function showBQ(){
+    if(bIdx>=gameData.length||mHp<=0||zHp<=0){
+        endBattle();
+        return;
+    }
+    let item=gameData[bIdx];
+    document.getElementById('battleType').textContent=item.type==='word'?'单词':'句子';
+    currentBattleText=item.eng;
+    document.getElementById('battleWord').textContent=item.eng;
+    document.getElementById('battleProgress').textContent='攻击！第'+(bIdx+1)+'/'+gameData.length+'回合';
+    let btn=document.getElementById('battleVoiceBtn');
+    btn.classList.remove('playing');
+    btn.querySelector('span:last-child').textContent='听发音';
+    
+    let wrong=gameData.filter(function(_,i){return i!==bIdx;}).map(function(x){return x.chn;});
+    let opts=shuffle([item.chn].concat(wrong.slice(0,3)));
+    let ct=document.getElementById('battleOptions');
+    ct.innerHTML='';
+    opts.forEach(function(o){
+        let b=document.createElement('button');
+        b.className='option-btn';
+        b.textContent=o;
+        b.onclick=function(){
+            ct.querySelectorAll('.option-btn').forEach(function(x){x.onclick=null;});
+            if(o===item.chn){
+                b.classList.add('correct');
+                mHp-=20;
+                bCorrect++;
+                showEff('💥');
+            }else{
+                b.classList.add('wrong');
+                zHp-=15;
+                showEff('💢');
+            }
+            updateHP();
+            setTimeout(function(){bIdx++;showBQ();},800);
+        };
+        ct.appendChild(b);
+    });
+    setTimeout(function(){speak(item.eng,'battleVoiceBtn');},300);
+}
+
+function showEff(e){
+    let d=document.createElement('div');
+    d.className='attack-effect';
+    d.textContent=e;
+    document.body.appendChild(d);
+    setTimeout(function(){d.remove();},500);
+}
+
+function endBattle(){
+    let won=mHp<=0;
+    let g=bCorrect*15;
+    score+=g;
+    if(won){
+        monstersDef++;
+        addExp(50+bCorrect*5);
+    }
+    document.getElementById('resultEmoji').textContent=won?'🏆':'💪';
+    document.getElementById('resultTitle').textContent=won?'打败了 '+currentMonster.name+'！':'继续努力！';
+    document.getElementById('resultScore').textContent='+'+g;
+    document.getElementById('resultMsg').textContent='正确：'+bCorrect+'/'+gameData.length;
+    document.getElementById('resultStars').innerHTML='⭐'.repeat(Math.ceil(bCorrect/3));
+    updateUI();
+    show('result');
+}
+
+// 口语挑战
 let sIdx=0,sCorrect=0,sData=[];
+
 function initSpeech(){
     let SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if(!SpeechRecognition){
@@ -300,100 +463,310 @@ function initSpeech(){
         recognition.interimResults=false;
         recognition.maxAlternatives=1;
         
-        recognition.onstart=()=>{console.log('Speech started');};
-        recognition.onresult=(e)=>{
-            console.log('Result received', e.results);
+        recognition.onresult=function(e){
+            console.log('Result', e.results);
             let transcript=e.results[0][0].transcript;
-            let confidence=e.results[0][0].confidence;
+            let confidence=e.results[0][0].confidence||0.8;
             checkSpeech(transcript.toLowerCase(),confidence);
         };
-        recognition.onerror=(e)=>{
+        
+        recognition.onerror=function(e){
             console.error('Speech error:', e.error);
-            if(recRestartTimeout){clearTimeout(recRestartTimeout);recRestartTimeout=null;}
-            isRecording=false;
-            let btn=document.getElementById('recordBtn');
-            if(btn)btn.classList.remove('recording');
-            let txt=document.getElementById('recordText');
-            if(txt)txt.textContent='点击录音';
-            let res=document.getElementById('speechResult');
-            if(!res)return;
-            if(e.error==='not-allowed')res.innerHTML='<div style="color:#ff6b6b;">❌ 请允许麦克风权限<br><small>点地址栏🔒 → 允许麦克风</small></div>';
-            else if(e.error==='no-speech')res.innerHTML='<div style="color:#ff6b6b;">❌ 没听到声音，请重试</div>';
-            else if(e.error==='aborted')res.innerHTML='<div style="color:#ffd93d;">⏹ 已停止</div>';
-            else if(e.error==='already-started'){res.innerHTML='<div style="color:#ffd93d;">⏸ 录音中...</div>';}
-            else res.innerHTML='<div style="color:#ff6b6b;">❌ '+e.error+'</div>';
-        };
-        recognition.onend=(){
-            console.log('Speech ended, isRecording:', isRecording);
-            // 不要自动重启，让用户手动点击
-            if(!isRecording)return;
-            // 如果还在录音状态，可能是意外结束，重试一次
-            setTimeout(()=>{
-                if(isRecording){
-                    try{recognition.start();}catch(e){console.log('Restart failed:',e);}
-                }
-            },200);
-        };
-        console.log('SpeechRecognition initialized');
-    }catch(e){console.error('Init error:',e);recognition=null;}
-}
-function startSpeaking(){sIdx=0;sCorrect=0;sData=[];selectedUnits.forEach(u=>{sData=sData.concat(ALL_WORDS[u].words.map(w=>({eng:w[0],chn:w[1]})));});sData=shuffle(sData);showSQ();show('speakingGame');}
-function showSQ(){if(sIdx>=sData.length){endSpeech();return;}let item=sData[sIdx];currentSpeakingText=item.eng;document.getElementById('speakingWord').textContent=item.eng;document.getElementById('speakingMeaning').textContent=item.chn;document.getElementById('speakingProgress').textContent=`第${sIdx+1}/${sData.length}题`;document.getElementById('speechResult').innerHTML='<div style="color:#aaa;font-size:13px;">点击按钮开始录音</div>';setTimeout(()=>speak(item.eng,'speakingVoiceBtn'),300);}
-let recRestartTimeout=null;
-function toggleRecord(){
-    if(!recognition){
-        document.getElementById('speechResult').innerHTML='<div style="color:#ff6b6b;">❌ 浏览器不支持语音识别<br><small>请用Chrome或Edge浏览器</small></div>';
-        return;
-    }
-    if(isRecording){
-        isRecording=false;
-        if(recRestartTimeout){clearTimeout(recRestartTimeout);recRestartTimeout=null;}
-        try{recognition.stop();}catch(e){console.log('Stop error:',e);}
-        document.getElementById('recordBtn').classList.remove('recording');
-        document.getElementById('recordText').textContent='点击录音';
-        document.getElementById('speechResult').innerHTML='<div style="color:#aaa;">已停止</div>';
-    }else{
-        // 先确保之前的状态已清理
-        try{recognition.stop();}catch(e){}
-        isRecording=true;
-        document.getElementById('recordBtn').classList.add('recording');
-        document.getElementById('recordText').textContent='点击停止';
-        document.getElementById('speechResult').innerHTML='<div style="color:#ffd93d;">🎤 请说英文...</div>';
-        try{
-            recognition.start();
-        }catch(e){
-            console.error('Start error:',e);
             isRecording=false;
             document.getElementById('recordBtn').classList.remove('recording');
             document.getElementById('recordText').textContent='点击录音';
-            document.getElementById('speechResult').innerHTML='<div style="color:#ff6b6b;">❌ 启动失败: '+e.message+'</div>';
-        }
+            let msg='错误: '+e.error;
+            if(e.error==='not-allowed') msg='请允许麦克风权限';
+            else if(e.error==='no-speech') msg='没听到声音，请重试';
+            else if(e.error==='aborted') msg='已停止';
+            document.getElementById('speechResult').innerHTML='<div style="color:#ff6b6b;">❌ '+msg+'</div>';
+        };
+        
+        recognition.onend=function(){
+            console.log('Speech ended');
+            isRecording=false;
+            document.getElementById('recordBtn').classList.remove('recording');
+            document.getElementById('recordText').textContent='点击录音';
+        };
+        
+        console.log('SpeechRecognition initialized');
+    }catch(e){
+        console.error('Init error:',e);
+        recognition=null;
     }
 }
-function stopRec(){isRecording=false;try{recognition.stop();}catch(e){}}
-function checkSpeech(spoken,conf){if(!spoken||!currentSpeakingText){console.log('Missing data');return;}let correct=currentSpeakingText.toLowerCase();let isOk=spoken.includes(correct)||correct.includes(spoken);console.log('Checking:',{spoken,correct,isOk,conf});if(isOk&&conf>0.5){sCorrect++;score+=20;addExp(10);document.getElementById('speechResult').innerHTML=`<div style="color:#27ae60;font-size:18px;">✅ 正确！</div><div style="color:#aaa;font-size:13px;">你说：${spoken}</div><div style="color:#00d4ff;font-size:12px;">准确度：${Math.round(conf*100)}%</div>`;}else{document.getElementById('speechResult').innerHTML=`<div style="color:#e74c3c;font-size:18px;">❌ 再试一次</div><div style="color:#aaa;font-size:13px;">你说：${spoken}</div><div style="color:#ffd93d;font-size:13px;">答案：${correct}</div>`;}updateUI();setTimeout(()=>{sIdx++;showSQ();},2000);}
-function endSpeech(){let g=sCorrect*20;score+=g;document.getElementById('resultEmoji').textContent='🎤';document.getElementById('resultTitle').textContent='口语挑战完成！';document.getElementById('resultScore').textContent='+'+g;document.getElementById('resultMsg').textContent=`正确：${sCorrect}/${sData.length}`;document.getElementById('resultStars').innerHTML='⭐'.repeat(Math.ceil(sCorrect/2));updateUI();show('result');}
 
-// 配对
+function startSpeaking(){
+    sIdx=0;sCorrect=0;
+    sData=[];
+    selectedUnits.forEach(function(u){
+        sData=sData.concat(ALL_WORDS[u].words.map(function(w){return{eng:w[0],chn:w[1]};}));
+    });
+    sData=shuffle(sData);
+    showSQ();
+    show('speakingGame');
+}
+
+function showSQ(){
+    if(sIdx>=sData.length){
+        endSpeech();
+        return;
+    }
+    let item=sData[sIdx];
+    currentSpeakingText=item.eng;
+    document.getElementById('speakingWord').textContent=item.eng;
+    document.getElementById('speakingMeaning').textContent=item.chn;
+    document.getElementById('speakingProgress').textContent='第 '+(sIdx+1)+'/'+sData.length+' 题';
+    document.getElementById('speechResult').innerHTML='<div style="color:#aaa;font-size:13px;">点击按钮开始录音</div>';
+    setTimeout(function(){speak(item.eng,'speakingVoiceBtn');},300);
+}
+
+function toggleRecord(){
+    if(!recognition){
+        document.getElementById('speechResult').innerHTML='<div style="color:#ff6b6b;">❌ 浏览器不支持语音识别<br><small>请用Chrome浏览器</small></div>';
+        return;
+    }
+    
+    if(isRecording){
+        isRecording=false;
+        try{recognition.stop();}catch(e){}
+        document.getElementById('recordBtn').classList.remove('recording');
+        document.getElementById('recordText').textContent='点击录音';
+        return;
+    }
+    
+    isRecording=true;
+    document.getElementById('recordBtn').classList.add('recording');
+    document.getElementById('recordText').textContent='点击停止';
+    document.getElementById('speechResult').innerHTML='<div style="color:#ffd93d;">🎤 请说英文...</div>';
+    
+    try{
+        recognition.start();
+    }catch(e){
+        console.error('Start error:',e);
+        isRecording=false;
+        document.getElementById('recordBtn').classList.remove('recording');
+        document.getElementById('recordText').textContent='点击录音';
+        document.getElementById('speechResult').innerHTML='<div style="color:#ff6b6b;">❌ 启动失败: '+e.message+'</div>';
+    }
+}
+
+function checkSpeech(spoken,conf){
+    if(!spoken||!currentSpeakingText) return;
+    let correct=currentSpeakingText.toLowerCase();
+    let isOk=spoken.includes(correct)||correct.includes(spoken);
+    
+    if(isOk&&conf>0.5){
+        sCorrect++;
+        score+=20;
+        addExp(10);
+        document.getElementById('speechResult').innerHTML='<div style="color:#27ae60;font-size:18px;">✅ 正确！</div><div style="color:#aaa;font-size:13px;">你说：'+spoken+'</div><div style="color:#00d4ff;font-size:12px;">准确度：'+Math.round(conf*100)+'%</div>';
+    }else{
+        document.getElementById('speechResult').innerHTML='<div style="color:#e74c3c;font-size:18px;">❌ 再试一次</div><div style="color:#aaa;font-size:13px;">你说：'+spoken+'</div><div style="color:#ffd93d;font-size:13px;">答案：'+correct+'</div>';
+    }
+    updateUI();
+    setTimeout(function(){sIdx++;showSQ();},2000);
+}
+
+function endSpeech(){
+    let g=sCorrect*20;
+    score+=g;
+    document.getElementById('resultEmoji').textContent='🎤';
+    document.getElementById('resultTitle').textContent='口语挑战完成！';
+    document.getElementById('resultScore').textContent='+'+g;
+    document.getElementById('resultMsg').textContent='正确：'+sCorrect+'/'+sData.length;
+    document.getElementById('resultStars').innerHTML='⭐'.repeat(Math.ceil(sCorrect/2));
+    updateUI();
+    show('result');
+}
+
+// 单词配对
 let mIdx=0,mCorrect=0;
-function startMatch(){mIdx=0;mCorrect=0;gameData=getData();showMQ();show('matchGame');}
-function showMQ(){if(mIdx>=gameData.length){endMatch();return;}let item=gameData[mIdx];document.getElementById('matchType').textContent=item.type==='word'?'单词':'句子';currentMatchText=item.eng;document.getElementById('matchWord').textContent=item.eng;document.getElementById('matchProgress').textContent=`第${mIdx+1}/${gameData.length}题`;let btn=document.getElementById('matchVoiceBtn');btn.classList.remove('playing');btn.querySelector('span:last-child').textContent='听发音';let wrong=gameData.filter((_,i)=>i!==mIdx).map(x=>x.chn);let opts=shuffle([item.chn,...wrong.slice(0,3)]);let ct=document.getElementById('matchOptions');ct.innerHTML='';opts.forEach(o=>{let b=document.createElement('button');b.className='option-btn';b.textContent=o;b.onclick=()=>{if(o===item.chn){b.classList.add('correct');mCorrect++;score+=8;addExp(3);}else b.classList.add('wrong');updateUI();setTimeout(()=>{mIdx++;showMQ();},800);};ct.appendChild(b);});setTimeout(()=>speak(item.eng,'matchVoiceBtn'),300);}
-function endMatch(){let g=mCorrect*8;score+=g;document.getElementById('resultEmoji').textContent='🎯';document.getElementById('resultTitle').textContent=mCorrect>=gameData.length*0.8?'太厉害了！':'不错！';document.getElementById('resultScore').textContent='+'+g;document.getElementById('resultMsg').textContent=`正确：${mCorrect}/${gameData.length}`;document.getElementById('resultStars').innerHTML='⭐'.repeat(Math.ceil(mCorrect/2));updateUI();show('result');}
 
-// 听力
+function startMatch(){
+    mIdx=0;mCorrect=0;
+    gameData=getData();
+    showMQ();
+    show('matchGame');
+}
+
+function showMQ(){
+    if(mIdx>=gameData.length){
+        endMatch();
+        return;
+    }
+    let item=gameData[mIdx];
+    document.getElementById('matchType').textContent=item.type==='word'?'单词':'句子';
+    currentMatchText=item.eng;
+    document.getElementById('matchWord').textContent=item.eng;
+    document.getElementById('matchProgress').textContent='第 '+(mIdx+1)+'/'+gameData.length+' 题';
+    let btn=document.getElementById('matchVoiceBtn');
+    btn.classList.remove('playing');
+    btn.querySelector('span:last-child').textContent='听发音';
+    
+    let wrong=gameData.filter(function(_,i){return i!==mIdx;}).map(function(x){return x.chn;});
+    let opts=shuffle([item.chn].concat(wrong.slice(0,3)));
+    let ct=document.getElementById('matchOptions');
+    ct.innerHTML='';
+    opts.forEach(function(o){
+        let b=document.createElement('button');
+        b.className='option-btn';
+        b.textContent=o;
+        b.onclick=function(){
+            if(o===item.chn){
+                b.classList.add('correct');
+                mCorrect++;
+                score+=8;
+                addExp(3);
+            }else{
+                b.classList.add('wrong');
+            }
+            updateUI();
+            setTimeout(function(){mIdx++;showMQ();},800);
+        };
+        ct.appendChild(b);
+    });
+    setTimeout(function(){speak(item.eng,'matchVoiceBtn');},300);
+}
+
+function endMatch(){
+    let g=mCorrect*8;
+    score+=g;
+    document.getElementById('resultEmoji').textContent='🎯';
+    document.getElementById('resultTitle').textContent=mCorrect>=gameData.length*0.8?'太厉害了！':'不错！';
+    document.getElementById('resultScore').textContent='+'+g;
+    document.getElementById('resultMsg').textContent='正确：'+mCorrect+'/'+gameData.length;
+    document.getElementById('resultStars').innerHTML='⭐'.repeat(Math.ceil(mCorrect/2));
+    updateUI();
+    show('result');
+}
+
+// 听力挑战
 let hIdx=0,hCorrect=0;
-function startHearing(){hIdx=0;hCorrect=0;gameData=getData();showHQ();show('hearingGame');}
-function showHQ(){if(hIdx>=gameData.length){endHearing();return;}let item=gameData[hIdx];document.getElementById('hearingType').textContent=item.type==='word'?'单词':'句子';currentHearingText=item.eng;document.getElementById('hearingSentence').textContent=item.eng;document.getElementById('hearingProgress').textContent=`第${hIdx+1}/${gameData.length}题`;let btn=document.getElementById('hearingVoiceBtn');btn.classList.remove('playing');btn.querySelector('span:last-child').textContent='再听一遍';let wrong=gameData.filter((_,i)=>i!==hIdx).map(x=>x.chn);let opts=shuffle([item.chn,...wrong.slice(0,3)]);let ct=document.getElementById('hearingOptions');ct.innerHTML='';opts.forEach(o=>{let b=document.createElement('button');b.className='option-btn';b.textContent=o;b.onclick=()=>{if(o===item.chn){b.classList.add('correct');hCorrect++;score+=10;addExp(5);}else b.classList.add('wrong');updateUI();setTimeout(()=>{hIdx++;showHQ();},800);};ct.appendChild(b);});setTimeout(()=>speak(item.eng,'hearingVoiceBtn'),300);}
-function endHearing(){let g=hCorrect*10;score+=g;document.getElementById('resultEmoji').textContent='🎧';document.getElementById('resultTitle').textContent=hCorrect>=gameData.length*0.8?'太厉害了！':'不错！';document.getElementById('resultScore').textContent='+'+g;document.getElementById('resultMsg').textContent=`正确：${hCorrect}/${gameData.length}`;document.getElementById('resultStars').innerHTML='⭐'.repeat(Math.ceil(hCorrect/2));updateUI();show('result');}
 
-// 拼图
+function startHearing(){
+    hIdx=0;hCorrect=0;
+    gameData=getData();
+    showHQ();
+    show('hearingGame');
+}
+
+function showHQ(){
+    if(hIdx>=gameData.length){
+        endHearing();
+        return;
+    }
+    let item=gameData[hIdx];
+    document.getElementById('hearingType').textContent=item.type==='word'?'单词':'句子';
+    currentHearingText=item.eng;
+    document.getElementById('hearingSentence').textContent=item.eng;
+    document.getElementById('hearingProgress').textContent='第 '+(hIdx+1)+'/'+gameData.length+' 题';
+    let btn=document.getElementById('hearingVoiceBtn');
+    btn.classList.remove('playing');
+    btn.querySelector('span:last-child').textContent='再听一遍';
+    
+    let wrong=gameData.filter(function(_,i){return i!==hIdx;}).map(function(x){return x.chn;});
+    let opts=shuffle([item.chn].concat(wrong.slice(0,3)));
+    let ct=document.getElementById('hearingOptions');
+    ct.innerHTML='';
+    opts.forEach(function(o){
+        let b=document.createElement('button');
+        b.className='option-btn';
+        b.textContent=o;
+        b.onclick=function(){
+            if(o===item.chn){
+                b.classList.add('correct');
+                hCorrect++;
+                score+=10;
+                addExp(5);
+            }else{
+                b.classList.add('wrong');
+            }
+            updateUI();
+            setTimeout(function(){hIdx++;showHQ();},800);
+        };
+        ct.appendChild(b);
+    });
+    setTimeout(function(){speak(item.eng,'hearingVoiceBtn');},300);
+}
+
+function endHearing(){
+    let g=hCorrect*10;
+    score+=g;
+    document.getElementById('resultEmoji').textContent='🎧';
+    document.getElementById('resultTitle').textContent=hCorrect>=gameData.length*0.8?'太厉害了！':'不错！';
+    document.getElementById('resultScore').textContent='+'+g;
+    document.getElementById('resultMsg').textContent='正确：'+hCorrect+'/'+gameData.length;
+    document.getElementById('resultStars').innerHTML='⭐'.repeat(Math.ceil(hCorrect/2));
+    updateUI();
+    show('result');
+}
+
+// 单词拼图
 let pIdx=0,pCorrect=0,pData=[];
-function startPuzzle(){pIdx=0;pCorrect=0;pData=[];selectedUnits.forEach(u=>{pData=pData.concat(ALL_WORDS[u].words.map(w=>({eng:w[0],chn:w[1]})));});pData=shuffle(pData);showPQ();show('puzzleGame');}
-function showPQ(){if(pIdx>=pData.length){endPuzzle();return;}let item=pData[pIdx];currentPuzzleText=item.eng;document.getElementById('puzzleMeaning').textContent=item.chn;document.getElementById('puzzleProgress').textContent=`第${pIdx+1}/${pData.length}题`;document.getElementById('puzzleLetters').textContent=shuffle(item.eng.toUpperCase().split('')).join(' ');let btn=document.getElementById('puzzleVoiceBtn');btn.classList.remove('playing');btn.querySelector('span:last-child').textContent='听发音';document.getElementById('puzzleInput').value='';document.getElementById('puzzleInput').focus();setTimeout(()=>speak(item.eng,'puzzleVoiceBtn'),300);}
-function checkPuzzle(){let item=pData[pIdx],inp=document.getElementById('puzzleInput').value.trim().toLowerCase();if(inp===item.eng){pCorrect++;score+=12;addExp(5);alert('✅ 正确！');}else alert('❌ 答案：'+item.eng.toUpperCase());updateUI();pIdx++;showPQ();}
-document.getElementById('puzzleInput').addEventListener('keypress',e=>{if(e.key==='Enter')checkPuzzle();});
-function endPuzzle(){let g=pCorrect*12;score+=g;document.getElementById('resultEmoji').textContent='🧩';document.getElementById('resultTitle').textContent=pCorrect>=pData.length*0.8?'太厉害了！':'不错！';document.getElementById('resultScore').textContent='+'+g;document.getElementById('resultMsg').textContent=`正确：${pCorrect}/${pData.length}`;document.getElementById('resultStars').innerHTML='⭐'.repeat(Math.ceil(pCorrect/2));updateUI();show('result');}
 
+function startPuzzle(){
+    pIdx=0;pCorrect=0;
+    pData=[];
+    selectedUnits.forEach(function(u){
+        pData=pData.concat(ALL_WORDS[u].words.map(function(w){return{eng:w[0],chn:w[1]};}));
+    });
+    pData=shuffle(pData);
+    showPQ();
+    show('puzzleGame');
+}
+
+function showPQ(){
+    if(pIdx>=pData.length){
+        endPuzzle();
+        return;
+    }
+    let item=pData[pIdx];
+    currentPuzzleText=item.eng;
+    document.getElementById('puzzleMeaning').textContent=item.chn;
+    document.getElementById('puzzleProgress').textContent='第 '+(pIdx+1)+'/'+pData.length+' 题';
+    document.getElementById('puzzleLetters').textContent=shuffle(item.eng.toUpperCase().split('')).join(' ');
+    let btn=document.getElementById('puzzleVoiceBtn');
+    btn.classList.remove('playing');
+    btn.querySelector('span:last-child').textContent='听发音';
+    document.getElementById('puzzleInput').value='';
+    document.getElementById('puzzleInput').focus();
+    setTimeout(function(){speak(item.eng,'puzzleVoiceBtn');},300);
+}
+
+function checkPuzzle(){
+    let item=pData[pIdx];
+    let inp=document.getElementById('puzzleInput').value.trim().toLowerCase();
+    if(inp===item.eng){
+        pCorrect++;
+        score+=12;
+        addExp(5);
+        alert('✅ 正确！');
+    }else{
+        alert('❌ 答案：'+item.eng.toUpperCase());
+    }
+    updateUI();
+    pIdx++;
+    showPQ();
+}
+
+document.getElementById('puzzleInput').addEventListener('keypress',function(e){
+    if(e.key==='Enter') checkPuzzle();
+});
+
+function endPuzzle(){
+    let g=pCorrect*12;
+    score+=g;
+    document.getElementById('resultEmoji').textContent='🧩';
+    document.getElementById('resultTitle').textContent=pCorrect>=pData.length*0.8?'太厉害了！':'不错！';
+    document.getElementById('resultScore').textContent='+'+g;
+    document.getElementById('resultMsg').textContent='正确：'+pCorrect+'/'+pData.length;
+    document.getElementById('resultStars').innerHTML='⭐'.repeat(Math.ceil(pCorrect/2));
+    updateUI();
+    show('result');
+}
+
+// 启动
 init();
 </script>
 </body>
