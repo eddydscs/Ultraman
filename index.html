@@ -52,6 +52,20 @@
         .btn-free { background: linear-gradient(135deg, #27ae60, #2ecc71); }
         .btn-speak { background: linear-gradient(135deg, #3498db, #2980b9); }
         
+        .victory-container { text-align: center; padding: 20px; }
+        .victory-title { font-size: 32px; font-weight: bold; color: #ffd93d; margin: 15px 0; animation: pulse 1s ease-in-out infinite; }
+        .victory-subtitle { font-size: 18px; color: #00d4ff; margin-bottom: 20px; }
+        .victory-stats { display: flex; justify-content: space-around; margin: 20px 0; padding: 15px; background: rgba(0,0,0,0.3); border-radius: 15px; }
+        .victory-stat { text-align: center; }
+        .victory-stat-value { font-size: 28px; font-weight: bold; color: #ffd93d; }
+        .victory-stat-label { font-size: 12px; color: #aaa; margin-top: 5px; }
+        .victory-level-up { background: linear-gradient(135deg, #f39c12, #e74c3c); padding: 15px; border-radius: 15px; margin: 15px 0; animation: bounce 0.5s ease-in-out infinite; }
+        .level-up-text { font-size: 22px; font-weight: bold; color: #fff; }
+        .level-up-info { font-size: 16px; color: #fff; margin-top: 5px; }
+        .victory-stars { font-size: 40px; margin: 15px 0; }
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        
         .battle-arena { text-align: center; padding: 10px; }
         .vs-text { font-size: 20px; font-weight: bold; color: #ff3366; }
         .fighter { font-size: 55px; display: inline-block; }
@@ -120,8 +134,8 @@
             </div>
             <div class="score-panel">
                 <div class="score-item"><div class="score-value" id="totalScore">0</div><div class="score-label">⚡能量</div></div>
-                <div class="score-item"><div class="score-value" id="currentStage">1</div><div class="score-label">🎯关卡</div></div>
-                <div class="score-item"><div class="score-value" id="monstersDefeated">0</div><div class="score-label">👹击败</div></div>
+                <div class="score-item"><div class="score-value" id="levelDisplay">Lv.1</div><div class="score-label">🏅等级</div></div>
+                <div class="score-item"><div class="score-value" id="totalStars">0</div><div class="score-label">⭐星星</div></div>
             </div>
             <div class="progress">选择单元（可多选）</div>
             <div class="stage-grid" id="homeUnitSelector" style="grid-template-columns: repeat(5, 1fr);"></div>
@@ -165,6 +179,34 @@
                 <div style="color:#aaa;">按住按钮说英文</div>
             </div>
             <button class="game-btn" style="background:#555" onclick="backToMenu()">🏠 返回</button>
+        </div>
+        
+        <!-- 胜利界面 -->
+        <div id="victory" class="card hidden">
+            <div class="victory-container">
+                <div class="victory-title" id="victoryTitle">🎊 通关成功！🎊</div>
+                <div class="victory-subtitle" id="victorySubtitle">恭喜你打败了所有怪兽！</div>
+                <div class="victory-stats">
+                    <div class="victory-stat">
+                        <div class="victory-stat-value" id="victoryCorrect">0</div>
+                        <div class="victory-stat-label">答对题目</div>
+                    </div>
+                    <div class="victory-stat">
+                        <div class="victory-stat-value" id="victoryEnergy">+0</div>
+                        <div class="victory-stat-label">获得能量</div>
+                    </div>
+                    <div class="victory-stat">
+                        <div class="victory-stat-value" id="victoryStar">+0</div>
+                        <div class="victory-stat-label">获得星星</div>
+                    </div>
+                </div>
+                <div class="victory-level-up" id="levelUpNotice" style="display:none;">
+                    <div class="level-up-text">🌟🎉 升级了！🎉🌟</div>
+                    <div class="level-up-info" id="levelUpInfo">现在是 Lv.2</div>
+                </div>
+                <div class="victory-stars" id="victoryStars"></div>
+                <button class="game-btn btn-battle" onclick="backToMenu()">🏠 返回主页</button>
+            </div>
         </div>
         
         <!-- 结果 -->
@@ -222,6 +264,12 @@ let battleQuestionPool=[];
 let usedQuestions=[];
 let battleUnits=[1];
 
+// 升级系统
+let level=1;
+let totalStars=0;
+const ENERGY_PER_CORRECT=10; // 每答对一题获得能量
+const ENERGY_TO_LEVEL_UP=50; // 升级所需能量
+
 // 预加载语音列表
 if('speechSynthesis' in window){
     // Chrome 需要等待 voices loaded
@@ -271,10 +319,10 @@ function loadProgress(){
         let saved = localStorage.getItem('ultraman_progress');
         if(saved){
             let data = JSON.parse(saved);
-            currentStage = data.stage || 1;
             score = data.score || 0;
+            level = data.level || 1;
+            totalStars = data.stars || 0;
             monstersDef = data.monstersDef || 0;
-            stageCompleted = data.completed || [];
         }
     }catch(e){}
 }
@@ -282,10 +330,10 @@ function loadProgress(){
 function saveProgress(){
     try{
         localStorage.setItem('ultraman_progress', JSON.stringify({
-            stage: currentStage,
             score: score,
-            monstersDef: monstersDef,
-            completed: stageCompleted
+            level: level,
+            stars: totalStars,
+            monstersDef: monstersDef
         }));
     }catch(e){}
 }
@@ -321,8 +369,8 @@ function confirmUnitsAndBattle(){
 
 function updateUI(){
     document.getElementById('totalScore').textContent=score;
-    document.getElementById('currentStage').textContent=currentStage;
-    document.getElementById('monstersDefeated').textContent=monstersDef;
+    document.getElementById('levelDisplay').textContent='Lv.'+level;
+    document.getElementById('totalStars').textContent=totalStars;
 }
 
 function show(id){
@@ -678,6 +726,7 @@ function toggleLetter(letter, idx, btn){
 function checkAnswer(correct, btn){
     if(correct){
         correctCount++;
+        battleScore+=ENERGY_PER_CORRECT; // 每答对一题获得能量
         // 每题答对扣 100/该关题数 的血量
         let difficulty = getDifficulty(currentMonsterIndex);
         let damage = Math.ceil(100 / difficulty.questionCount);
@@ -717,31 +766,63 @@ function showEff(e){
 
 function endBattle(){
     // 失败
+    let energyGained=battleScore;
+    score+=energyGained;
+    
     document.getElementById('resultEmoji').textContent='💪';
     document.getElementById('resultTitle').textContent='继续努力！';
-    document.getElementById('resultScore').textContent='+'+battleScore;
+    document.getElementById('resultScore').textContent='+'+energyGained;
     document.getElementById('resultMsg').textContent='闯过 '+currentMonsterIndex+'/10 关';
     document.getElementById('resultStars').innerHTML='⭐'.repeat(currentMonsterIndex);
-    document.getElementById('nextBtn').style.display='none';
     
-    score+=battleScore;
+    // 检查升级
+    let oldLevel=level;
+    while(score>=level*ENERGY_TO_LEVEL_UP){
+        score-=level*ENERGY_TO_LEVEL_UP;
+        level++;
+    }
+    
+    saveProgress();
     updateUI();
     show('result');
 }
 
 function endAllBattles(){
-    // 通关
-    document.getElementById('resultEmoji').textContent='🏆';
-    document.getElementById('resultTitle').textContent='恭喜通关！';
-    document.getElementById('resultScore').textContent='+'+battleScore;
-    document.getElementById('resultMsg').textContent='打败了所有怪兽！';
-    document.getElementById('resultStars').innerHTML='⭐'.repeat(10);
-    document.getElementById('nextBtn').style.display='none';
+    // 计算奖励
+    let energyGained=battleScore; // 答对题目获得的能量
+    let starGained=1; // 每通关一次获得一颗星星
     
-    score+=battleScore;
+    // 更新总分和星星
+    score+=energyGained;
+    totalStars+=starGained;
+    
+    // 检查是否升级
+    let oldLevel=level;
+    while(score>=level*ENERGY_TO_LEVEL_UP){
+        score-=level*ENERGY_TO_LEVEL_UP;
+        level++;
+    }
+    let levelUp=level>oldLevel;
+    
+    // 保存进度
+    saveProgress();
+    
+    // 显示胜利界面
+    document.getElementById('victoryCorrect').textContent=battleScore/ENERGY_PER_CORRECT;
+    document.getElementById('victoryEnergy').textContent='+'+energyGained;
+    document.getElementById('victoryStar').textContent='+'+starGained;
+    document.getElementById('victoryStars').innerHTML='⭐'.repeat(Math.min(10, Math.floor(battleScore/ENERGY_PER_CORRECT/5)));
+    
+    if(levelUp){
+        document.getElementById('levelUpNotice').style.display='block';
+        document.getElementById('levelUpInfo').textContent='现在是 Lv.'+level+'！赛罗可以变身了！';
+    }else{
+        document.getElementById('levelUpNotice').style.display='none';
+    }
+    
     monstersDef+=10;
     updateUI();
-    show('result');
+    show('victory');
 }
 
 
@@ -798,7 +879,7 @@ function startHoldRecord(){
     
     let SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if(!SpeechRecognition){
-        document.getElementById('speakResult').innerHTML='<div style="color:#ff6b6b;">不支持语音识别，请用Chrome</div>';
+        document.getElementById('speakResult').innerHTML='<div style="color:#ff6b6b;">⚠️ 不支持语音识别</div><div style="color:#aaa;font-size:12px;margin-top:5px;">请使用Chrome浏览器</div>';
         return;
     }
     
@@ -822,7 +903,13 @@ function startHoldRecord(){
     
     recognition.onerror=function(e){
         if(e.error==='aborted') return; // 忽略 aborted 错误
-        document.getElementById('speakResult').innerHTML='<div style="color:#ff6b6b;">错误：'+e.error+'</div>';
+        if(e.error==='not-allowed'){
+            document.getElementById('speakResult').innerHTML='<div style="color:#ff6b6b;">⚠️ 请授权麦克风权限</div><div style="color:#aaa;font-size:12px;margin-top:5px;">在浏览器设置中允许麦克风访问</div>';
+        }else if(e.error==='no-speech'){
+            document.getElementById('speakResult').innerHTML='<div style="color:#ffd93d;">⚠️ 没有检测到语音</div><div style="color:#aaa;font-size:12px;margin-top:5px;">请对着麦克风说话</div>';
+        }else{
+            document.getElementById('speakResult').innerHTML='<div style="color:#ff6b6b;">错误：'+e.error+'</div>';
+        }
     };
     
     recognition.onend=function(){
@@ -841,9 +928,12 @@ function startHoldRecord(){
     isRecording=true;
     document.getElementById('recBtn').classList.add('recording');
     document.getElementById('recText').textContent='松开结束';
-    document.getElementById('speakResult').innerHTML='<div style="color:#ffd93d;">🎤 正在录音...</div>';
+    document.getElementById('speakResult').innerHTML='<div style="color:#ffd93d;">🎤 正在录音...</div><div style="color:#aaa;font-size:12px;margin-top:5px;">请说英文单词</div>';
     
-    try{recognition.start();}catch(e){}
+    try{recognition.start();}catch(e){
+        document.getElementById('speakResult').innerHTML='<div style="color:#ff6b6b;">启动录音失败</div>';
+        isRecording=false;
+    }
 }
 
 function stopHoldRecord(){
@@ -879,13 +969,38 @@ function speakWord(w, btnId){
         let u = new SpeechSynthesisUtterance(w);
         u.lang='en-US';
         u.rate=0.85;
+        u.pitch=1;
+        u.volume=1;
+        
+        // 尝试获取英文语音
+        let voices = window.speechSynthesis.getVoices();
+        for(let i=0;i<voices.length;i++){
+            if(voices[i].lang.indexOf('en')===0){
+                u.voice = voices[i];
+                break;
+            }
+        }
+        
         u.onend=function(){
             if(btn){
                 btn.classList.remove('playing');
                 btn.querySelector('span:last-child').textContent='听发音';
             }
         };
-        window.speechSynthesis.speak(u);
+        
+        u.onerror=function(e){
+            console.error('TTS error:', e);
+            if(btn){
+                btn.classList.remove('playing');
+                btn.querySelector('span:last-child').textContent='听发音';
+            }
+        };
+        
+        try{
+            window.speechSynthesis.speak(u);
+        }catch(e){
+            console.error('TTS speak error:', e);
+        }
     }
 }
 
