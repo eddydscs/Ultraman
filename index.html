@@ -126,6 +126,7 @@
             <div class="stage-grid" id="stageGrid"></div>
             <button class="game-btn btn-battle" onclick="startBattle()">⚔️ 开始战斗</button>
             <button class="game-btn btn-free" onclick="startFreeMode()">🎮 自由练习</button>
+            <button class="game-btn btn-speak" onclick="startSpeakingPractice()">🎤 口语练习</button>
         </div>
         
         <!-- 战斗界面 -->
@@ -151,6 +152,35 @@
             <div class="progress">选择单元</div>
             <div class="stage-grid" id="unitSelector" style="grid-template-columns: repeat(5, 1fr);"></div>
             <button class="game-btn btn-battle" onclick="startFreeBattle()">⚔️ 开始练习</button>
+            <button class="game-btn" style="background:#555" onclick="backToMenu()">🏠 返回</button>
+        </div>
+        
+        <!-- 口语练习（独立） -->
+        <div id="speakingPractice" class="card hidden">
+            <div class="title">🎤 口语练习</div>
+            <div class="progress">选择单元</div>
+            <div class="stage-grid" id="speakUnitSelector" style="grid-template-columns: repeat(5, 1fr);"></div>
+            <button class="game-btn btn-speak" onclick="startSpeaking()">🎙️ 开始练习</button>
+            <button class="game-btn" style="background:#555" onclick="backToMenu()">🏠 返回</button>
+        </div>
+        
+        <!-- 口语界面 -->
+        <div id="speakingGame" class="card hidden">
+            <div class="title">🎤 口语练习</div>
+            <div class="progress" id="speakingProgress">第 1/10 题</div>
+            <div class="word-display" id="speakWord">HELLO</div>
+            <div class="meaning-display" id="speakMeaning">你好</div>
+            <div class="voice-btn-container"><button class="voice-btn" id="speakListenBtn" onclick="speakWord('','speakListenBtn')"><span>🔊</span><span>听示范</span></button></div>
+            <div style="text-align:center;margin:15px 0;">
+                <button class="speak-btn" id="recBtn"
+                    onmousedown="startHoldRecord()" onmouseup="stopHoldRecord()" onmouseleave="stopHoldRecord()"
+                    ontouchstart="startHoldRecord()" ontouchend="stopHoldRecord()">
+                    <span>🎙️</span><span id="recText">按住录音</span>
+                </button>
+            </div>
+            <div id="speakResult" style="text-align:center;padding:10px;background:rgba(0,0,0,0.3);border-radius:10px;margin:8px 0;">
+                <div style="color:#aaa;">按住按钮说英文</div>
+            </div>
             <button class="game-btn" style="background:#555" onclick="backToMenu()">🏠 返回</button>
         </div>
         
@@ -204,11 +234,39 @@ let currentText='';
 let recognition=null, isRecording=false;
 let stageCompleted = [];
 
+// 预加载语音列表
+if('speechSynthesis' in window){
+    // Chrome 需要等待 voices loaded
+    window.speechSynthesis.onvoiceschanged = function(){
+        let voices = window.speechSynthesis.getVoices();
+        console.log('Voices loaded:', voices.length);
+    };
+    // 立即尝试获取一次
+    setTimeout(function(){
+        let voices = window.speechSynthesis.getVoices();
+        if(voices.length === 0){
+            window.speechSynthesis.getVoices();
+        }
+    },100);
+}
+
 function init(){
     createStars();
     loadProgress();
     createStageGrid();
     updateUI();
+    
+    // 电脑端：首次点击激活音频
+    document.body.addEventListener('click', function initAudio(){
+        // 播放一个静音的音频来激活
+        if('speechSynthesis' in window){
+            let u = new SpeechSynthesisUtterance('');
+            u.volume = 0;
+            window.speechSynthesis.speak(u);
+        }
+        // 只执行一次
+        document.body.removeEventListener('click', initAudio);
+    }, {once: true});
 }
 
 function createStars(){
@@ -315,7 +373,7 @@ function updateHP(){
     document.getElementById('zeroHp').style.width=zHp+'%';
 }
 
-// 生成题目：5种类型随机
+// 生成题目：4种类型随机（暂时移除口语）
 function showQuestion(){
     if(qIdx>=5 || mHp<=0 || zHp<=0){
         endBattle();
@@ -324,8 +382,8 @@ function showQuestion(){
     
     document.getElementById('battleProgress').textContent='第 '+(qIdx+1)+'/5 题';
     
-    // 随机选择题型
-    let types=['choice','speak','match','hearing','puzzle'];
+    // 随机选择题型（暂时移除口语挑战）
+    let types=['choice','match','hearing','puzzle'];
     let type=types[Math.floor(Math.random()*types.length)];
     
     // 根据关卡选择单元词汇
@@ -354,7 +412,7 @@ function showChoiceQuestion(area, word, words){
     area.innerHTML='<div class="question-type">单词选择</div>'+
         '<div class="word-display">'+word[0]+'</div>'+
         '<div class="meaning-display">'+word[1]+'</div>'+
-        '<div class="voice-btn-container"><button class="voice-btn" onclick="speakWord(\''+word[0]+'\')"><span>🔊</span><span>听发音</span></button></div>'+
+        '<div class="voice-btn-container"><button class="voice-btn" id="choiceVoiceBtn" onclick="speakWord(\''+word[0]+'\',\'choiceVoiceBtn\')"><span>🔊</span><span>听发音</span></button></div>'+
         '<div id="options"></div>';
     
     let wrong=words.filter(function(w){return w[0]!==word[0];}).map(function(w){return w[1];});
@@ -368,91 +426,19 @@ function showChoiceQuestion(area, word, words){
         b.onclick=function(){checkAnswer(o===word[1], this);};
         optArea.appendChild(b);
     });
+    
+    // 自动播放发音
+    setTimeout(function(){speakWord(word[0],'choiceVoiceBtn');},500);
 }
 
-// 口语题
-function showSpeakQuestion(area, word){
-    currentText=word[0];
-    area.innerHTML='<div class="question-type speak">🎤 口语挑战</div>'+
-        '<div class="word-display">'+word[0]+'</div>'+
-        '<div class="meaning-display">'+word[1]+'</div>'+
-        '<div class="voice-btn-container"><button class="voice-btn" onclick="speakWord(\''+word[0]+'\')"><span>🔊</span><span>听示范</span></button></div>'+
-        '<div style="text-align:center;margin:15px 0;"><button class="speak-btn" onclick="toggleSpeak()"><span>🎙️</span><span id="speakText">点击录音</span></button></div>'+
-        '<div id="speakResult" style="text-align:center;padding:10px;background:rgba(0,0,0,0.3);border-radius:10px;margin:8px 0;"><div style="color:#aaa;">点击按钮说英文</div></div>';
-}
 
-function toggleSpeak(){
-    let SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if(!SpeechRecognition){
-        document.getElementById('speakResult').innerHTML='<div style="color:#ff6b6b;">不支持语音识别，请用Chrome</div>';
-        return;
-    }
-    
-    if(isRecording){
-        isRecording=false;
-        try{recognition.stop();}catch(e){}
-        document.querySelector('.speak-btn').classList.remove('recording');
-        document.getElementById('speakText').textContent='点击录音';
-        return;
-    }
-    
-    recognition=new SpeechRecognition();
-    recognition.lang='en-US';
-    recognition.continuous=false;
-    recognition.interimResults=false;
-    
-    recognition.onresult=function(e){
-        let spoken=e.results[0][0].transcript.toLowerCase();
-        let correct=currentText.toLowerCase();
-        isRecording=false;
-        document.querySelector('.speak-btn').classList.remove('recording');
-        document.getElementById('speakText').textContent='点击录音';
-        
-        if(spoken.includes(correct)||correct.includes(spoken)){
-            correctCount++;
-            mHp-=20;
-            updateHP();
-            document.getElementById('speakResult').innerHTML='<div style="color:#27ae60;">✅ 正确！你说：'+spoken+'</div>';
-            showEff('💥');
-            setTimeout(function(){qIdx++;showQuestion();},1200);
-        }else{
-            zHp-=15;
-            updateHP();
-            document.getElementById('speakResult').innerHTML='<div style="color:#e74c3c;">❌ 你说：'+spoken+'<br>答案：'+correct+'</div>';
-            showEff('💢');
-            setTimeout(function(){qIdx++;showQuestion();},1200);
-        }
-    };
-    
-    recognition.onerror=function(e){
-        isRecording=false;
-        document.querySelector('.speak-btn').classList.remove('recording');
-        document.getElementById('speakText').textContent='点击录音';
-        document.getElementById('speakResult').innerHTML='<div style="color:#ff6b6b;">错误：'+e.error+'</div>';
-    };
-    
-    recognition.onend=function(){
-        isRecording=false;
-        document.querySelector('.speak-btn').classList.remove('recording');
-        document.getElementById('speakText').textContent='点击录音';
-    };
-    
-    try{recognition.stop();}catch(e){}
-    setTimeout(function(){
-        isRecording=true;
-        document.querySelector('.speak-btn').classList.add('recording');
-        document.getElementById('speakText').textContent='点击停止';
-        document.getElementById('speakResult').innerHTML='<div style="color:#ffd93d;">🎤 请说英文...</div>';
-        try{recognition.start();}catch(e){}
-    },200);
-}
 
 // 配对题（看中文选英文）
 function showMatchQuestion(area, word, words){
     currentText=word[0];
     area.innerHTML='<div class="question-type match">🎯 单词配对</div>'+
         '<div class="meaning-display" style="font-size:24px;margin:15px 0;">'+word[1]+'</div>'+
-        '<div class="voice-btn-container"><button class="voice-btn" onclick="speakWord(\''+word[0]+'\')"><span>🔊</span><span>听发音</span></button></div>'+
+        '<div class="voice-btn-container"><button class="voice-btn" id="matchVoiceBtn" onclick="speakWord(\''+word[0]+'\',\'matchVoiceBtn\')"><span>🔊</span><span>听发音</span></button></div>'+
         '<div id="options"></div>';
     
     let wrong=words.filter(function(w){return w[0]!==word[0];}).map(function(w){return w[0];});
@@ -466,13 +452,16 @@ function showMatchQuestion(area, word, words){
         b.onclick=function(){checkAnswer(o===word[0], this);};
         optArea.appendChild(b);
     });
+    
+    // 自动播放发音
+    setTimeout(function(){speakWord(word[0],'matchVoiceBtn');},500);
 }
 
 // 听力题（只听发音选答案）
 function showHearingQuestion(area, word, words){
     currentText=word[0];
     area.innerHTML='<div class="question-type hearing">🎧 听力挑战</div>'+
-        '<div class="word-display">🔊 听发音</div>'+
+        '<div class="word-display">🔊 听发音选答案</div>'+
         '<div class="voice-btn-container"><button class="voice-btn" id="hearBtn" onclick="speakWord(\''+word[0]+'\',\'hearBtn\')"><span>🔊</span><span>再听一遍</span></button></div>'+
         '<div id="options"></div>';
     
@@ -488,7 +477,7 @@ function showHearingQuestion(area, word, words){
         optArea.appendChild(b);
     });
     
-    // 自动播放
+    // 自动播放发音
     setTimeout(function(){speakWord(word[0],'hearBtn');},500);
 }
 
@@ -500,32 +489,53 @@ function showPuzzleQuestion(area, word){
     
     let html='<div class="question-type puzzle">🧩 单词拼图</div>'+
         '<div class="meaning-display" style="font-size:24px;margin:15px 0;">'+word[1]+'</div>'+
-        '<div class="voice-btn-container"><button class="voice-btn" onclick="speakWord(\''+word[0]+'\')"><span>🔊</span><span>听发音</span></button></div>'+
+        '<div class="voice-btn-container"><button class="voice-btn" id="puzzleVoiceBtn" onclick="speakWord(\''+word[0]+'\',\'puzzleVoiceBtn\')"><span>🔊</span><span>听发音</span></button></div>'+
         '<div class="input-display" id="inputDisplay"></div>'+
         '<div class="letters-grid" id="lettersGrid"></div>';
     
     area.innerHTML=html;
     
+    window.puzzleAnswer=[];
+    window.puzzleButtons=[];
+    
     let grid=document.getElementById('lettersGrid');
-    shuffled.forEach(function(l){
+    shuffled.forEach(function(l, idx){
         let b=document.createElement('button');
         b.className='letter-btn';
         b.textContent=l;
-        b.onclick=function(){addLetter(l,this);};
+        b.dataset.index=idx;
+        b.dataset.letter=l;
+        b.onclick=function(){toggleLetter(l, idx, this);};
         grid.appendChild(b);
+        window.puzzleButtons.push({letter:l, btn:b, used:false});
     });
     
-    window.puzzleAnswer='';
+    // 自动播放发音
+    setTimeout(function(){speakWord(word[0],'puzzleVoiceBtn');},500);
 }
 
-function addLetter(l, btn){
-    btn.classList.add('used');
-    window.puzzleAnswer+=l;
-    document.getElementById('inputDisplay').textContent=window.puzzleAnswer;
+function toggleLetter(letter, idx, btn){
+    // 如果已经使用，点击取消
+    if(window.puzzleButtons[idx].used){
+        window.puzzleButtons[idx].used=false;
+        btn.classList.remove('used');
+        window.puzzleAnswer=window.puzzleAnswer.filter(function(item){return item.index!==idx;});
+    }else{
+        // 如果未使用，点击选中
+        window.puzzleButtons[idx].used=true;
+        btn.classList.add('used');
+        window.puzzleAnswer.push({letter:letter, index:idx});
+    }
     
+    // 更新显示
+    let display=window.puzzleAnswer.map(function(item){return item.letter;}).join('');
+    document.getElementById('inputDisplay').textContent=display;
+    
+    // 检查是否完成
     if(window.puzzleAnswer.length>=currentText.length){
         setTimeout(function(){
-            checkAnswer(window.puzzleAnswer.toLowerCase()===currentText.toLowerCase(), null);
+            let answer=window.puzzleAnswer.map(function(item){return item.letter;}).join('').toLowerCase();
+            checkAnswer(answer===currentText.toLowerCase(), null);
         },300);
     }
 }
@@ -624,6 +634,112 @@ function startFreeBattle(){
     show('battleGame');
 }
 
+// ========== 口语练习（独立） ==========
+let speakIdx=0, speakCorrect=0, speakData=[], speakUnit=1;
+
+function startSpeakingPractice(){
+    let selector=document.getElementById('speakUnitSelector');
+    selector.innerHTML='';
+    for(let i=1;i<=10;i++){
+        let btn=document.createElement('button');
+        btn.className='stage-btn '+(i===speakUnit?'current':'unlocked');
+        btn.innerHTML='<span>U</span><span class="stage-num">'+i+'</span>';
+        btn.onclick=function(){
+            speakUnit=i;
+            selector.querySelectorAll('.stage-btn').forEach(function(b){b.classList.remove('current');});
+            btn.classList.add('current');
+        };
+        selector.appendChild(btn);
+    }
+    show('speakingPractice');
+}
+
+function startSpeaking(){
+    speakIdx=0;speakCorrect=0;
+    speakData=[];
+    let unitData = ALL_WORDS[speakUnit];
+    speakData = shuffle(unitData.words.slice());
+    showSpeakQuestion();
+    show('speakingGame');
+}
+
+function showSpeakQuestion(){
+    if(speakIdx>=speakData.length){
+        endSpeaking();
+        return;
+    }
+    let item=speakData[speakIdx];
+    currentText=item[0];
+    document.getElementById('speakingProgress').textContent='第 '+(speakIdx+1)+'/'+speakData.length+' 题';
+    document.getElementById('speakWord').textContent=item[0].toUpperCase();
+    document.getElementById('speakMeaning').textContent=item[1];
+    document.getElementById('speakResult').innerHTML='<div style="color:#aaa;">按住按钮说英文</div>';
+    
+    // 自动播放示范
+    setTimeout(function(){speakWord(item[0],'speakListenBtn');},500);
+}
+
+function startHoldRecord(){
+    let SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if(!SpeechRecognition){
+        document.getElementById('speakResult').innerHTML='<div style="color:#ff6b6b;">不支持语音识别，请用Chrome</div>';
+        return;
+    }
+    
+    recognition=new SpeechRecognition();
+    recognition.lang='en-US';
+    recognition.continuous=false;
+    recognition.interimResults=false;
+    
+    recognition.onresult=function(e){
+        let spoken=e.results[0][0].transcript.toLowerCase();
+        let correct=currentText.toLowerCase();
+        
+        if(spoken.includes(correct)||correct.includes(spoken)){
+            speakCorrect++;
+            document.getElementById('speakResult').innerHTML='<div style="color:#27ae60;font-size:18px;">✅ 正确！</div><div style="color:#aaa;font-size:13px;">你说：'+spoken+'</div>';
+        }else{
+            document.getElementById('speakResult').innerHTML='<div style="color:#e74c3c;font-size:18px;">❌ 再试一次</div><div style="color:#aaa;font-size:13px;">你说：'+spoken+'<br>答案：'+correct+'</div>';
+        }
+    };
+    
+    recognition.onerror=function(e){
+        document.getElementById('speakResult').innerHTML='<div style="color:#ff6b6b;">错误：'+e.error+'</div>';
+    };
+    
+    isRecording=true;
+    document.getElementById('recBtn').classList.add('recording');
+    document.getElementById('recText').textContent='松开结束';
+    document.getElementById('speakResult').innerHTML='<div style="color:#ffd93d;">🎤 正在录音...</div>';
+    
+    try{recognition.start();}catch(e){}
+}
+
+function stopHoldRecord(){
+    if(!isRecording) return;
+    isRecording=false;
+    document.getElementById('recBtn').classList.remove('recording');
+    document.getElementById('recText').textContent='按住录音';
+    
+    try{recognition.stop();}catch(e){}
+    
+    setTimeout(function(){
+        speakIdx++;
+        showSpeakQuestion();
+    },1500);
+}
+
+function endSpeaking(){
+    let score_add=speakCorrect*20;
+    document.getElementById('resultEmoji').textContent='🎤';
+    document.getElementById('resultTitle').textContent='口语练习完成！';
+    document.getElementById('resultScore').textContent='+'+score_add;
+    document.getElementById('resultMsg').textContent='正确：'+speakCorrect+'/'+speakData.length;
+    document.getElementById('resultStars').innerHTML='⭐'.repeat(Math.ceil(speakCorrect/2));
+    document.getElementById('nextBtn').style.display='none';
+    show('result');
+}
+
 // ========== 工具函数 ==========
 function speakWord(w, btnId){
     if(!w)return;
@@ -634,7 +750,7 @@ function speakWord(w, btnId){
     }
     if('speechSynthesis' in window){
         window.speechSynthesis.cancel();
-        let u=new SpeechSynthesisUtterance(w);
+        let u = new SpeechSynthesisUtterance(w);
         u.lang='en-US';
         u.rate=0.85;
         u.onend=function(){
