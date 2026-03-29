@@ -535,20 +535,26 @@ function toggleRecord(){
         return;
     }
     
-    isRecording=true;
-    document.getElementById('recordBtn').classList.add('recording');
-    document.getElementById('recordText').textContent='点击停止';
-    document.getElementById('speechResult').innerHTML='<div style="color:#ffd93d;">🎤 请说英文...</div>';
+    // 先强制停止之前的识别（解决 already started 问题）
+    try{recognition.stop();}catch(e){}
     
-    try{
-        recognition.start();
-    }catch(e){
-        console.error('Start error:',e);
-        isRecording=false;
-        document.getElementById('recordBtn').classList.remove('recording');
-        document.getElementById('recordText').textContent='点击录音';
-        document.getElementById('speechResult').innerHTML='<div style="color:#ff6b6b;">❌ 启动失败: '+e.message+'</div>';
-    }
+    // 延迟启动，确保停止完成
+    setTimeout(function(){
+        isRecording=true;
+        document.getElementById('recordBtn').classList.add('recording');
+        document.getElementById('recordText').textContent='点击停止';
+        document.getElementById('speechResult').innerHTML='<div style="color:#ffd93d;">🎤 请说英文...</div>';
+        
+        try{
+            recognition.start();
+        }catch(e){
+            console.error('Start error:',e);
+            isRecording=false;
+            document.getElementById('recordBtn').classList.remove('recording');
+            document.getElementById('recordText').textContent='点击录音';
+            document.getElementById('speechResult').innerHTML='<div style="color:#ff6b6b;">❌ 启动失败<br><small>请刷新页面重试</small></div>';
+        }
+    },300);
 }
 
 function checkSpeech(spoken,conf){
