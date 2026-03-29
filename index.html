@@ -169,10 +169,8 @@
             <div class="meaning-display" id="speakMeaning">你好</div>
             <div class="voice-btn-container"><button class="voice-btn" id="speakListenBtn" onclick="speakWord('','speakListenBtn')"><span>🔊</span><span>听示范</span></button></div>
             <div style="text-align:center;margin:15px 0;">
-                <button class="speak-btn" id="recBtn"
-                    onmousedown="startHoldRecord()" onmouseup="stopHoldRecord()" onmouseleave="stopHoldRecord()"
-                    ontouchstart="startHoldRecord()" ontouchend="stopHoldRecord()">
-                    <span>🎙️</span><span id="recText">按住录音</span>
+                <button class="speak-btn" id="recBtn" onclick="toggleRecord()">
+                    <span>🎙️</span><span id="recText">点击录音</span>
                 </button>
             </div>
             <div id="speakResult" style="text-align:center;padding:10px;background:rgba(0,0,0,0.3);border-radius:10px;margin:8px 0;">
@@ -874,9 +872,20 @@ function showSpeakQuestion(){
     setTimeout(function(){speakWord(item[0],'speakListenBtn');},500);
 }
 
-function startHoldRecord(){
-    if(isRecording) return; // 防止重复启动
-    
+function toggleRecord(){
+    if(isRecording){
+        // 停止录音
+        isRecording=false;
+        document.getElementById('recBtn').classList.remove('recording');
+        document.getElementById('recText').textContent='点击录音';
+        try{recognition.stop();}catch(e){}
+    }else{
+        // 开始录音
+        startRecording();
+    }
+}
+
+function startRecording(){
     let SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if(!SpeechRecognition){
         document.getElementById('speakResult').innerHTML='<div style="color:#ff6b6b;">⚠️ 不支持语音识别</div><div style="color:#aaa;font-size:12px;margin-top:5px;">请使用Chrome浏览器</div>';
@@ -902,7 +911,7 @@ function startHoldRecord(){
     };
     
     recognition.onerror=function(e){
-        if(e.error==='aborted') return; // 忽略 aborted 错误
+        if(e.error==='aborted') return;
         if(e.error==='not-allowed'){
             document.getElementById('speakResult').innerHTML='<div style="color:#ff6b6b;">⚠️ 请授权麦克风权限</div><div style="color:#aaa;font-size:12px;margin-top:5px;">在浏览器设置中允许麦克风访问</div>';
         }else if(e.error==='no-speech'){
@@ -913,11 +922,10 @@ function startHoldRecord(){
     };
     
     recognition.onend=function(){
-        // 识别结束，更新状态
         if(isRecording){
             isRecording=false;
             document.getElementById('recBtn').classList.remove('recording');
-            document.getElementById('recText').textContent='按住录音';
+            document.getElementById('recText').textContent='点击录音';
             setTimeout(function(){
                 speakIdx++;
                 showSpeakQuestion();
@@ -927,22 +935,13 @@ function startHoldRecord(){
     
     isRecording=true;
     document.getElementById('recBtn').classList.add('recording');
-    document.getElementById('recText').textContent='松开结束';
+    document.getElementById('recText').textContent='点击停止';
     document.getElementById('speakResult').innerHTML='<div style="color:#ffd93d;">🎤 正在录音...</div><div style="color:#aaa;font-size:12px;margin-top:5px;">请说英文单词</div>';
     
     try{recognition.start();}catch(e){
         document.getElementById('speakResult').innerHTML='<div style="color:#ff6b6b;">启动录音失败</div>';
         isRecording=false;
     }
-}
-
-function stopHoldRecord(){
-    if(!isRecording) return; // 防止重复停止
-    isRecording=false;
-    document.getElementById('recBtn').classList.remove('recording');
-    document.getElementById('recText').textContent='按住录音';
-    
-    try{recognition.stop();}catch(e){}
 }
 
 function endSpeaking(){
