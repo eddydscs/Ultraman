@@ -1209,8 +1209,76 @@ function startFreeBattle(){
 
 // ========== 口语练习（独立） ==========
 let speakIdx=0, speakCorrect=0, speakData=[], speakUnit=1;
-// 预初始化 recognition 实例，避免每次录音都重新授权
 let speechRecognitionReady = false;
+
+const NUMBER_WORDS = {
+    'zero': '0', 'one': '1', 'two': '2', 'three': '3', 'four': '4',
+    'five': '5', 'six': '6', 'seven': '7', 'eight': '8', 'nine': '9',
+    'ten': '10', 'eleven': '11', 'twelve': '12', 'thirteen': '13',
+    'fourteen': '14', 'fifteen': '15', 'sixteen': '16', 'seventeen': '17',
+    'eighteen': '18', 'nineteen': '19', 'twenty': '20'
+};
+
+const WORD_NUMBERS = {
+    '0': 'zero', '1': 'one', '2': 'two', '3': 'three', '4': 'four',
+    '5': 'five', '6': 'six', '7': 'seven', '8': 'eight', '9': 'nine',
+    '10': 'ten', '11': 'eleven', '12': 'twelve', '13': 'thirteen',
+    '14': 'fourteen', '15': 'fifteen', '16': 'sixteen', '17': 'seventeen',
+    '18': 'eighteen', '19': 'nineteen', '20': 'twenty'
+};
+
+function normalizeNumber(text){
+    text = text.toLowerCase().trim();
+    if(NUMBER_WORDS[text]){
+        return NUMBER_WORDS[text];
+    }
+    return text;
+}
+
+function checkSpeechAnswer(spoken, correct){
+    spoken = spoken.toLowerCase().trim();
+    correct = correct.toLowerCase().trim();
+    
+    if(spoken === correct){
+        return true;
+    }
+    
+    if(spoken.includes(correct) || correct.includes(spoken)){
+        return true;
+    }
+    
+    let spokenNorm = normalizeNumber(spoken);
+    let correctNorm = normalizeNumber(correct);
+    
+    if(spokenNorm === correctNorm){
+        return true;
+    }
+    
+    if(NUMBER_WORDS[correct] && spoken === NUMBER_WORDS[correct]){
+        return true;
+    }
+    
+    if(WORD_NUMBERS[correct] && spoken === WORD_NUMBERS[correct]){
+        return true;
+    }
+    
+    let spokenWords = spoken.split(/\s+/);
+    let correctWords = correct.split(/\s+/);
+    
+    for(let i = 0; i < spokenWords.length; i++){
+        for(let j = 0; j < correctWords.length; j++){
+            let sw = normalizeNumber(spokenWords[i]);
+            let cw = normalizeNumber(correctWords[j]);
+            if(sw === cw && (NUMBER_WORDS[spokenWords[i]] || NUMBER_WORDS[correctWords[j]] || WORD_NUMBERS[spokenWords[i]] || WORD_NUMBERS[correctWords[j]])){
+                if(spokenWords.length === 1 && correctWords.length === 1){
+                    return true;
+                }
+            }
+        }
+    }
+    
+    return false;
+}
 
 function preInitSpeechRecognition(){
     let SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -1224,10 +1292,12 @@ function preInitSpeechRecognition(){
             recognition.onresult=function(e){
                 if(!isRecording) return;
                 try{
-                    let spoken=e.results[0][0].transcript.toLowerCase();
-                    let correct=currentText.toLowerCase();
+                    let spoken=e.results[0][0].transcript.toLowerCase().trim();
+                    let correct=currentText.toLowerCase().trim();
                     
-                    if(spoken.includes(correct)||correct.includes(spoken)){
+                    let isCorrect = checkSpeechAnswer(spoken, correct);
+                    
+                    if(isCorrect){
                         speakCorrect++;
                         playSound('correct');
                         document.getElementById('speakResult').innerHTML='<div style="color:#27ae60;font-size:18px;">✅ 正确！</div><div style="color:#aaa;font-size:13px;">你说：'+escapeHtml(spoken)+'</div>';
