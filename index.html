@@ -38,13 +38,7 @@
         .score-label { font-size: 11px; color: #aaa; }
         
         .stage-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin: 15px 0; }
-        .stage-btn { aspect-ratio: 1; border: 2px solid rgba(255,255,255,0.2); border-radius: 12px; background: rgba(255,255,255,0.05); color: white; font-size: 24px; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: all 0.3s; }
-        .stage-btn.unlocked { border-color: rgba(0,200,255,0.5); background: rgba(0,200,255,0.1); }
-        .stage-btn.current { border-color: #00d4ff; background: linear-gradient(135deg, rgba(0,200,255,0.3), rgba(255,100,0,0.3)); animation: pulse 1.5s infinite; }
-        .stage-btn.locked { opacity: 0.4; }
-        .stage-btn.completed { border-color: #27ae60; background: rgba(39,174,96,0.2); }
-        .stage-num { font-size: 11px; margin-top: 2px; }
-        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+        .stage-btn { aspect-ratio: 1; border: 2px solid rgba(255,255,255,0.2); border-radius: 12px; background: rgba(255,255,255,0.05); color: white; font-size: 24px; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: all 0.3s; }        .stage-btn.unlocked { border-color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.1); color: #ccc; }        .stage-btn.current { border-color: #00d4ff; background: linear-gradient(135deg, rgba(0,200,255,0.4), rgba(0,150,255,0.2)); color: #00d4ff; animation: pulse 1.5s infinite; transform: scale(1.05); }        .stage-btn.locked { opacity: 0.4; }        .stage-btn.completed { border-color: #27ae60; background: rgba(39,174,96,0.2); }        .stage-btn:hover { transform: scale(1.1); border-color: rgba(255,255,255,0.6); }        .stage-btn.current:hover { transform: scale(1.15); }        .stage-num { font-size: 11px; margin-top: 2px; }        @keyframes pulse { 0%, 100% { transform: scale(1.05); box-shadow: 0 0 0 0 rgba(0,212,255,0.4); } 50% { transform: scale(1.1); box-shadow: 0 0 20px 5px rgba(0,212,255,0.6); } }
         
         .game-btn { display: block; width: 100%; padding: 14px; margin: 8px 0; border: none; border-radius: 15px; font-size: 16px; font-weight: bold; color: white; cursor: pointer; }
         .game-btn:active { transform: scale(0.95); }
@@ -1415,7 +1409,11 @@ function startSpeaking(){
         preInitSpeechRecognition();
     }
     
-    if(recognition){
+    // 移动端不在页面加载时预授权，避免权限请求失败
+    // 权限请求会在用户点击录音按钮时触发
+    let isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    if(!isMobile && recognition){
+        // 仅在桌面端预授权
         try{
             recognition.start();
             setTimeout(function(){
@@ -1466,6 +1464,10 @@ function toggleRecord(){
 }
 
 function startRecording(){
+    console.log('startRecording 被调用');
+    console.log('当前协议:', window.location.protocol);
+    console.log('当前主机名:', window.location.hostname);
+    
     if(window.location.protocol !== 'https:' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1'){
         document.getElementById('speakResult').innerHTML='<div style="color:#ff6b6b;">⚠️ 语音识别需要HTTPS环境</div><div style="color:#aaa;font-size:12px;margin-top:5px;">请使用HTTPS连接访问</div>';
         return;
@@ -1480,13 +1482,17 @@ function startRecording(){
     }
     
     if(!recognition){
+        console.log('recognition 未初始化，尝试初始化...');
         preInitSpeechRecognition();
     }
     
     if(!recognition){
+        console.error('recognition 初始化失败');
         document.getElementById('speakResult').innerHTML='<div style="color:#ff6b6b;">⚠️ 浏览器不支持语音识别</div><div style="color:#aaa;font-size:12px;margin-top:5px;">请使用Chrome或Edge浏览器</div>';
         return;
     }
+    
+    console.log('recognition 已准备好，准备启动录音');
     
     document.getElementById('nextSpeakBtn').style.display='none';
     
@@ -1510,16 +1516,15 @@ function startRecording(){
     try{
         // 检查用户代理，针对移动设备进行特殊处理
         let isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        console.log('是否移动设备:', isMobile);
         
-        if(isMobile){
-            // 移动设备需要用户明确的交互，确保权限请求在用户点击事件中处理
-            // 这里已经是在点击事件中，所以直接启动
-            recognition.start();
-        }else{
-            recognition.start();
-        }
+        console.log('调用 recognition.start()...');
+        recognition.start();
+        console.log('recognition.start() 调用成功');
     }catch(e){
         console.error('启动录音失败:', e);
+        console.error('错误名称:', e.name);
+        console.error('错误消息:', e.message);
         clearTimeout(recordingTimeout);
         isRecording=false;
         document.getElementById('recBtn').classList.remove('recording');
