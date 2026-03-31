@@ -1229,6 +1229,8 @@ const WORD_NUMBERS = {
 
 function normalizeNumber(text){
     text = text.toLowerCase().trim();
+    text = text.replace(/\.$/, '');
+    text = text.replace(/\s+/g, '');
     if(NUMBER_WORDS[text]){
         return NUMBER_WORDS[text];
     }
@@ -1254,11 +1256,11 @@ function checkSpeechAnswer(spoken, correct){
         return true;
     }
     
-    if(NUMBER_WORDS[correct] && spoken === NUMBER_WORDS[correct]){
+    if(NUMBER_WORDS[correct] && spokenNorm === NUMBER_WORDS[correct]){
         return true;
     }
     
-    if(WORD_NUMBERS[correct] && spoken === WORD_NUMBERS[correct]){
+    if(WORD_NUMBERS[correct] && spokenNorm === WORD_NUMBERS[correct]){
         return true;
     }
     
