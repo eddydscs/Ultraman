@@ -120,6 +120,27 @@
         .letter-btn.used { background: #00d4ff; color: #0a0a1a; }
         
         .input-display { text-align: center; font-size: 24px; color: #00d4ff; margin: 10px 0; min-height: 30px; letter-spacing: 4px; }
+        
+        .wrong-book-btn { background: linear-gradient(135deg, #9b59b6, #8e44ad); }
+        .wrong-book-panel { max-height: 300px; overflow-y: auto; margin: 10px 0; }
+        .wrong-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; margin: 5px 0; background: rgba(255,255,255,0.05); border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); }
+        .wrong-item-word { font-size: 16px; color: #00d4ff; font-weight: bold; }
+        .wrong-item-meaning { font-size: 14px; color: #ffd93d; }
+        .wrong-item-count { font-size: 12px; color: #ff6b6b; background: rgba(231,76,60,0.2); padding: 2px 8px; border-radius: 10px; }
+        .wrong-item-actions { display: flex; gap: 5px; }
+        .wrong-item-btn { padding: 5px 10px; border: none; border-radius: 5px; font-size: 12px; cursor: pointer; }
+        .wrong-item-btn.listen { background: #00d4ff; color: #0a0a1a; }
+        .wrong-item-btn.remove { background: #e74c3c; color: white; }
+        .empty-hint { text-align: center; color: #aaa; padding: 20px; }
+        .sound-toggle { display: flex; align-items: center; gap: 10px; padding: 10px; background: rgba(0,0,0,0.3); border-radius: 10px; margin: 10px 0; }
+        .sound-toggle label { color: #aaa; font-size: 14px; }
+        .sound-toggle input { width: 20px; height: 20px; cursor: pointer; }
+        .stats-panel { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin: 10px 0; }
+        .stat-item { background: rgba(0,0,0,0.3); padding: 10px; border-radius: 10px; text-align: center; }
+        .stat-value { font-size: 20px; font-weight: bold; color: #ffd93d; }
+        .stat-label { font-size: 11px; color: #aaa; }
+        .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); color: white; padding: 10px 20px; border-radius: 20px; font-size: 14px; z-index: 1000; animation: toastIn 0.3s ease; }
+        @keyframes toastIn { from { opacity: 0; transform: translateX(-50%) translateY(20px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
     </style>
 </head>
 <body>
@@ -137,11 +158,34 @@
                 <div class="score-item"><div class="score-value" id="levelDisplay">Lv.1</div><div class="score-label">🏅等级</div></div>
                 <div class="score-item"><div class="score-value" id="totalStars">0</div><div class="score-label">⭐星星</div></div>
             </div>
+            <div class="progress" style="display:flex;justify-content:center;gap:10px;margin-bottom:10px;">
+                <button class="level-btn" id="level1Btn" onclick="switchLevel(1)" style="padding:8px 20px;border-radius:10px;border:2px solid #00d4ff;background:rgba(0,212,255,0.2);color:#00d4ff;cursor:pointer;">📘 Level 1</button>
+                <button class="level-btn" id="level2Btn" onclick="switchLevel(2)" style="padding:8px 20px;border-radius:10px;border:2px solid rgba(255,255,255,0.3);background:rgba(255,255,255,0.05);color:#aaa;cursor:pointer;">📗 Level 2</button>
+                <button class="level-btn" id="level3Btn" onclick="switchLevel(3)" style="padding:8px 20px;border-radius:10px;border:2px solid rgba(255,255,255,0.3);background:rgba(255,255,255,0.05);color:#aaa;cursor:pointer;">📕 Level 3</button>
+            </div>
             <div class="progress">选择单元（可多选）</div>
             <div class="stage-grid" id="homeUnitSelector" style="grid-template-columns: repeat(5, 1fr);"></div>
             <button class="game-btn btn-battle" onclick="confirmUnitsAndBattle()">⚔️ 开始战斗</button>
             <button class="game-btn btn-free" onclick="startFreeMode()">🎮 自由练习</button>
             <button class="game-btn btn-speak" onclick="startSpeakingPractice()">🎤 口语练习</button>
+            <button class="game-btn wrong-book-btn" onclick="showWrongBook()">📖 错题本</button>
+            <div class="sound-toggle">
+                <input type="checkbox" id="soundEnabled" checked onchange="toggleSound()">
+                <label for="soundEnabled">🔊 音效</label>
+            </div>
+        </div>
+        
+        <!-- 错题本界面 -->
+        <div id="wrongBook" class="card hidden">
+            <div class="title">📖 错题本</div>
+            <div class="subtitle">记录你答错的单词，针对性复习</div>
+            <div class="stats-panel">
+                <div class="stat-item"><div class="stat-value" id="wrongTotalCount">0</div><div class="stat-label">错题总数</div></div>
+                <div class="stat-item"><div class="stat-value" id="wrongReviewCount">0</div><div class="stat-label">已复习次数</div></div>
+            </div>
+            <div class="wrong-book-panel" id="wrongBookList"></div>
+            <button class="game-btn btn-battle" onclick="startWrongBookReview()" id="reviewBtn">🔄 开始复习错题</button>
+            <button class="game-btn" style="background:#555" onclick="backToMenu()">🏠 返回</button>
         </div>
         
         <!-- 战斗界面 -->
@@ -167,7 +211,7 @@
             <div class="progress" id="speakingProgress">第 1/10 题</div>
             <div class="word-display" id="speakWord">HELLO</div>
             <div class="meaning-display" id="speakMeaning">你好</div>
-            <div class="voice-btn-container"><button class="voice-btn" id="speakListenBtn" onclick="speakWord('','speakListenBtn')"><span>🔊</span><span>听示范</span></button></div>
+            <div class="voice-btn-container"><button class="voice-btn" id="speakListenBtn" onclick="speakCurrentWord()"><span>🔊</span><span>听示范</span></button></div>
             <div style="text-align:center;margin:15px 0;">
                 <button class="speak-btn" id="recBtn" onclick="toggleRecord()">
                     <span>🎙️</span><span id="recText">点击录音</span>
@@ -176,6 +220,7 @@
             <div id="speakResult" style="text-align:center;padding:10px;background:rgba(0,0,0,0.3);border-radius:10px;margin:8px 0;">
                 <div style="color:#aaa;">按住按钮说英文</div>
             </div>
+            <button class="game-btn" id="nextSpeakBtn" onclick="nextSpeakQuestion()" style="background:#27ae60;display:none;margin-top:10px;">下一题 ➡️</button>
             <button class="game-btn" style="background:#555" onclick="backToMenu()">🏠 返回</button>
         </div>
         
@@ -222,19 +267,86 @@
     </div>
 
 <script>
-// 词汇库
-const ALL_WORDS = {
-    1:{words:[["hello","你好"],["hi","嗨"],["goodbye","再见"],["good morning","早上好"],["name","名字"],["I","我"],["am","是"],["nice","高兴"],["meet","遇见"],["too","也"]],sentences:[["Hello!","你好！"],["What's your name?","你叫什么名字？"],["Nice to meet you.","很高兴认识你。"]]},
-    2:{words:[["one","一"],["two","二"],["three","三"],["four","四"],["five","五"],["six","六"],["seven","七"],["eight","八"],["nine","九"],["ten","十"]],sentences:[["How many?","有多少？"],["I can count.","我会数数。"]]},
-    3:{words:[["red","红色"],["blue","蓝色"],["yellow","黄色"],["green","绿色"],["orange","橙色"],["purple","紫色"],["pink","粉色"],["black","黑色"],["white","白色"]],sentences:[["What color?","什么颜色？"],["It's red.","它是红色的。"]]},
-    4:{words:[["cat","猫"],["dog","狗"],["bird","小鸟"],["fish","鱼"],["rabbit","兔子"],["monkey","猴子"],["elephant","大象"],["tiger","老虎"],["lion","狮子"]],sentences:[["I have a cat.","我有一只猫。"]]},
-    5:{words:[["mum","妈妈"],["dad","爸爸"],["sister","姐妹"],["brother","兄弟"],["grandma","奶奶"],["grandpa","爷爷"],["family","家庭"]],sentences:[["This is my mum.","这是我的妈妈。"]]},
-    6:{words:[["apple","苹果"],["banana","香蕉"],["orange","橙子"],["milk","牛奶"],["water","水"],["juice","果汁"],["bread","面包"],["egg","鸡蛋"],["cake","蛋糕"]],sentences:[["I like apples.","我喜欢苹果。"]]},
-    7:{words:[["head","头"],["eye","眼睛"],["ear","耳朵"],["nose","鼻子"],["mouth","嘴巴"],["hand","手"],["finger","手指"],["arm","胳膊"],["leg","腿"]],sentences:[["Touch your head.","摸摸你的头。"]]},
-    8:{words:[["run","跑"],["jump","跳"],["walk","走"],["sit","坐"],["stand","站"],["sleep","睡觉"],["eat","吃"],["drink","喝"],["play","玩"]],sentences:[["I can run.","我会跑。"]]},
-    9:{words:[["ball","球"],["toy","玩具"],["car","汽车"],["doll","娃娃"],["bear","熊"],["balloon","气球"],["kite","风筝"],["book","书"],["pen","笔"]],sentences:[["This is my ball.","这是我的球。"]]},
-    10:{words:[["on","在...上"],["in","在...里"],["under","在...下"],["near","靠近"],["where","在哪里"],["table","桌子"],["chair","椅子"],["box","盒子"]],sentences:[["Where is it?","它在哪里？"]]}
+// 词汇库 - Kids Box Level 1, 2, 3 (每册12个单元)
+const LEVEL_DATA = {
+    1: {
+        1:{words:[["hello","你好"],["goodbye","再见"],["I'm","我是"],["name","名字"],["what's","是什么"],["your","你的"],["my","我的"],["one","一"],["two","二"],["three","三"],["four","四"],["five","五"],["six","六"],["seven","七"],["eight","八"],["nine","九"],["ten","十"],["red","红色"],["yellow","黄色"],["pink","粉色"],["green","绿色"],["orange","橙色"],["purple","紫色"],["blue","蓝色"],["rainbow","彩虹"]],sentences:[["Hello!","你好！"],["What's your name?","你叫什么名字？"],["I'm seven.","我七岁。"]]},
+        2:{words:[["book","书"],["chair","椅子"],["eraser","橡皮"],["pen","钢笔"],["pencil","铅笔"],["table","桌子"],["school","学校"],["classroom","教室"],["teacher","老师"]],sentences:[["Is this a pencil?","这是铅笔吗？"],["Who's that?","那是谁？"]]},
+        3:{words:[["ball","球"],["bike","自行车"],["car","汽车"],["doll","娃娃"],["train","火车"],["computer","电脑"],["black","黑色"],["white","白色"]],sentences:[["What's your favourite toy?","你最喜欢的玩具是什么？"],["My favourite toy is a train.","我最喜欢的玩具是火车。"]]},
+        4:{words:[["brother","兄弟"],["sister","姐妹"],["father","爸爸"],["mother","妈妈"],["grandfather","爷爷"],["grandmother","奶奶"],["family","家庭"],["happy","开心的"]],sentences:[["This is my family.","这是我的家庭。"],["He's young.","他很年轻。"]]},
+        5:{words:[["bird","鸟"],["cat","猫"],["dog","狗"],["fish","鱼"],["horse","马"],["mouse","老鼠"],["big","大的"],["small","小的"]],sentences:[["I have a pet cat.","我有一只宠物猫。"],["It's small.","它很小。"]]},
+        6:{words:[["ear","耳朵"],["eye","眼睛"],["face","脸"],["hair","头发"],["mouth","嘴巴"],["nose","鼻子"],["tooth","牙齿"],["head","头"]],sentences:[["Touch your nose.","摸摸你的鼻子。"],["I've got purple hair.","我有紫色的头发。"]]},
+        7:{words:[["crocodile","鳄鱼"],["elephant","大象"],["giraffe","长颈鹿"],["hippo","河马"],["monkey","猴子"],["snake","蛇"],["tiger","老虎"],["lion","狮子"]],sentences:[["They've got big mouths.","它们有大嘴巴。"],["Have they got long legs?","它们有长腿吗？"]]},
+        8:{words:[["jacket","夹克"],["shoes","鞋子"],["skirt","裙子"],["socks","袜子"],["trousers","裤子"],["T-shirt","T恤"],["dress","连衣裙"],["hat","帽子"]],sentences:[["He's got red trousers.","他穿着红裤子。"],["She hasn't got a jacket.","她没有夹克。"]]},
+        9:{words:[["basketball","篮球"],["football","足球"],["tennis","网球"],["guitar","吉他"],["piano","钢琴"],["swim","游泳"],["sing","唱歌"],["dance","跳舞"]],sentences:[["I can sing.","我会唱歌。"],["Can you swim?","你会游泳吗？"]]},
+        10:{words:[["boat","船"],["bus","公共汽车"],["helicopter","直升机"],["lorry","卡车"],["motorbike","摩托车"],["plane","飞机"],["train","火车"],["bike","自行车"]],sentences:[["What's he doing?","他在做什么？"],["I'm flying.","我在飞。"]]},
+        11:{words:[["bathroom","浴室"],["bedroom","卧室"],["dining room","餐厅"],["kitchen","厨房"],["living room","客厅"],["sofa","沙发"],["bed","床"],["door","门"]],sentences:[["What's he doing?","他在做什么？"],["She's sitting on the sofa.","她坐在沙发上。"]]},
+        12:{words:[["apple","苹果"],["banana","香蕉"],["burger","汉堡"],["cake","蛋糕"],["chocolate","巧克力"],["ice cream","冰淇淋"],["orange","橙子"],["party","派对"]],sentences:[["I like cake.","我喜欢蛋糕。"],["I don't like chocolate.","我不喜欢巧克力。"]]}
+    },
+    2: {
+        1:{words:[["back to school","返校"],["alphabet","字母表"],["eleven","十一"],["twelve","十二"],["thirteen","十三"],["fourteen","十四"],["fifteen","十五"],["sixteen","十六"],["seventeen","十七"],["eighteen","十八"],["nineteen","十九"],["twenty","二十"],["board","黑板"],["new","新的"],["old","旧的"]],sentences:[["Welcome back to school!","欢迎返校！"],["How old are you?","你几岁？"],["I'm eleven.","我十一岁。"]]},
+        2:{words:[["home","家"],["house","房子"],["bedroom","卧室"],["kitchen","厨房"],["bathroom","浴室"],["living room","客厅"],["dining room","餐厅"],["table","桌子"],["chair","椅子"],["sofa","沙发"],["bed","床"],["door","门"],["window","窗户"],["in","在...里"],["on","在...上"],["under","在...下"]],sentences:[["This is my home.","这是我的家。"],["Where's the kitchen?","厨房在哪里？"],["It's next to the bathroom.","它在浴室旁边。"]]},
+        3:{words:[["thing","东西"],["mine","我的"],["yours","你的"],["his","他的"],["her","她的"],["our","我们的"],["shirt","衬衫"],["shoes","鞋子"],["trousers","裤子"],["dress","连衣裙"],["skirt","裙子"],["coat","外套"],["this","这"],["that","那"],["these","这些"],["those","那些"]],sentences:[["Whose is this?","这是谁的？"],["It's mine.","它是我的。"],["These are my shoes.","这些是我的鞋子。"]]},
+        4:{words:[["make","制作"],["paper","纸"],["glue","胶水"],["scissors","剪刀"],["paint","油漆"],["brush","刷子"],["shape","形状"],["circle","圆形"],["square","正方形"],["triangle","三角形"],["big","大的"],["small","小的"]],sentences:[["Let's make a card!","让我们做一张卡片！"],["I need paper and glue.","我需要纸和胶水。"],["It's a circle.","它是一个圆形。"]]},
+        5:{words:[["family","家庭"],["mother","妈妈"],["father","爸爸"],["sister","姐妹"],["brother","兄弟"],["grandmother","奶奶"],["grandfather","爷爷"],["baby","宝宝"],["cousin","表兄弟姐妹"],["run","跑"],["sleep","睡觉"],["eat","吃"],["drink","喝"]],sentences:[["This is my family.","这是我的家庭。"],["I have a baby sister.","我有一个小妹妹。"],["My brother can run fast.","我哥哥跑得很快。"]]},
+        6:{words:[["food","食物"],["bread","面包"],["fruit","水果"],["rice","米饭"],["meat","肉"],["chicken","鸡肉"],["vegetable","蔬菜"],["milk","牛奶"],["juice","果汁"],["water","水"],["yummy","美味的"],["sweet","甜的"],["hungry","饿的"],["thirsty","渴的"]],sentences:[["I like bread.","我喜欢面包。"],["I'm hungry!","我饿了！"],["The apple is sweet.","苹果是甜的。"]]},
+        7:{words:[["farm","农场"],["cow","奶牛"],["sheep","绵羊"],["pig","猪"],["chicken","鸡"],["duck","鸭子"],["horse","马"],["farmer","农民"],["field","田地"],["barn","谷仓"],["milk","牛奶"],["egg","鸡蛋"]],sentences:[["This is a farm.","这是一个农场。"],["The cow is in the field.","奶牛在田里。"],["I can see five sheep.","我能看到五只绵羊。"]]},
+        8:{words:[["wild","野生的"],["animal","动物"],["lion","狮子"],["tiger","老虎"],["elephant","大象"],["giraffe","长颈鹿"],["monkey","猴子"],["zebra","斑马"],["snake","蛇"],["jungle","丛林"],["forest","森林"],["desert","沙漠"]],sentences:[["Lions live in Africa.","狮子生活在非洲。"],["The tiger is a wild animal.","老虎是野生动物。"],["Monkeys live in the jungle.","猴子住在丛林里。"]]},
+        9:{words:[["fun","乐趣"],["game","游戏"],["football","足球"],["basketball","篮球"],["tennis","网球"],["swim","游泳"],["dance","跳舞"],["sing","唱歌"],["draw","画"],["read","读"],["write","写"],["ride","骑"],["like","喜欢"],["love","爱"],["hobby","爱好"]],sentences:[["I like playing football.","我喜欢踢足球。"],["She doesn't like dancing.","她不喜欢跳舞。"],["What's your hobby?","你的爱好是什么？"]]},
+        10:{words:[["town","城镇"],["city","城市"],["school","学校"],["park","公园"],["shop","商店"],["hospital","医院"],["library","图书馆"],["restaurant","餐厅"],["left","左边"],["right","右边"],["straight","直行"],["turn","转弯"],["near","附近"],["far","远"]],sentences:[["This is our town.","这是我们的城镇。"],["Where's the park?","公园在哪里？"],["Go straight and turn left.","直行然后左转。"]]},
+        11:{words:[["holiday","假期"],["travel","旅行"],["beach","海滩"],["mountain","山"],["country","国家"],["summer","夏天"],["winter","冬天"],["spring","春天"],["autumn","秋天"],["weather","天气"],["sunny","晴朗的"],["rainy","下雨的"],["hot","热的"],["cold","冷的"]],sentences:[["I love holiday!","我喜欢假期！"],["Where are you going?","你要去哪里？"],["The weather is sunny today.","今天是晴天。"]]},
+        12:{words:[["celebration","庆祝"],["party","派对"],["birthday","生日"],["Christmas","圣诞节"],["Easter","复活节"],["Halloween","万圣节"],["gift","礼物"],["card","卡片"],["balloon","气球"],["cake","蛋糕"],["candle","蜡烛"],["happy","快乐的"],["invite","邀请"],["eat","吃"],["drink","喝"]],sentences:[["Happy birthday!","生日快乐！"],["Let's have a party!","让我们开派对吧！"],["This is a gift for you.","这是给你的礼物。"]]}
+    },
+    3: {
+        1:{words:[["world","世界"],["country","国家"],["China","中国"],["America","美国"],["UK","英国"],["Australia","澳大利亚"],["Japan","日本"],["France","法国"],["city","城市"],["people","人们"],["language","语言"],["English","英语"],["Chinese","中文"],["flag","国旗"],["map","地图"]],sentences:[["This is our world.","这是我们的世界。"],["I come from China.","我来自中国。"],["What's your country?","你的国家是哪里？"]]},
+        2:{words:[["body","身体"],["head","头"],["face","脸"],["eye","眼睛"],["nose","鼻子"],["mouth","嘴巴"],["ear","耳朵"],["hair","头发"],["arm","手臂"],["hand","手"],["finger","手指"],["leg","腿"],["foot","脚"],["hurt","疼"],["sick","生病的"],["ill","生病的"]],sentences:[["This is my body.","这是我的身体。"],["I have a headache.","我头疼。"],["My stomach hurts.","我胃疼。"]]},
+        3:{words:[["clothes","衣服"],["shirt","衬衫"],["trousers","裤子"],["dress","连衣裙"],["skirt","裙子"],["jacket","夹克"],["coat","外套"],["shoes","鞋子"],["socks","袜子"],["hat","帽子"],["wear","穿"],["put on","穿上"],["take off","脱下"],["size","尺寸"]],sentences:[["I like these clothes.","我喜欢这些衣服。"],["I'm wearing a new dress.","我穿着一条新裙子。"],["Put on your coat.","穿上你的外套。"]]},
+        4:{words:[["day","天"],["today","今天"],["tomorrow","明天"],["yesterday","昨天"],["week","周"],["month","月"],["year","年"],["Monday","星期一"],["Tuesday","星期二"],["Wednesday","星期三"],["Thursday","星期四"],["Friday","星期五"],["Saturday","星期六"],["Sunday","星期日"],["weekend","周末"],["birthday","生日"]],sentences:[["What day is it today?","今天是星期几？"],["Today is Monday.","今天是星期一。"],["Tomorrow is my birthday!","明天是我的生日！"]]},
+        5:{words:[["job","工作"],["doctor","医生"],["nurse","护士"],["teacher","老师"],["driver","司机"],["cook","厨师"],["farmer","农民"],["shop assistant","店员"],["police","警察"],["firefighter","消防员"],["pilot","飞行员"],["work","工作"],["help","帮助"]],sentences:[["What do you want to be?","你想成为什么？"],["I want to be a doctor.","我想成为医生。"],["My mother is a teacher.","我妈妈是老师。"]]},
+        6:{words:[["animal","动物"],["pet","宠物"],["dog","狗"],["cat","猫"],["bird","鸟"],["fish","鱼"],["rabbit","兔子"],["hamster","仓鼠"],["tortoise","乌龟"],["feed","喂"],["walk","散步"],["play with","和...玩"],["look after","照顾"],["love","爱"],["cute","可爱的"]],sentences:[["I have a pet dog.","我有一只宠物狗。"],["I feed my cat every day.","我每天喂我的猫。"],["Dogs are very friendly.","狗很友好。"]]},
+        7:{words:[["place","地方"],["home","家"],["school","学校"],["park","公园"],["shop","商店"],["restaurant","餐厅"],["library","图书馆"],["hospital","医院"],["cinema","电影院"],["zoo","动物园"],["beach","海滩"],["mountain","山"],["lake","湖"],["island","岛"]],sentences:[["This is a nice place.","这是个很好的地方。"],["I live in the city.","我住在城市里。"],["The park is near my home.","公园在我家附近。"]]},
+        8:{words:[["weather","天气"],["sunny","晴朗的"],["cloudy","多云的"],["rainy","下雨的"],["snowy","下雪的"],["windy","刮风的"],["hot","热的"],["cold","冷的"],["warm","温暖的"],["cool","凉爽的"],["rain","雨"],["snow","雪"],["wind","风"],["sun","太阳"],["rainbow","彩虹"]],sentences:[["What's the weather like today?","今天天气怎么样？"],["It's sunny today.","今天阳光明媚。"],["I like sunny days.","我喜欢晴天。"]]},
+        9:{words:[["sports","运动"],["football","足球"],["basketball","篮球"],["tennis","网球"],["baseball","棒球"],["volleyball","排球"],["swimming","游泳"],["running","跑步"],["cycling","骑自行车"],["skiing","滑雪"],["skateboarding","滑板"],["exercise","练习"],["team","队"],["win","赢"],["lose","输"]],sentences:[["I like playing sports.","我喜欢运动。"],["Can you play basketball?","你会打篮球吗？"],["We won the game!","我们赢了！"]]},
+        10:{words:[["house","房子"],["flat","公寓"],["garden","花园"],["door","门"],["window","窗户"],["kitchen","厨房"],["bedroom","卧室"],["bathroom","浴室"],["living room","客厅"],["garage","车库"],["floor","地板"],["wall","墙"],["roof","屋顶"],["swimming pool","游泳池"]],sentences:[["I live in a big house.","我住在一个大房子里。"],["There are four rooms.","有四个房间。"],["The garden is behind the house.","花园在房子后面。"]]},
+        11:{words:[["feel","感觉"],["happy","开心的"],["sad","伤心的"],["angry","生气的"],["tired","累的"],["excited","兴奋的"],["scared","害怕的"],["surprised","惊讶的"],["worried","担心的"],["love","爱"],["hate","讨厌"],["like","喜欢"],["want","想要"],["need","需要"],["think","想"],["know","知道"]],sentences:[["How do you feel?","你感觉怎么样？"],["I'm happy today.","我今天很开心。"],["I'm feeling tired.","我感觉累了。"]]},
+        12:{words:[["breakfast","早餐"],["lunch","午餐"],["dinner","晚餐"],["egg","鸡蛋"],["bread","面包"],["milk","牛奶"],["rice","米饭"],["vegetable","蔬菜"],["meat","肉"],["chicken","鸡肉"],["fish","鱼"],["fruit","水果"],["sandwich","三明治"],["soup","汤"],["salad","沙拉"],["hungry","饿的"],["thirsty","渴的"],["delicious","美味的"]],sentences:[["What do you have for breakfast?","你早餐吃什么？"],["I have eggs and bread.","我吃鸡蛋和面包。"],["Dinner is ready!","晚餐准备好了！"]]}
+    }
 };
+
+// 当前选择的级别
+let currentLevel = 1;
+
+// 兼容旧版本 - 指向当前级别的数据
+const ALL_WORDS = LEVEL_DATA[currentLevel];
+
+// 切换级别
+function switchLevel(level) {
+    currentLevel = level;
+    
+    // 更新按钮样式
+    for(let i=1;i<=3;i++){
+        let btn = document.getElementById('level'+i+'Btn');
+        if(btn){
+            if(i===level){
+                btn.style.borderColor = '#00d4ff';
+                btn.style.background = 'rgba(0,212,255,0.2)';
+                btn.style.color = '#00d4ff';
+            }else{
+                btn.style.borderColor = 'rgba(255,255,255,0.3)';
+                btn.style.background = 'rgba(255,255,255,0.05)';
+                btn.style.color = '#aaa';
+            }
+        }
+    }
+    
+    battleUnits = [1]; // 重置选择的单元
+    createHomeUnitSelector();
+    updateLevelDisplay();
+}
+
+function updateLevelDisplay() {
+    document.getElementById('levelTitle').textContent = 'Level ' + currentLevel;
+}
 
 // 10个怪兽
 const MONSTERS = [
@@ -265,8 +377,17 @@ let battleUnits=[1];
 // 升级系统
 let level=1;
 let totalStars=0;
-const ENERGY_PER_CORRECT=10; // 每答对一题获得能量
-const ENERGY_TO_LEVEL_UP=50; // 升级所需能量
+const ENERGY_PER_CORRECT=10;
+const ENERGY_TO_LEVEL_UP=50;
+
+// 音效系统
+let soundEnabled = true;
+let audioContext = null;
+
+// 错题本系统
+let wrongBook = [];
+let wrongReviewCount = 0;
+let isWrongBookReview = false;
 
 // 预加载语音列表
 if('speechSynthesis' in window){
@@ -275,13 +396,16 @@ if('speechSynthesis' in window){
         let voices = window.speechSynthesis.getVoices();
         console.log('Voices loaded:', voices.length);
     };
-    // 立即尝试获取一次
-    setTimeout(function(){
+    
+    let voiceCheckCount = 0;
+    function ensureVoicesLoaded(){
         let voices = window.speechSynthesis.getVoices();
-        if(voices.length === 0){
-            window.speechSynthesis.getVoices();
+        if(voices.length === 0 && voiceCheckCount < 10){
+            voiceCheckCount++;
+            setTimeout(ensureVoicesLoaded, 100);
         }
-    },100);
+    }
+    ensureVoicesLoaded();
 }
 
 function init(){
@@ -289,18 +413,199 @@ function init(){
     loadProgress();
     createHomeUnitSelector();
     updateUI();
+    initAudioContext();
     
-    // 电脑端：首次点击激活音频
     document.body.addEventListener('click', function initAudio(){
-        // 播放一个静音的音频来激活
         if('speechSynthesis' in window){
+            let voices = window.speechSynthesis.getVoices();
+            if(voices.length === 0){
+                window.speechSynthesis.getVoices();
+            }
             let u = new SpeechSynthesisUtterance('');
-            u.volume = 0;
+            u.volume = 0.01;
+            u.rate = 0.1;
             window.speechSynthesis.speak(u);
         }
-        // 只执行一次
+        if(audioContext && audioContext.state === 'suspended'){
+            audioContext.resume();
+        }
         document.body.removeEventListener('click', initAudio);
     }, {once: true});
+}
+
+function initAudioContext(){
+    try{
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    }catch(e){
+        console.warn('Web Audio API 不支持');
+    }
+}
+
+function playSound(type){
+    if(!soundEnabled || !audioContext) return;
+    
+    try{
+        let oscillator = audioContext.createOscillator();
+        let gainNode = audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        if(type === 'correct'){
+            oscillator.frequency.setValueAtTime(523.25, audioContext.currentTime);
+            oscillator.frequency.setValueAtTime(659.25, audioContext.currentTime + 0.1);
+            oscillator.frequency.setValueAtTime(783.99, audioContext.currentTime + 0.2);
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialDecayTo = 0.01;
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.3);
+        }else if(type === 'wrong'){
+            oscillator.frequency.setValueAtTime(200, audioContext.currentTime);
+            oscillator.frequency.setValueAtTime(150, audioContext.currentTime + 0.1);
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.2);
+        }else if(type === 'victory'){
+            oscillator.frequency.setValueAtTime(523.25, audioContext.currentTime);
+            oscillator.frequency.setValueAtTime(659.25, audioContext.currentTime + 0.15);
+            oscillator.frequency.setValueAtTime(783.99, audioContext.currentTime + 0.3);
+            oscillator.frequency.setValueAtTime(1046.50, audioContext.currentTime + 0.45);
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.6);
+        }else if(type === 'click'){
+            oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+            gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.05);
+        }
+    }catch(e){
+        console.warn('播放音效失败:', e);
+    }
+}
+
+function toggleSound(){
+    soundEnabled = document.getElementById('soundEnabled').checked;
+    saveProgress();
+    if(soundEnabled && audioContext && audioContext.state === 'suspended'){
+        audioContext.resume();
+    }
+    playSound('click');
+}
+
+function showToast(message, duration){
+    duration = duration || 2000;
+    let toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    setTimeout(function(){
+        toast.remove();
+    }, duration);
+}
+
+function showWrongBook(){
+    updateWrongBookUI();
+    show('wrongBook');
+}
+
+function updateWrongBookUI(){
+    document.getElementById('wrongTotalCount').textContent = wrongBook.length;
+    document.getElementById('wrongReviewCount').textContent = wrongReviewCount;
+    
+    let list = document.getElementById('wrongBookList');
+    if(wrongBook.length === 0){
+        list.innerHTML = '<div class="empty-hint">🎉 太棒了！暂无错题</div>';
+        document.getElementById('reviewBtn').style.display = 'none';
+        return;
+    }
+    
+    document.getElementById('reviewBtn').style.display = 'block';
+    list.innerHTML = '';
+    
+    wrongBook.sort(function(a, b){ return b.count - a.count; });
+    
+    wrongBook.forEach(function(item, index){
+        let div = document.createElement('div');
+        div.className = 'wrong-item';
+        div.innerHTML = '<div><div class="wrong-item-word">'+item.word+'</div><div class="wrong-item-meaning">'+item.meaning+'</div></div>'+
+            '<div class="wrong-item-count">错'+item.count+'次</div>'+
+            '<div class="wrong-item-actions">'+
+                '<button class="wrong-item-btn listen" onclick="speakWord(\''+item.word+'\')">🔊</button>'+
+                '<button class="wrong-item-btn remove" onclick="removeWrongWord('+index+')">✕</button>'+
+            '</div>';
+        list.appendChild(div);
+    });
+}
+
+function addToWrongBook(word, meaning){
+    let found = wrongBook.find(function(item){ return item.word === word; });
+    if(found){
+        found.count++;
+        found.lastWrong = new Date().toISOString();
+    }else{
+        wrongBook.push({
+            word: word,
+            meaning: meaning,
+            count: 1,
+            firstWrong: new Date().toISOString(),
+            lastWrong: new Date().toISOString()
+        });
+    }
+    saveProgress();
+}
+
+function removeFromWrongBook(word){
+    wrongBook = wrongBook.filter(function(item){ return item.word !== word; });
+    saveProgress();
+}
+
+function removeWrongWord(index){
+    wrongBook.splice(index, 1);
+    saveProgress();
+    updateWrongBookUI();
+    showToast('已从错题本移除');
+}
+
+function startWrongBookReview(){
+    if(wrongBook.length === 0){
+        showToast('错题本是空的！');
+        return;
+    }
+    
+    isWrongBookReview = true;
+    battleQuestionPool = [];
+    
+    wrongBook.forEach(function(item){
+        battleQuestionPool.push({
+            eng: item.word,
+            chn: item.meaning,
+            unit: 0
+        });
+    });
+    
+    battleQuestionPool = shuffle(battleQuestionPool);
+    usedQuestions = [];
+    battleScore = 0;
+    qIdx = 0;
+    correctCount = 0;
+    
+    currentMonsterIndex = 1;
+    currentMonster = MONSTERS[0];
+    mHp = 100;
+    zHp = 100;
+    
+    document.getElementById('monsterName').textContent = '错题怪兽';
+    document.getElementById('monsterDesc').textContent = '打败它，攻克错题！';
+    document.getElementById('monsterEmoji').textContent = '👾';
+    document.getElementById('stageNum').textContent = '1';
+    
+    updateHP();
+    show('battleGame');
+    
+    setTimeout(function(){
+        showRoundQuestion();
+    }, 500);
 }
 
 function createStars(){
@@ -321,25 +626,59 @@ function loadProgress(){
             level = data.level || 1;
             totalStars = data.stars || 0;
             monstersDef = data.monstersDef || 0;
+            wrongBook = data.wrongBook || [];
+            wrongReviewCount = data.wrongReviewCount || 0;
+            soundEnabled = data.soundEnabled !== undefined ? data.soundEnabled : true;
+            document.getElementById('soundEnabled').checked = soundEnabled;
         }
-    }catch(e){}
+    }catch(e){
+        console.error('加载进度失败:', e);
+        showToast('加载进度失败');
+    }
 }
 
 function saveProgress(){
     try{
-        localStorage.setItem('ultraman_progress', JSON.stringify({
+        let data = {
             score: score,
             level: level,
             stars: totalStars,
-            monstersDef: monstersDef
-        }));
-    }catch(e){}
+            monstersDef: monstersDef,
+            wrongBook: wrongBook,
+            wrongReviewCount: wrongReviewCount,
+            soundEnabled: soundEnabled,
+            saveTime: new Date().toISOString()
+        };
+        localStorage.setItem('ultraman_progress', JSON.stringify(data));
+    }catch(e){
+        console.error('保存进度失败:', e);
+        showToast('保存进度失败');
+    }
+}
+
+function clearProgress(){
+    if(confirm('确定要清除所有进度吗？此操作不可恢复！')){
+        try{
+            localStorage.removeItem('ultraman_progress');
+            score = 0;
+            level = 1;
+            totalStars = 0;
+            monstersDef = 0;
+            wrongBook = [];
+            wrongReviewCount = 0;
+            updateUI();
+            showToast('进度已清除');
+        }catch(e){
+            console.error('清除进度失败:', e);
+            showToast('清除进度失败');
+        }
+    }
 }
 
 function createHomeUnitSelector(){
     let grid=document.getElementById('homeUnitSelector');
     grid.innerHTML='';
-    for(let i=1;i<=10;i++){
+    for(let i=1;i<=12;i++){
         let btn=document.createElement('button');
         btn.className='stage-btn '+(battleUnits.includes(i)?'current':'unlocked');
         btn.innerHTML='<span>📖</span><span class="stage-num">U'+i+'</span>';
@@ -378,6 +717,8 @@ function show(id){
 
 function backToMenu(){
     if(window.speechSynthesis) window.speechSynthesis.cancel();
+    isWrongBookReview = false;
+    playSound('click');
     createHomeUnitSelector();
     updateUI();
     show('menu');
@@ -393,10 +734,16 @@ function startFreeBattle(){
 }
 
 function startBattle(){
+    if(audioContext && audioContext.state === 'suspended'){
+        audioContext.resume();
+    }
+    playSound('click');
+    
+    isWrongBookReview = false;
     qIdx=0;correctCount=0;mHp=100;zHp=100;
     battleScore=0;
     battleQuestionPool=[];
-    usedQuestions=[]; // 记录已用题目
+    usedQuestions=[];
     currentMonsterIndex=0;
     
     // 生成题目池
@@ -724,23 +1071,44 @@ function toggleLetter(letter, idx, btn){
 function checkAnswer(correct, btn){
     if(correct){
         correctCount++;
-        battleScore+=ENERGY_PER_CORRECT; // 每答对一题获得能量
-        // 每题答对扣 100/该关题数 的血量
+        battleScore+=ENERGY_PER_CORRECT;
         let difficulty = getDifficulty(currentMonsterIndex);
         let damage = Math.ceil(100 / difficulty.questionCount);
         mHp -= damage;
         showEff('💥');
+        playSound('correct');
         if(btn) btn.classList.add('correct');
+        
+        if(isWrongBookReview && currentText){
+            let wrongItem = wrongBook.find(function(item){ return item.word === currentText; });
+            if(wrongItem){
+                wrongItem.count = Math.max(0, wrongItem.count - 1);
+                if(wrongItem.count <= 0){
+                    removeFromWrongBook(currentText);
+                }
+            }
+        }
     }else{
-        // 答错扣赛罗15血
         zHp -= 15;
         showEff('💢');
+        playSound('wrong');
         if(btn) btn.classList.add('wrong');
+        
+        if(currentText && !isWrongBookReview){
+            let meaning = '';
+            battleUnits.forEach(function(u){
+                ALL_WORDS[u].words.forEach(function(w){
+                    if(w[0] === currentText) meaning = w[1];
+                });
+            });
+            if(meaning){
+                addToWrongBook(currentText, meaning);
+            }
+        }
     }
     updateHP();
     qIdx++;
     
-    // 怪兽血量清零 → 过关
     if(mHp<=0){
         mHp=0;
         updateHP();
@@ -763,9 +1131,10 @@ function showEff(e){
 }
 
 function endBattle(){
-    // 失败
     let energyGained=battleScore;
     score+=energyGained;
+    
+    playSound('wrong');
     
     document.getElementById('resultEmoji').textContent='💪';
     document.getElementById('resultTitle').textContent='继续努力！';
@@ -773,28 +1142,33 @@ function endBattle(){
     document.getElementById('resultMsg').textContent='闯过 '+currentMonsterIndex+'/10 关';
     document.getElementById('resultStars').innerHTML='⭐'.repeat(currentMonsterIndex);
     
-    // 检查升级
     let oldLevel=level;
     while(score>=level*ENERGY_TO_LEVEL_UP){
         score-=level*ENERGY_TO_LEVEL_UP;
         level++;
     }
     
+    isWrongBookReview = false;
     saveProgress();
     updateUI();
     show('result');
 }
 
 function endAllBattles(){
-    // 计算奖励
-    let energyGained=battleScore; // 答对题目获得的能量
-    let starGained=1; // 每通关一次获得一颗星星
+    let energyGained=battleScore;
+    let starGained=1;
     
-    // 更新总分和星星
     score+=energyGained;
     totalStars+=starGained;
     
-    // 检查是否升级
+    if(isWrongBookReview){
+        wrongReviewCount++;
+        playSound('victory');
+        showToast('错题复习完成！');
+    }else{
+        playSound('victory');
+    }
+    
     let oldLevel=level;
     while(score>=level*ENERGY_TO_LEVEL_UP){
         score-=level*ENERGY_TO_LEVEL_UP;
@@ -802,10 +1176,8 @@ function endAllBattles(){
     }
     let levelUp=level>oldLevel;
     
-    // 保存进度
     saveProgress();
     
-    // 显示胜利界面
     document.getElementById('victoryCorrect').textContent=battleScore/ENERGY_PER_CORRECT;
     document.getElementById('victoryEnergy').textContent='+'+energyGained;
     document.getElementById('victoryStar').textContent='+'+starGained;
@@ -819,6 +1191,7 @@ function endAllBattles(){
     }
     
     monstersDef+=10;
+    isWrongBookReview = false;
     updateUI();
     show('victory');
 }
@@ -836,22 +1209,127 @@ function startFreeBattle(){
 
 // ========== 口语练习（独立） ==========
 let speakIdx=0, speakCorrect=0, speakData=[], speakUnit=1;
+// 预初始化 recognition 实例，避免每次录音都重新授权
+let speechRecognitionReady = false;
+
+function preInitSpeechRecognition(){
+    let SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if(SpeechRecognition){
+        try{
+            recognition = new SpeechRecognition();
+            recognition.lang='en-US';
+            recognition.continuous=false;
+            recognition.interimResults=false;
+            
+            recognition.onresult=function(e){
+                if(!isRecording) return;
+                try{
+                    let spoken=e.results[0][0].transcript.toLowerCase();
+                    let correct=currentText.toLowerCase();
+                    
+                    if(spoken.includes(correct)||correct.includes(spoken)){
+                        speakCorrect++;
+                        playSound('correct');
+                        document.getElementById('speakResult').innerHTML='<div style="color:#27ae60;font-size:18px;">✅ 正确！</div><div style="color:#aaa;font-size:13px;">你说：'+escapeHtml(spoken)+'</div>';
+                    }else{
+                        playSound('wrong');
+                        document.getElementById('speakResult').innerHTML='<div style="color:#e74c3c;font-size:18px;">❌ 再试一次</div><div style="color:#aaa;font-size:13px;">你说：'+escapeHtml(spoken)+'<br>答案：'+escapeHtml(correct)+'</div>';
+                        
+                        if(currentText){
+                            let meaning = '';
+                            battleUnits.forEach(function(u){
+                                ALL_WORDS[u].words.forEach(function(w){
+                                    if(w[0].toLowerCase() === currentText.toLowerCase()) meaning = w[1];
+                                });
+                            });
+                            if(meaning){
+                                addToWrongBook(currentText, meaning);
+                            }
+                        }
+                    }
+                    document.getElementById('nextSpeakBtn').style.display='block';
+                }catch(err){
+                    console.error('处理语音结果失败:', err);
+                    document.getElementById('speakResult').innerHTML='<div style="color:#ff6b6b;">处理结果失败，请重试</div>';
+                }
+            };
+            
+            recognition.onerror=function(e){
+                console.error('语音识别错误:', e.error);
+                if(e.error==='aborted') return;
+                isRecording=false;
+                document.getElementById('recBtn').classList.remove('recording');
+                document.getElementById('recText').textContent='点击录音';
+                
+                if(e.error==='not-allowed'){
+                    document.getElementById('speakResult').innerHTML='<div style="color:#ff6b6b;">⚠️ 请授权麦克风权限</div><div style="color:#aaa;font-size:12px;margin-top:5px;">在浏览器设置中允许麦克风访问</div>';
+                }else if(e.error==='no-speech'){
+                    document.getElementById('speakResult').innerHTML='<div style="color:#ffd93d;">⚠️ 没有检测到语音</div><div style="color:#aaa;font-size:12px;margin-top:5px;">请对着麦克风说话</div>';
+                }else if(e.error==='network'){
+                    document.getElementById('speakResult').innerHTML='<div style="color:#ff6b6b;">⚠️ 网络错误</div><div style="color:#aaa;font-size:12px;margin-top:5px;">请检查网络连接</div>';
+                }else if(e.error==='audio-capture'){
+                    document.getElementById('speakResult').innerHTML='<div style="color:#ff6b6b;">⚠️ 未检测到麦克风</div><div style="color:#aaa;font-size:12px;margin-top:5px;">请连接麦克风设备</div>';
+                }else if(e.error==='language-not-supported'){
+                    document.getElementById('speakResult').innerHTML='<div style="color:#ff6b6b;">⚠️ 不支持英语识别</div><div style="color:#aaa;font-size:12px;margin-top:5px;">请使用Chrome浏览器</div>';
+                }else{
+                    document.getElementById('speakResult').innerHTML='<div style="color:#ff6b6b;">错误：'+escapeHtml(e.error)+'</div>';
+                }
+            };
+            
+            recognition.onend=function(){
+                if(isRecording){
+                    isRecording=false;
+                    document.getElementById('recBtn').classList.remove('recording');
+                    document.getElementById('recText').textContent='点击录音';
+                }
+            };
+            
+            speechRecognitionReady = true;
+            console.log('SpeechRecognition 预初始化完成');
+        }catch(e){
+            console.error('初始化语音识别失败:', e);
+            speechRecognitionReady = false;
+        }
+    }else{
+        console.warn('浏览器不支持语音识别');
+    }
+}
 
 function startSpeakingPractice(){
-    // 口语练习使用首页选择的单元
+    if(window.location.protocol === 'file:'){
+        let isChrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
+        if(isChrome){
+            showToast('Chrome本地文件不支持语音识别，请使用Edge或部署到服务器');
+        }
+    }
     startSpeaking();
 }
 
 function startSpeaking(){
     speakIdx=0;speakCorrect=0;
     speakData=[];
-    // 从首页选择的单元中随机选单词
     battleUnits.forEach(function(u){
         ALL_WORDS[u].words.forEach(function(w){
             speakData.push(w);
         });
     });
-    speakData=shuffle(speakData.slice(0,20)); // 最多20题
+    speakData=shuffle(speakData.slice(0,20));
+    
+    if(!speechRecognitionReady){
+        preInitSpeechRecognition();
+    }
+    
+    if(recognition){
+        try{
+            recognition.start();
+            setTimeout(function(){
+                try{recognition.stop();}catch(e){}
+            },300);
+        }catch(e){
+            console.warn('预授权失败:', e);
+        }
+    }
+    
     showSpeakQuestion();
     show('speakingGame');
 }
@@ -868,8 +1346,14 @@ function showSpeakQuestion(){
     document.getElementById('speakMeaning').textContent=item[1];
     document.getElementById('speakResult').innerHTML='<div style="color:#aaa;">按住按钮说英文</div>';
     
-    // 自动播放示范
-    setTimeout(function(){speakWord(item[0],'speakListenBtn');},500);
+    // 用户自己点击播放，不自动播放
+}
+
+// 播放当前单词的读音
+function speakCurrentWord(){
+    if(currentText){
+        speakWord(currentText,'speakListenBtn');
+    }
 }
 
 function toggleRecord(){
@@ -886,62 +1370,53 @@ function toggleRecord(){
 }
 
 function startRecording(){
-    let SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if(!SpeechRecognition){
-        document.getElementById('speakResult').innerHTML='<div style="color:#ff6b6b;">⚠️ 不支持语音识别</div><div style="color:#aaa;font-size:12px;margin-top:5px;">请使用Chrome浏览器</div>';
+    if(window.location.protocol === 'file:'){
+        let isChrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
+        if(isChrome){
+            document.getElementById('speakResult').innerHTML='<div style="color:#ff6b6b;">⚠️ Chrome本地文件不支持语音识别</div><div style="color:#aaa;font-size:12px;margin-top:5px;">请使用Edge浏览器，或将文件部署到服务器</div>';
+            return;
+        }
+    }
+    
+    if(!recognition){
+        preInitSpeechRecognition();
+    }
+    
+    if(!recognition){
+        document.getElementById('speakResult').innerHTML='<div style="color:#ff6b6b;">⚠️ 浏览器不支持语音识别</div><div style="color:#aaa;font-size:12px;margin-top:5px;">请使用Chrome或Edge浏览器</div>';
         return;
     }
     
-    recognition=new SpeechRecognition();
-    recognition.lang='en-US';
-    recognition.continuous=false;
-    recognition.interimResults=false;
-    
-    recognition.onresult=function(e){
-        if(!isRecording) return;
-        let spoken=e.results[0][0].transcript.toLowerCase();
-        let correct=currentText.toLowerCase();
-        
-        if(spoken.includes(correct)||correct.includes(spoken)){
-            speakCorrect++;
-            document.getElementById('speakResult').innerHTML='<div style="color:#27ae60;font-size:18px;">✅ 正确！</div><div style="color:#aaa;font-size:13px;">你说：'+spoken+'</div>';
-        }else{
-            document.getElementById('speakResult').innerHTML='<div style="color:#e74c3c;font-size:18px;">❌ 再试一次</div><div style="color:#aaa;font-size:13px;">你说：'+spoken+'<br>答案：'+correct+'</div>';
-        }
-    };
-    
-    recognition.onerror=function(e){
-        if(e.error==='aborted') return;
-        if(e.error==='not-allowed'){
-            document.getElementById('speakResult').innerHTML='<div style="color:#ff6b6b;">⚠️ 请授权麦克风权限</div><div style="color:#aaa;font-size:12px;margin-top:5px;">在浏览器设置中允许麦克风访问</div>';
-        }else if(e.error==='no-speech'){
-            document.getElementById('speakResult').innerHTML='<div style="color:#ffd93d;">⚠️ 没有检测到语音</div><div style="color:#aaa;font-size:12px;margin-top:5px;">请对着麦克风说话</div>';
-        }else{
-            document.getElementById('speakResult').innerHTML='<div style="color:#ff6b6b;">错误：'+e.error+'</div>';
-        }
-    };
-    
-    recognition.onend=function(){
-        if(isRecording){
-            isRecording=false;
-            document.getElementById('recBtn').classList.remove('recording');
-            document.getElementById('recText').textContent='点击录音';
-            setTimeout(function(){
-                speakIdx++;
-                showSpeakQuestion();
-            },1500);
-        }
-    };
+    document.getElementById('nextSpeakBtn').style.display='none';
     
     isRecording=true;
     document.getElementById('recBtn').classList.add('recording');
     document.getElementById('recText').textContent='点击停止';
     document.getElementById('speakResult').innerHTML='<div style="color:#ffd93d;">🎤 正在录音...</div><div style="color:#aaa;font-size:12px;margin-top:5px;">请说英文单词</div>';
     
-    try{recognition.start();}catch(e){
-        document.getElementById('speakResult').innerHTML='<div style="color:#ff6b6b;">启动录音失败</div>';
+    try{
+        recognition.start();
+    }catch(e){
+        console.error('启动录音失败:', e);
         isRecording=false;
+        document.getElementById('recBtn').classList.remove('recording');
+        document.getElementById('recText').textContent='点击录音';
+        
+        if(e.name === 'NotAllowedError' || e.message.indexOf('not allowed') !== -1){
+            document.getElementById('speakResult').innerHTML='<div style="color:#ff6b6b;">⚠️ 麦克风权限被拒绝</div><div style="color:#aaa;font-size:12px;margin-top:5px;">请在浏览器地址栏左侧允许麦克风访问</div>';
+        }else if(e.message.indexOf('already started') !== -1){
+            try{ recognition.stop(); }catch(e2){}
+            setTimeout(function(){ startRecording(); }, 100);
+        }else{
+            document.getElementById('speakResult').innerHTML='<div style="color:#ff6b6b;">启动录音失败</div><div style="color:#aaa;font-size:12px;margin-top:5px;">'+escapeHtml(e.message || '未知错误')+'</div>';
+        }
     }
+}
+
+function nextSpeakQuestion(){
+    speakIdx++;
+    document.getElementById('nextSpeakBtn').style.display='none';
+    showSpeakQuestion();
 }
 
 function endSpeaking(){
@@ -956,51 +1431,115 @@ function endSpeaking(){
 }
 
 // ========== 工具函数 ==========
+function escapeHtml(text){
+    if(typeof text !== 'string') return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
 function speakWord(w, btnId){
-    if(!w)return;
+    if(!w){
+        console.warn('speakWord: 空单词');
+        return;
+    }
+    
     let btn=btnId?document.getElementById(btnId):null;
     if(btn){
         btn.classList.add('playing');
-        btn.querySelector('span:last-child').textContent='播放中...';
+        let spanEl = btn.querySelector('span:last-child');
+        if(spanEl) spanEl.textContent='播放中...';
     }
-    if('speechSynthesis' in window){
-        window.speechSynthesis.cancel();
-        let u = new SpeechSynthesisUtterance(w);
-        u.lang='en-US';
-        u.rate=0.85;
-        u.pitch=1;
-        u.volume=1;
-        
-        // 尝试获取英文语音
-        let voices = window.speechSynthesis.getVoices();
-        for(let i=0;i<voices.length;i++){
-            if(voices[i].lang.indexOf('en')===0){
-                u.voice = voices[i];
-                break;
-            }
+    
+    if(!('speechSynthesis' in window)){
+        console.warn('浏览器不支持语音合成');
+        showToast('浏览器不支持语音播放');
+        if(btn){
+            btn.classList.remove('playing');
+            let spanEl = btn.querySelector('span:last-child');
+            if(spanEl) spanEl.textContent='听发音';
         }
-        
-        u.onend=function(){
-            if(btn){
-                btn.classList.remove('playing');
-                btn.querySelector('span:last-child').textContent='听发音';
-            }
-        };
-        
-        u.onerror=function(e){
-            console.error('TTS error:', e);
-            if(btn){
-                btn.classList.remove('playing');
-                btn.querySelector('span:last-child').textContent='听发音';
-            }
-        };
+        return;
+    }
+    
+    function doSpeak(retryCount){
+        retryCount = retryCount || 0;
         
         try{
+            window.speechSynthesis.cancel();
+            
+            let voices = window.speechSynthesis.getVoices();
+            
+            if(voices.length === 0 && retryCount < 5){
+                console.log('等待语音列表加载... 尝试 ' + (retryCount + 1));
+                window.speechSynthesis.getVoices();
+                setTimeout(function(){ doSpeak(retryCount + 1); }, 200);
+                return;
+            }
+            
+            let u = new SpeechSynthesisUtterance(w);
+            u.lang='en-US';
+            u.rate=0.85;
+            u.pitch=1;
+            u.volume=1;
+            
+            let foundVoice = false;
+            for(let i=0;i<voices.length;i++){
+                if(voices[i].lang.indexOf('en')===0){
+                    u.voice = voices[i];
+                    foundVoice = true;
+                    break;
+                }
+            }
+            
+            if(!foundVoice && voices.length > 0){
+                u.voice = voices[0];
+            }
+            
+            u.onend=function(){
+                if(btn){
+                    btn.classList.remove('playing');
+                    let spanEl = btn.querySelector('span:last-child');
+                    if(spanEl) spanEl.textContent='听发音';
+                }
+            };
+            
+            u.onerror=function(e){
+                console.error('TTS error:', e);
+                if(btn){
+                    btn.classList.remove('playing');
+                    let spanEl = btn.querySelector('span:last-child');
+                    if(spanEl) spanEl.textContent='听发音';
+                }
+                if(e.error === 'not-allowed'){
+                    showToast('Chrome阻止了语音播放，请尝试Edge浏览器');
+                }else if(e.error !== 'canceled' && e.error !== 'interrupted'){
+                    showToast('语音播放失败: ' + e.error);
+                }
+            };
+            
             window.speechSynthesis.speak(u);
+            
+            if(!window.speechSynthesis.speaking && retryCount < 3){
+                setTimeout(function(){
+                    if(!window.speechSynthesis.speaking){
+                        console.log('Chrome TTS 重试...');
+                        window.speechSynthesis.speak(u);
+                    }
+                }, 100);
+            }
         }catch(e){
             console.error('TTS speak error:', e);
+            showToast('语音播放失败');
+            if(btn){
+                btn.classList.remove('playing');
+                let spanEl = btn.querySelector('span:last-child');
+                if(spanEl) spanEl.textContent='听发音';
+            }
         }
     }
+    
+    doSpeak(0);
 }
 
 function shuffle(a){
