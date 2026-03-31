@@ -1291,6 +1291,15 @@ function preInitSpeechRecognition(){
             recognition.continuous=false;
             recognition.interimResults=false;
             
+            // 移动设备特殊处理
+            let isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            if(isMobile){
+                // 移动设备设置较短的超时时间
+                if('timeout' in recognition){
+                    recognition.timeout = 8000;
+                }
+            }
+            
             recognition.onresult=function(e){
                 if(!isRecording) return;
                 try{
@@ -1320,15 +1329,27 @@ function preInitSpeechRecognition(){
                         }
                     }
                     document.getElementById('nextSpeakBtn').style.display='block';
+                    
+                    // 重置录音状态
+                    isRecording = false;
+                    document.getElementById('recBtn').classList.remove('recording');
+                    document.getElementById('recText').textContent='点击录音';
                 }catch(err){
                     console.error('处理语音结果失败:', err);
                     document.getElementById('speakResult').innerHTML='<div style="color:#ff6b6b;">处理结果失败，请重试</div>';
+                    
+                    // 重置录音状态
+                    isRecording = false;
+                    document.getElementById('recBtn').classList.remove('recording');
+                    document.getElementById('recText').textContent='点击录音';
                 }
             };
             
             recognition.onerror=function(e){
                 console.error('语音识别错误:', e.error);
                 if(e.error==='aborted') return;
+                
+                // 重置录音状态
                 isRecording=false;
                 document.getElementById('recBtn').classList.remove('recording');
                 document.getElementById('recText').textContent='点击录音';
@@ -1343,6 +1364,8 @@ function preInitSpeechRecognition(){
                     document.getElementById('speakResult').innerHTML='<div style="color:#ff6b6b;">⚠️ 未检测到麦克风</div><div style="color:#aaa;font-size:12px;margin-top:5px;">请连接麦克风设备</div>';
                 }else if(e.error==='language-not-supported'){
                     document.getElementById('speakResult').innerHTML='<div style="color:#ff6b6b;">⚠️ 不支持英语识别</div><div style="color:#aaa;font-size:12px;margin-top:5px;">请使用Chrome浏览器</div>';
+                }else if(e.error==='timeout'){
+                    document.getElementById('speakResult').innerHTML='<div style="color:#ffd93d;">⚠️ 录音超时</div><div style="color:#aaa;font-size:12px;margin-top:5px;">请重新尝试</div>';
                 }else{
                     document.getElementById('speakResult').innerHTML='<div style="color:#ff6b6b;">错误：'+escapeHtml(e.error)+'</div>';
                 }
@@ -1353,6 +1376,7 @@ function preInitSpeechRecognition(){
                     isRecording=false;
                     document.getElementById('recBtn').classList.remove('recording');
                     document.getElementById('recText').textContent='点击录音';
+                    document.getElementById('speakResult').innerHTML='<div style="color:#ffd93d;">⚠️ 录音已结束</div><div style="color:#aaa;font-size:12px;margin-top:5px;">请重新尝试</div>';
                 }
             };
             
@@ -1471,6 +1495,18 @@ function startRecording(){
     document.getElementById('recText').textContent='点击停止';
     document.getElementById('speakResult').innerHTML='<div style="color:#ffd93d;">🎤 正在录音...</div><div style="color:#aaa;font-size:12px;margin-top:5px;">请说英文单词</div>';
     
+    // 设置超时检测，防止录音状态卡死
+    let recordingTimeout = setTimeout(function(){
+        if(isRecording){
+            console.warn('录音超时，自动停止');
+            isRecording = false;
+            document.getElementById('recBtn').classList.remove('recording');
+            document.getElementById('recText').textContent='点击录音';
+            document.getElementById('speakResult').innerHTML='<div style="color:#ffd93d;">⚠️ 录音超时</div><div style="color:#aaa;font-size:12px;margin-top:5px;">请重新尝试</div>';
+            try{ recognition.stop(); }catch(e){}
+        }
+    }, 10000); // 10秒超时
+    
     try{
         // 检查用户代理，针对移动设备进行特殊处理
         let isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
@@ -1484,6 +1520,7 @@ function startRecording(){
         }
     }catch(e){
         console.error('启动录音失败:', e);
+        clearTimeout(recordingTimeout);
         isRecording=false;
         document.getElementById('recBtn').classList.remove('recording');
         document.getElementById('recText').textContent='点击录音';
@@ -1492,6 +1529,7 @@ function startRecording(){
             document.getElementById('speakResult').innerHTML='<div style="color:#ff6b6b;">⚠️ 麦克风权限被拒绝</div><div style="color:#aaa;font-size:12px;margin-top:5px;">请在浏览器地址栏左侧允许麦克风访问</div>';
         }else if(e.message.indexOf('already started') !== -1){
             try{ recognition.stop(); }catch(e2){}
+            clearTimeout(recordingTimeout);
             setTimeout(function(){ startRecording(); }, 100);
         }else if(e.message.indexOf('https') !== -1 || e.message.indexOf('secure') !== -1){
             document.getElementById('speakResult').innerHTML='<div style="color:#ff6b6b;">⚠️ 需要HTTPS连接</div><div style="color:#aaa;font-size:12px;margin-top:5px;">语音识别在移动设备上需要HTTPS环境</div>';
