@@ -168,14 +168,15 @@
             </div>
             
             <button class="game-btn btn-battle" onclick="confirmUnitsAndBattle()">⚔️ 开始战斗</button>
-            <button class="game-btn btn-free" onclick="startFreeMode()">🎮 自由练习</button>
-            <button class="game-btn btn-speak" onclick="startSpeakingPractice()">🎤 口语练习</button>
-            <button class="game-btn wrong-book-btn" onclick="showWrongBook()">📖 错题本</button>
             <button class="game-btn" style="background:linear-gradient(135deg, #9b59b6, #8e44ad);" onclick="showMonsterCollection()">👾 怪兽图鉴</button>
             <button class="game-btn" style="background:linear-gradient(135deg, #f39c12, #e67e22);" onclick="showAchievements()">🏆 成就</button>
-            <div class="sound-toggle">
-                <input type="checkbox" id="soundEnabled" checked onchange="toggleSound()">
-                <label for="soundEnabled">🔊 音效</label>
+            <button class="game-btn" style="background:linear-gradient(135deg, #00b894, #00cec9);" onclick="showStudyReport()">📊 学习报告</button>
+            <button class="game-btn" style="background:linear-gradient(135deg, #e74c3c, #c0392b);" onclick="showWrongBook()">📖 错题本</button>
+            <div class="speed-control" style="text-align:center;margin:10px 0;">
+                <span style="color:#aaa;font-size:14px;">语速：</span>
+                <button class="speed-btn" id="speedSlowBtn" onclick="setSpeechRate('slow')" style="padding:5px 10px;border-radius:5px;border:1px solid #555;background:rgba(255,255,255,0.05);color:#aaa;cursor:pointer;margin:0 3px;">🐢 慢速</button>
+                <button class="speed-btn" id="speedNormalBtn" onclick="setSpeechRate('normal')" style="padding:5px 10px;border-radius:5px;border:2px solid #00d4ff;background:rgba(0,212,255,0.2);color:#00d4ff;cursor:pointer;margin:0 3px;">🚶 正常</button>
+                <button class="speed-btn" id="speedFastBtn" onclick="setSpeechRate('fast')" style="padding:5px 10px;border-radius:5px;border:1px solid #555;background:rgba(255,255,255,0.05);color:#aaa;cursor:pointer;margin:0 3px;">🏃 快速</button>
             </div>
         </div>
         
@@ -271,6 +272,56 @@
     </div>
 
 <script>
+// 情景对话题库 - PET口语Part1/Part3核心题型
+const DIALOGUE_SCENES = [
+    // 问候与介绍
+    {scene:"打招呼",question:"Hello! How are you?",options:["I'm fine, thanks!","Goodbye!","What's your name?"],correct:0},
+    {scene:"打招呼",question:"Nice to meet you!",options:["Nice to meet you too!","I'm seven.","Good morning!"],correct:0},
+    {scene:"自我介绍",question:"What's your name?",options:["I'm a student.","My name is Tom.","I'm fine."],correct:1},
+    {scene:"自我介绍",question:"How old are you?",options:["I'm eight years old.","My name is Amy.","I have a dog."],correct:0},
+    
+    // 学校生活
+    {scene:"学校",question:"Is this your pencil?",options:["Yes, it is.","It's a pen.","I like pencils."],correct:0},
+    {scene:"学校",question:"Where is the teacher?",options:["She's in the classroom.","I'm a teacher.","It's a book."],correct:0},
+    {scene:"学校",question:"What's this?",options:["It's red.","It's a ruler.","I have one."],correct:1},
+    {scene:"学校",question:"Can I borrow your eraser?",options:["It's blue.","Sure, here you are.","I don't know."],correct:1},
+    
+    // 家庭与朋友
+    {scene:"家庭",question:"Who's that?",options:["She's my sister.","It's a cat.","I'm happy."],correct:0},
+    {scene:"家庭",question:"Do you have any brothers?",options:["Yes, I have one brother.","He's my father.","I'm six."],correct:0},
+    {scene:"家庭",question:"What does your father do?",options:["He's tall.","He's a teacher.","He's sleeping."],correct:1},
+    {scene:"朋友",question:"What's your friend's name?",options:["She's seven.","Her name is Lucy.","She's my sister."],correct:1},
+    
+    // 爱好与运动
+    {scene:"爱好",question:"What's your favourite toy?",options:["It's blue.","I like cars.","My favourite toy is a doll."],correct:2},
+    {scene:"爱好",question:"Do you like football?",options:["Yes, I do.","It's a ball.","I can play."],correct:0},
+    {scene:"运动",question:"Can you swim?",options:["I like swimming.","Yes, I can.","It's fun."],correct:1},
+    {scene:"运动",question:"What sports do you like?",options:["I like basketball.","I'm playing.","It's a sport."],correct:0},
+    
+    // 动物
+    {scene:"动物",question:"What's your favourite animal?",options:["It's big.","I like dogs.","They are cute."],correct:1},
+    {scene:"动物",question:"Have you got a pet?",options:["Yes, I have a cat.","It's a dog.","I like pets."],correct:0},
+    {scene:"动物",question:"What colour is the bird?",options:["It can fly.","It's yellow.","It's a bird."],correct:1},
+    
+    // 食物
+    {scene:"食物",question:"What's your favourite food?",options:["I'm hungry.","I like pizza.","It's delicious."],correct:1},
+    {scene:"食物",question:"Do you like apples?",options:["Yes, I do.","It's an apple.","I'm eating."],correct:0},
+    {scene:"食物",question:"Would you like some cake?",options:["I like cake.","Yes, please.","It's sweet."],correct:1},
+    
+    // 日常活动
+    {scene:"日常",question:"What are you doing?",options:["I'm reading.","I like reading.","It's a book."],correct:0},
+    {scene:"日常",question:"What do you do on weekends?",options:["I'm playing.","I play football.","It's Sunday."],correct:1},
+    {scene:"日常",question:"Where are you going?",options:["I'm going to school.","I'm a student.","It's far."],correct:0},
+    
+    // 购物
+    {scene:"购物",question:"Can I help you?",options:["I'm fine.","Yes, I'd like an ice cream.","Thank you."],correct:1},
+    {scene:"购物",question:"How much is this?",options:["It's five dollars.","I have money.","I want this."],correct:0},
+    
+    // 天气
+    {scene:"天气",question:"What's the weather like today?",options:["I like sunny days.","It's sunny.","It's a day."],correct:1},
+    {scene:"天气",question:"Is it raining?",options:["I don't like rain.","Yes, take an umbrella.","It's cold."],correct:1}
+];
+
 // 词汇库 - Kids Box Level 1, 2, 3 (每册12个单元)
 const LEVEL_DATA = {
     1: {
@@ -320,6 +371,14 @@ const LEVEL_DATA = {
 // 当前选择的级别
 let currentLevel = 1;
 
+// 语速设置（0.6=慢速, 0.85=正常, 1.0=快速）
+let speechRate = 0.85;
+const SPEECH_RATES = {
+    slow: {value: 0.6, label: '🐢 慢速'},
+    normal: {value: 0.85, label: '🚶 正常'},
+    fast: {value: 1.0, label: '🏃 快速'}
+};
+
 // 兼容旧版本 - 指向当前级别的数据
 const ALL_WORDS = LEVEL_DATA[currentLevel];
 
@@ -353,19 +412,50 @@ function updateLevelDisplay() {
 }
 
 // 12个单元对应的怪兽（每个单元独特）
+// 单元怪兽（每个级别独立）
 const UNIT_MONSTERS = {
-    1: {emoji:"👾",name:"问候小怪兽",desc:"来自问候星球的友好使者"},
-    2: {emoji:"🤖",name:"教室机器人",desc:"守护教室的机械守卫"},
-    3: {emoji:"🧸",name:"玩具精灵",desc:"玩具箱里的调皮鬼"},
-    4: {emoji:"👨‍👩‍👧‍👦",name:"家庭守护者",desc:"保护家庭的神秘力量"},
-    5: {emoji:"🐱",name:"宠物之王",desc:"动物世界的统治者"},
-    6: {emoji:"👀",name:"五官精灵",desc:"身体奥秘的守护者"},
-    7: {emoji:"🦁",name:"丛林之王",desc:"野生动物的首领"},
-    8: {emoji:"👕",name:"时尚恶魔",desc:"衣柜里的捣蛋鬼"},
-    9: {emoji:"⚽",name:"运动冠军",desc:"体育场的霸主"},
-    10: {emoji:"🚗",name:"交通指挥官",desc:"道路安全的守护者"},
-    11: {emoji:"🏠",name:"房屋精灵",desc:"温馨家园的守护神"},
-    12: {emoji:"🍰",name:"美食大师",desc:"美食世界的统治者"}
+    1: { // Level 1 单元怪兽
+        1: {emoji:"👾",name:"问候小怪兽",desc:"来自问候星球的友好使者"},
+        2: {emoji:"🤖",name:"教室机器人",desc:"守护教室的机械守卫"},
+        3: {emoji:"🧸",name:"玩具精灵",desc:"玩具箱里的调皮鬼"},
+        4: {emoji:"👨‍👩‍👧‍👦",name:"家庭守护者",desc:"保护家庭的神秘力量"},
+        5: {emoji:"🐱",name:"宠物之王",desc:"动物世界的统治者"},
+        6: {emoji:"👀",name:"五官精灵",desc:"身体奥秘的守护者"},
+        7: {emoji:"🦁",name:"丛林之王",desc:"野生动物的首领"},
+        8: {emoji:"👕",name:"时尚恶魔",desc:"衣柜里的捣蛋鬼"},
+        9: {emoji:"⚽",name:"运动冠军",desc:"体育场的霸主"},
+        10: {emoji:"🚗",name:"交通指挥官",desc:"道路安全的守护者"},
+        11: {emoji:"🏠",name:"房屋精灵",desc:"温馨家园的守护神"},
+        12: {emoji:"🍰",name:"美食大师",desc:"美食世界的统治者"}
+    },
+    2: { // Level 2 单元怪兽
+        1: {emoji:"🌅",name:"晨曦使者",desc:"唤醒清晨的第一缕阳光"},
+        2: {emoji:"📚",name:"知识守护者",desc:"图书馆的神秘守护者"},
+        3: {emoji:"🎨",name:"艺术精灵",desc:"画布上的魔法师"},
+        4: {emoji:"🎵",name:"音乐精灵",desc:"旋律世界的创造者"},
+        5: {emoji:"🌈",name:"彩虹使者",desc:"雨后天空的守护神"},
+        6: {emoji:"🌺",name:"花园精灵",desc:"花朵世界的守护者"},
+        7: {emoji:"🌊",name:"海洋之王",desc:"深海世界的统治者"},
+        8: {emoji:"🌙",name:"月光精灵",desc:"夜晚的守护神"},
+        9: {emoji:"⭐",name:"星星使者",desc:"星空世界的守护者"},
+        10: {emoji:"🔮",name:"魔法师",desc:"魔法世界的守护神"},
+        11: {emoji:"🎪",name:"马戏团精灵",desc:"欢乐世界的创造者"},
+        12: {emoji:"🎭",name:"戏剧大师",desc:"舞台世界的守护神"}
+    },
+    3: { // Level 3 单元怪兽
+        1: {emoji:"🚀",name:"太空探险家",desc:"宇宙探索的先驱者"},
+        2: {emoji:"🔬",name:"科学家",desc:"实验室的守护者"},
+        3: {emoji:"💻",name:"数字精灵",desc:"网络世界的守护神"},
+        4: {emoji:"🌍",name:"地球守护者",desc:"保护地球的神秘力量"},
+        5: {emoji:"⚡",name:"闪电使者",desc:"雷电世界的统治者"},
+        6: {emoji:"🔥",name:"火焰精灵",desc:"火焰世界的守护者"},
+        7: {emoji:"❄️",name:"冰雪女王",desc:"冰雪世界的统治者"},
+        8: {emoji:"🌪️",name:"风暴使者",desc:"风暴世界的守护神"},
+        9: {emoji:"🌋",name:"火山精灵",desc:"火山世界的守护者"},
+        10: {emoji:"🏔️",name:"山峰之王",desc:"高山世界的统治者"},
+        11: {emoji:"🌲",name:"森林守护者",desc:"森林世界的守护神"},
+        12: {emoji:"🏆",name:"终极大师",desc:"所有世界的守护者"}
+    }
 };
 
 // 所有怪兽库（100+个怪兽，通关解锁新怪兽）
@@ -520,6 +610,7 @@ let score=0, currentStage=1, monstersDef=0;
 let selectedUnit=1, qIdx=0, correctCount=0;
 let mHp=100, zHp=100, currentMonster=null;
 let currentText='';
+let currentQuestionType=''; // 当前题型
 let recognition=null, isRecording=false;
 let currentMonsterIndex=0;
 let stageCompleted = [];
@@ -527,6 +618,7 @@ let battleScore=0;
 let battleQuestionPool=[];
 let usedQuestions=[];
 let battleUnits=[1];
+let wrongBookTotal=0; // 错题本复习模式下的总错题数
 
 // 升级系统
 let level=1;
@@ -543,13 +635,13 @@ let wrongBook = [];
 let wrongReviewCount = 0;
 let isWrongBookReview = false;
 
-// 单元解锁系统
-let unlockedUnits = [1]; // 默认解锁第一单元
+// 单元解锁系统（每个级别独立）
+let unlockedUnits = {1: [1], 2: [1], 3: [1]}; // 每个级别默认解锁第一单元
 
 // 成就系统
 const ACHIEVEMENTS = {
     first_blood: {name:"初战告捷",desc:"完成第一场战斗",icon:"⚔️",condition:function(){return monstersDef>=10;}},
-    unit_master: {name:"单元大师",desc:"解锁所有单元",icon:"🎓",condition:function(){return unlockedUnits.length>=12;}},
+    unit_master: {name:"单元大师",desc:"解锁所有单元",icon:"🎓",condition:function(){return (unlockedUnits[1].length + unlockedUnits[2].length + unlockedUnits[3].length) >= 36;}},
     level_5: {name:"小有所成",desc:"达到Lv.5",icon:"🏅",condition:function(){return level>=5;}},
     level_10: {name:"英语达人",desc:"达到Lv.10",icon:"🏆",condition:function(){return level>=10;}},
     star_collector: {name:"星星收集者",desc:"获得50颗星星",icon:"⭐",condition:function(){return totalStars>=50;}},
@@ -561,6 +653,25 @@ const ACHIEVEMENTS = {
 };
 
 let unlockedAchievements = [];
+
+// 学习统计数据
+let studyStats = {
+    totalBattles: 0,           // 总战斗次数
+    totalQuestions: 0,         // 总答题数
+    correctAnswers: 0,         // 正确答题数
+    totalSpeakAttempts: 0,     // 口语练习次数
+    speakCorrectCount: 0,      // 口语正确次数
+    totalPronunciationScore: 0,// 发音总分
+    pronunciationCount: 0,     // 发音评分次数
+    listeningCorrect: 0,       // 听力题正确数
+    listeningTotal: 0,         // 听力题总数
+    dialogueCorrect: 0,        // 对话题正确数
+    dialogueTotal: 0,          // 对话题总数
+    dictationCorrect: 0,       // 听写题正确数
+    dictationTotal: 0,         // 听写题总数
+    studyDays: [],             // 学习日期记录
+    dailyStats: {}             // 每日统计
+};
 
 // 从已解锁怪兽中随机选择10个作为本次闯关的怪兽
 function selectBattleMonsters(){
@@ -749,12 +860,36 @@ function playSound(type){
 }
 
 function toggleSound(){
-    soundEnabled = document.getElementById('soundEnabled').checked;
+    soundEnabled = !soundEnabled;
     saveProgress();
     if(soundEnabled && audioContext && audioContext.state === 'suspended'){
         audioContext.resume();
     }
     playSound('click');
+    showToast(soundEnabled ? '🔊 音效已开启' : '🔇 音效已关闭');
+}
+
+function setSpeechRate(rateKey){
+    speechRate = SPEECH_RATES[rateKey].value;
+    
+    // 更新按钮样式
+    ['slow', 'normal', 'fast'].forEach(function(key){
+        let btn = document.getElementById('speed' + key.charAt(0).toUpperCase() + key.slice(1) + 'Btn');
+        if(btn){
+            if(key === rateKey){
+                btn.style.border = '2px solid #00d4ff';
+                btn.style.background = 'rgba(0,212,255,0.2)';
+                btn.style.color = '#00d4ff';
+            }else{
+                btn.style.border = '1px solid #555';
+                btn.style.background = 'rgba(255,255,255,0.05)';
+                btn.style.color = '#aaa';
+            }
+        }
+    });
+    
+    playSound('click');
+    showToast('语速已切换为：' + SPEECH_RATES[rateKey].label);
 }
 
 function showToast(message, duration){
@@ -838,16 +973,19 @@ function startWrongBookReview(){
     }
     
     isWrongBookReview = true;
+    battleUnits = []; // 错题本复习不需要单元选择
     battleQuestionPool = [];
     
     wrongBook.forEach(function(item){
         battleQuestionPool.push({
+            type: 'word',
             eng: item.word,
             chn: item.meaning,
             unit: 0
         });
     });
     
+    wrongBookTotal = battleQuestionPool.length; // 记录总错题数
     battleQuestionPool = shuffle(battleQuestionPool);
     usedQuestions = [];
     battleScore = 0;
@@ -855,7 +993,7 @@ function startWrongBookReview(){
     correctCount = 0;
     
     currentMonsterIndex = 1;
-    currentMonster = MONSTERS[0];
+    currentMonster = ALL_MONSTERS[0]; // 使用ALL_MONSTERS
     mHp = 100;
     zHp = 100;
     
@@ -893,10 +1031,10 @@ function loadProgress(){
             wrongBook = data.wrongBook || [];
             wrongReviewCount = data.wrongReviewCount || 0;
             soundEnabled = data.soundEnabled !== undefined ? data.soundEnabled : true;
-            unlockedUnits = data.unlockedUnits || [1];
+            unlockedUnits = data.unlockedUnits || {1: [1], 2: [1], 3: [1]};
             unlockedAchievements = data.unlockedAchievements || [];
             unlockedMonsterIds = data.unlockedMonsterIds || [1,2,3,4,5,6,7,8,9,10];
-            document.getElementById('soundEnabled').checked = soundEnabled;
+            studyStats = data.studyStats || studyStats;
         }
     }catch(e){
         console.error('加载进度失败:', e);
@@ -917,6 +1055,7 @@ function saveProgress(){
             unlockedUnits: unlockedUnits,
             unlockedAchievements: unlockedAchievements,
             unlockedMonsterIds: unlockedMonsterIds,
+            studyStats: studyStats,
             saveTime: new Date().toISOString()
         };
         localStorage.setItem('ultraman_progress', JSON.stringify(data));
@@ -948,11 +1087,13 @@ function clearProgress(){
 function createHomeUnitSelector(){
     let grid=document.getElementById('homeUnitSelector');
     grid.innerHTML='';
+    let currentLevelUnlocked = unlockedUnits[currentLevel] || [1];
+    let levelMonsters = UNIT_MONSTERS[currentLevel] || UNIT_MONSTERS[1];
     for(let i=1;i<=12;i++){
         let btn=document.createElement('button');
-        let isUnlocked = unlockedUnits.includes(i);
+        let isUnlocked = currentLevelUnlocked.includes(i);
         let isSelected = battleUnits.includes(i);
-        let monster = UNIT_MONSTERS[i];
+        let monster = levelMonsters[i];
         
         if(!isUnlocked){
             btn.className='stage-btn locked';
@@ -970,8 +1111,9 @@ function createHomeUnitSelector(){
 }
 
 function toggleHomeUnit(i, btn){
+    let currentLevelUnlocked = unlockedUnits[currentLevel] || [1];
     // 检查单元是否已解锁
-    if(!unlockedUnits.includes(i)){
+    if(!currentLevelUnlocked.includes(i)){
         showToast('请先完成单元 '+(i-1)+' 解锁此单元');
         return;
     }
@@ -1026,11 +1168,12 @@ function updateStudyAdvice(){
     }
     
     // 基于解锁进度生成建议
-    if(unlockedUnits.length < 12){
-        let nextUnit = unlockedUnits.length + 1;
-        advice.push('🎯 下一步：解锁单元 ' + nextUnit);
+    let currentLevelUnlocked = unlockedUnits[currentLevel] || [1];
+    if(currentLevelUnlocked.length < 12){
+        let nextUnit = currentLevelUnlocked.length + 1;
+        advice.push('🎯 下一步：解锁 Level ' + currentLevel + ' 单元 ' + nextUnit);
     }else{
-        advice.push('🏆 已解锁所有单元！可以自由选择复习');
+        advice.push('🏆 Level ' + currentLevel + ' 已解锁所有单元！');
     }
     
     // 基于等级生成建议
@@ -1081,6 +1224,168 @@ function showAchievements(){
     
     document.getElementById('menu').innerHTML = html;
     document.getElementById('menu').classList.remove('hidden');
+}
+
+// 学习报告
+function showStudyReport(){
+    // 更新今日学习统计
+    updateDailyStats();
+    
+    // 计算各项能力分数
+    let listeningScore = studyStats.listeningTotal > 0 ? Math.round((studyStats.listeningCorrect / studyStats.listeningTotal) * 100) : 0;
+    let dialogueScore = studyStats.dialogueTotal > 0 ? Math.round((studyStats.dialogueCorrect / studyStats.dialogueTotal) * 100) : 0;
+    let dictationScore = studyStats.dictationTotal > 0 ? Math.round((studyStats.dictationCorrect / studyStats.dictationTotal) * 100) : 0;
+    let pronunciationScore = studyStats.pronunciationCount > 0 ? Math.round(studyStats.totalPronunciationScore / studyStats.pronunciationCount) : 0;
+    let overallScore = studyStats.totalQuestions > 0 ? Math.round((studyStats.correctAnswers / studyStats.totalQuestions) * 100) : 0;
+    
+    // 计算学习天数
+    let studyDaysCount = studyStats.studyDays.length;
+    
+    // 生成能力雷达图数据
+    let radarData = {
+        listening: listeningScore,
+        speaking: pronunciationScore,
+        dialogue: dialogueScore,
+        dictation: dictationScore,
+        vocabulary: overallScore
+    };
+    
+    let html = '<div style="text-align:center;margin-bottom:15px;">'+
+        '<div style="font-size:24px;color:#00d4ff;">📊 学习报告</div>'+
+        '<div style="color:#aaa;font-size:14px;margin-top:5px;">持续学习 '+studyDaysCount+' 天</div>'+
+    '</div>';
+    
+    // 综合能力评分
+    html += '<div style="background:linear-gradient(135deg, rgba(0,212,255,0.2), rgba(148,0,211,0.2));border-radius:15px;padding:20px;margin:15px 0;text-align:center;">'+
+        '<div style="font-size:48px;color:#00d4ff;font-weight:bold;">'+overallScore+'</div>'+
+        '<div style="color:#aaa;font-size:14px;margin-top:5px;">综合能力评分</div>'+
+    '</div>';
+    
+    // 能力分析
+    html += '<div style="margin:15px 0;"><div style="color:#ffd93d;font-size:16px;margin-bottom:10px;">🎯 能力分析</div>';
+    html += '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;">';
+    
+    // 听力能力
+    html += '<div style="background:rgba(0,212,255,0.1);padding:15px;border-radius:10px;text-align:center;">'+
+        '<div style="font-size:24px;">🎧</div>'+
+        '<div style="font-size:20px;color:#00d4ff;margin:5px 0;">'+listeningScore+'分</div>'+
+        '<div style="color:#aaa;font-size:12px;">听力理解</div>'+
+        '<div style="color:#666;font-size:10px;margin-top:3px;">'+studyStats.listeningCorrect+'/'+studyStats.listeningTotal+'题</div>'+
+    '</div>';
+    
+    // 口语能力
+    html += '<div style="background:rgba(255,107,107,0.1);padding:15px;border-radius:10px;text-align:center;">'+
+        '<div style="font-size:24px;">🎤</div>'+
+        '<div style="font-size:20px;color:#ff6b6b;margin:5px 0;">'+pronunciationScore+'分</div>'+
+        '<div style="color:#aaa;font-size:12px;">口语发音</div>'+
+        '<div style="color:#666;font-size:10px;margin-top:3px;">'+studyStats.pronunciationCount+'次练习</div>'+
+    '</div>';
+    
+    // 对话能力
+    html += '<div style="background:rgba(0,255,136,0.1);padding:15px;border-radius:10px;text-align:center;">'+
+        '<div style="font-size:24px;">🎭</div>'+
+        '<div style="font-size:20px;color:#00ff88;margin:5px 0;">'+dialogueScore+'分</div>'+
+        '<div style="color:#aaa;font-size:12px;">情景对话</div>'+
+        '<div style="color:#666;font-size:10px;margin-top:3px;">'+studyStats.dialogueCorrect+'/'+studyStats.dialogueTotal+'题</div>'+
+    '</div>';
+    
+    // 听写能力
+    html += '<div style="background:rgba(255,217,61,0.1);padding:15px;border-radius:10px;text-align:center;">'+
+        '<div style="font-size:24px;">✍️</div>'+
+        '<div style="font-size:20px;color:#ffd93d;margin:5px 0;">'+dictationScore+'分</div>'+
+        '<div style="color:#aaa;font-size:12px;">听写填空</div>'+
+        '<div style="color:#666;font-size:10px;margin-top:3px;">'+studyStats.dictationCorrect+'/'+studyStats.dictationTotal+'题</div>'+
+    '</div>';
+    
+    html += '</div></div>';
+    
+    // 学习统计
+    html += '<div style="margin:15px 0;"><div style="color:#ffd93d;font-size:16px;margin-bottom:10px;">📈 学习统计</div>';
+    html += '<div style="background:rgba(255,255,255,0.05);border-radius:10px;padding:15px;">';
+    html += '<div style="display:flex;justify-content:space-between;margin:8px 0;"><span style="color:#aaa;">总战斗次数</span><span style="color:white;">'+studyStats.totalBattles+'次</span></div>';
+    html += '<div style="display:flex;justify-content:space-between;margin:8px 0;"><span style="color:#aaa;">总答题数</span><span style="color:white;">'+studyStats.totalQuestions+'题</span></div>';
+    html += '<div style="display:flex;justify-content:space-between;margin:8px 0;"><span style="color:#aaa;">正确率</span><span style="color:white;">'+overallScore+'%</span></div>';
+    html += '<div style="display:flex;justify-content:space-between;margin:8px 0;"><span style="color:#aaa;">口语练习次数</span><span style="color:white;">'+studyStats.totalSpeakAttempts+'次</span></div>';
+    html += '</div></div>';
+    
+    // 学习建议
+    html += '<div style="margin:15px 0;"><div style="color:#ffd93d;font-size:16px;margin-bottom:10px;">💡 学习建议</div>';
+    html += '<div style="background:rgba(255,215,0,0.1);border-radius:10px;padding:15px;">';
+    
+    let suggestions = [];
+    if(listeningScore < 60) suggestions.push('🎧 多练习听力题，提高听力理解能力');
+    if(pronunciationScore < 60) suggestions.push('🎤 多进行口语跟读练习，改善发音');
+    if(dialogueScore < 60) suggestions.push('🎭 多练习情景对话，提高交际能力');
+    if(dictationScore < 60) suggestions.push('✍️ 多练习听写填空，提高拼写能力');
+    if(studyStats.totalBattles < 10) suggestions.push('💪 坚持每天练习，养成学习习惯');
+    if(suggestions.length === 0) suggestions.push('🌟 表现优秀！继续保持！');
+    
+    suggestions.forEach(function(s){
+        html += '<div style="color:#aaa;font-size:14px;margin:5px 0;">'+s+'</div>';
+    });
+    
+    html += '</div></div>';
+    
+    html += '<button class="game-btn" style="background:#555;margin-top:15px;" onclick="backToMenu()">🏠 返回</button>';
+    
+    document.getElementById('menu').innerHTML = html;
+    document.getElementById('menu').classList.remove('hidden');
+}
+
+// 更新每日学习统计
+function updateDailyStats(){
+    let today = new Date().toISOString().split('T')[0];
+    
+    // 记录学习日期
+    if(!studyStats.studyDays.includes(today)){
+        studyStats.studyDays.push(today);
+    }
+    
+    // 更新每日统计
+    if(!studyStats.dailyStats[today]){
+        studyStats.dailyStats[today] = {
+            battles: 0,
+            questions: 0,
+            correct: 0,
+            speakAttempts: 0
+        };
+    }
+    
+    saveProgress();
+}
+
+// 记录答题统计
+function recordQuestionStats(type, isCorrect){
+    studyStats.totalQuestions++;
+    if(isCorrect) studyStats.correctAnswers++;
+    
+    // 根据题型记录
+    if(type === 'listenImage' || type === 'hearing'){
+        studyStats.listeningTotal++;
+        if(isCorrect) studyStats.listeningCorrect++;
+    }
+    if(type === 'dialogueScene' || type === 'dialogue'){
+        studyStats.dialogueTotal++;
+        if(isCorrect) studyStats.dialogueCorrect++;
+    }
+    if(type === 'dictation'){
+        studyStats.dictationTotal++;
+        if(isCorrect) studyStats.dictationCorrect++;
+    }
+    if(type === 'speak' || type === 'speakImage'){
+        studyStats.totalSpeakAttempts++;
+        if(isCorrect) studyStats.speakCorrectCount++;
+    }
+    
+    // 更新每日统计
+    let today = new Date().toISOString().split('T')[0];
+    if(!studyStats.dailyStats[today]){
+        studyStats.dailyStats[today] = {battles: 0, questions: 0, correct: 0, speakAttempts: 0};
+    }
+    studyStats.dailyStats[today].questions++;
+    if(isCorrect) studyStats.dailyStats[today].correct++;
+    
+    saveProgress();
 }
 
 // 怪兽图鉴
@@ -1155,14 +1460,15 @@ function restoreMenuContent(){
         </div>
         
         <button class="game-btn btn-battle" onclick="confirmUnitsAndBattle()">⚔️ 开始战斗</button>
-        <button class="game-btn btn-free" onclick="startFreeMode()">🎮 自由练习</button>
-        <button class="game-btn btn-speak" onclick="startSpeakingPractice()">🎤 口语练习</button>
-        <button class="game-btn wrong-book-btn" onclick="showWrongBook()">📖 错题本</button>
         <button class="game-btn" style="background:linear-gradient(135deg, #9b59b6, #8e44ad);" onclick="showMonsterCollection()">👾 怪兽图鉴</button>
         <button class="game-btn" style="background:linear-gradient(135deg, #f39c12, #e67e22);" onclick="showAchievements()">🏆 成就</button>
-        <div class="sound-toggle">
-            <input type="checkbox" id="soundEnabled" checked onchange="toggleSound()">
-            <label for="soundEnabled">🔊 音效</label>
+        <button class="game-btn" style="background:linear-gradient(135deg, #00b894, #00cec9);" onclick="showStudyReport()">📊 学习报告</button>
+        <button class="game-btn" style="background:linear-gradient(135deg, #e74c3c, #c0392b);" onclick="showWrongBook()">📖 错题本</button>
+        <div class="speed-control" style="text-align:center;margin:10px 0;">
+            <span style="color:#aaa;font-size:14px;">语速：</span>
+            <button class="speed-btn" id="speedSlowBtn" onclick="setSpeechRate('slow')" style="padding:5px 10px;border-radius:5px;border:1px solid #555;background:rgba(255,255,255,0.05);color:#aaa;cursor:pointer;margin:0 3px;">🐢 慢速</button>
+            <button class="speed-btn" id="speedNormalBtn" onclick="setSpeechRate('normal')" style="padding:5px 10px;border-radius:5px;border:2px solid #00d4ff;background:rgba(0,212,255,0.2);color:#00d4ff;cursor:pointer;margin:0 3px;">🚶 正常</button>
+            <button class="speed-btn" id="speedFastBtn" onclick="setSpeechRate('fast')" style="padding:5px 10px;border-radius:5px;border:1px solid #555;background:rgba(255,255,255,0.05);color:#aaa;cursor:pointer;margin:0 3px;">🏃 快速</button>
         </div>
     `;
 }
@@ -1225,40 +1531,48 @@ function startRound(round){
 function getDifficulty(round){
     let difficulty = {
         questionCount: 5,
-        types: ['choice','match','dialogue','hearing']
+        types: ['listenImage','choice','dialogue','dialogueScene','hearing','speak','speakImage']
     };
     
-    // 优化难度曲线，使增长更加平滑
+    // 优化难度曲线，突出听说能力（PET考试导向）
+    // 听音选图(listenImage): 听单词选图片 - PET听力Part1
+    // 听句子选图(hearing): 听句子选答案 - PET听力Part1
+    // 口语跟读(speak): 跟读单词/句子 - PET口语预备
+    // 看图说话(speakImage): 看图说英文 - PET口语Part2
+    // 情景对话(dialogue): 听问题选回答 - PET口语Part1
+    // 情景对话场景(dialogueScene): 真实场景对话 - PET口语Part1/Part3
+    // 单词选择(choice): 看英文选中文 - 词汇认知
+    
     if(round===1){
         difficulty.questionCount=3;
-        difficulty.types=['choice','match'];
+        difficulty.types=['listenImage','choice']; // 听音选图+单词选择
     }else if(round===2){
         difficulty.questionCount=3;
-        difficulty.types=['choice','match','dialogue'];
+        difficulty.types=['listenImage','choice','speak']; // 增加口语跟读
     }else if(round===3){
         difficulty.questionCount=4;
-        difficulty.types=['choice','match','dialogue'];
+        difficulty.types=['listenImage','choice','speak','dialogueScene']; // 增加情景对话场景
     }else if(round===4){
         difficulty.questionCount=4;
-        difficulty.types=['choice','match','dialogue','hearing'];
+        difficulty.types=['listenImage','hearing','speak','dialogueScene']; // 听句子选图
     }else if(round===5){
         difficulty.questionCount=5;
-        difficulty.types=['choice','match','dialogue','hearing'];
+        difficulty.types=['listenImage','hearing','speak','dialogueScene','speakImage']; // 看图说话
     }else if(round===6){
         difficulty.questionCount=5;
-        difficulty.types=['choice','dialogue','hearing','match'];
+        difficulty.types=['listenImage','hearing','speak','dialogueScene','speakImage'];
     }else if(round===7){
         difficulty.questionCount=5;
-        difficulty.types=['choice','dialogue','hearing','match','puzzle'];
+        difficulty.types=['listenImage','hearing','speak','dialogueScene','speakImage'];
     }else if(round===8){
         difficulty.questionCount=6;
-        difficulty.types=['choice','dialogue','hearing','match','puzzle'];
+        difficulty.types=['listenImage','hearing','speak','dialogueScene','speakImage','dictation'];
     }else if(round===9){
         difficulty.questionCount=6;
-        difficulty.types=['choice','dialogue','hearing','match','puzzle'];
+        difficulty.types=['listenImage','hearing','speak','dialogueScene','speakImage','dictation'];
     }else{
         difficulty.questionCount=7;
-        difficulty.types=['choice','dialogue','hearing','match','puzzle'];
+        difficulty.types=['listenImage','hearing','speak','dialogueScene','speakImage','dictation'];
     }
     
     return difficulty;
@@ -1284,8 +1598,14 @@ function showRoundQuestion(){
     
     let difficulty = getDifficulty(currentMonsterIndex);
     
-    // 题目池空了，重新生成并打乱
+    // 题目池空了
     if(battleQuestionPool.length===0){
+        // 错题本复习模式：结束战斗
+        if(isWrongBookReview){
+            endBattle();
+            return;
+        }
+        // 正常模式：重新生成题目
         battleUnits.forEach(function(u){
             ALL_WORDS[u].words.forEach(function(w){
                 battleQuestionPool.push({type:'word', eng:w[0], chn:w[1]});
@@ -1299,7 +1619,16 @@ function showRoundQuestion(){
     }
     
     // 选择题型（避免与上次同一单词同一题型）
-    let type=difficulty.types[Math.floor(Math.random()*difficulty.types.length)];
+    let type='';
+    
+    // 错题本复习模式：只使用适合单词的题型
+    if(isWrongBookReview){
+        let wrongBookTypes = ['listenImage', 'choice', 'speak'];
+        type = wrongBookTypes[Math.floor(Math.random() * wrongBookTypes.length)];
+    }else{
+        type = difficulty.types[Math.floor(Math.random()*difficulty.types.length)];
+    }
+    currentQuestionType = type; // 记录当前题型
     
     // 选一个题目（优先选最近没用过的单词）
     let item=null;
@@ -1329,7 +1658,7 @@ function showRoundQuestion(){
             item=battleQuestionPool[sentenceIndex];
             itemIndex=sentenceIndex;
         }else{
-            type='choice';
+            type='listenImage';
         }
     }
     
@@ -1341,7 +1670,31 @@ function showRoundQuestion(){
             item=battleQuestionPool[sentenceIndex];
             itemIndex=sentenceIndex;
         }else{
-            type='choice';
+            type='listenImage';
+        }
+    }
+    
+    // 看图说话只用单词
+    if(type==='speakImage' && item.type!=='word'){
+        // 找一个单词
+        let wordIndex=battleQuestionPool.findIndex(function(i){return i.type==='word';});
+        if(wordIndex>=0){
+            item=battleQuestionPool[wordIndex];
+            itemIndex=wordIndex;
+        }else{
+            type='speak';
+        }
+    }
+    
+    // 听写填空只用句子
+    if(type==='dictation' && item.type!=='sentence'){
+        // 找一个句子
+        let sentenceIndex=battleQuestionPool.findIndex(function(i){return i.type==='sentence';});
+        if(sentenceIndex>=0){
+            item=battleQuestionPool[sentenceIndex];
+            itemIndex=sentenceIndex;
+        }else{
+            type='listenImage';
         }
     }
     
@@ -1349,7 +1702,12 @@ function showRoundQuestion(){
     usedQuestions.push(item.eng+'_'+type);
     battleQuestionPool.splice(itemIndex,1);
     
-    document.getElementById('battleProgress').textContent='第 '+currentMonsterIndex+'/10 关 · 已答 '+qIdx+' 题';
+    // 进度显示
+    if(isWrongBookReview){
+        document.getElementById('battleProgress').textContent='错题复习 · 第 '+(wrongBookTotal - battleQuestionPool.length)+'/'+wrongBookTotal+' 题';
+    }else{
+        document.getElementById('battleProgress').textContent='第 '+currentMonsterIndex+'/10 关 · 已答 '+qIdx+' 题';
+    }
     
     let area = document.getElementById('questionArea');
     
@@ -1363,10 +1721,35 @@ function showRoundQuestion(){
         showPuzzleQuestion(area, item);
     }else if(type==='dialogue'){
         showDialogueQuestion(area, item, battleQuestionPool.slice(0,10));
+    }else if(type==='speak'){
+        showSpeakQuestion(area, item);
+    }else if(type==='listenImage'){
+        showListenImageQuestion(area, item, battleQuestionPool.slice(0,10));
+    }else if(type==='speakImage'){
+        showSpeakImageQuestion(area, item);
+    }else if(type==='dialogueScene'){
+        showDialogueSceneQuestion(area);
+    }else if(type==='dictation'){
+        showDictationQuestion(area, item);
     }
 }
 
 function nextRound(){
+    // 错题本复习模式：检查是否还有错题
+    if(isWrongBookReview){
+        if(battleQuestionPool.length === 0){
+            endAllBattles();
+            return;
+        }
+        // 继续下一题
+        let area=document.getElementById('questionArea');
+        area.innerHTML='<div style="text-align:center;padding:30px;"><div style="font-size:50px;">✅</div><div style="color:#00ff88;font-size:20px;margin:10px 0;">答对了！</div><div style="color:#aaa;">继续下一题...</div></div>';
+        setTimeout(function(){
+            showRoundQuestion();
+        },1000);
+        return;
+    }
+    
     if(currentMonsterIndex>=10){
         endAllBattles();
         return;
@@ -1390,13 +1773,16 @@ function showChoiceQuestion(area, word, pool){
     // 从题目池中找其他单词作为干扰项
     let wrongItems = pool.filter(function(item){return item.eng!==word.eng;}).slice(0,3);
     if(wrongItems.length<3){
-        // 如果不够，从对应单元补充
-        battleUnits.forEach(function(u){
-            ALL_WORDS[u].words.forEach(function(w){
-                if(w[0]!==word.eng && wrongItems.length<3){
-                    wrongItems.push({eng:w[0], chn:w[1]});
-                }
-            });
+        // 如果不够，从对应单元补充（错题本复习模式从所有单元补充）
+        let unitsToUse = isWrongBookReview ? [1,2,3,4,5,6,7,8,9,10,11,12] : battleUnits;
+        unitsToUse.forEach(function(u){
+            if(ALL_WORDS[u]){
+                ALL_WORDS[u].words.forEach(function(w){
+                    if(w[0]!==word.eng && wrongItems.length<3){
+                        wrongItems.push({eng:w[0], chn:w[1]});
+                    }
+                });
+            }
         });
     }
     
@@ -1410,9 +1796,6 @@ function showChoiceQuestion(area, word, pool){
         b.onclick=function(){checkAnswer(o===word.chn, this);};
         optArea.appendChild(b);
     });
-    
-    // 自动播放发音
-    setTimeout(function(){speakWord(word.eng,'choiceVoiceBtn');},500);
 }
 
 
@@ -1489,12 +1872,11 @@ function showHearingQuestion(area, word, pool){
 function showDialogueQuestion(area, word, pool){
     currentText=word.eng;
     area.innerHTML='<div class="question-type dialogue">💬 对话选择</div>'+
-        '<div class="word-display" style="font-size:22px;margin:15px 0;">'+word.eng+'</div>'+
-        '<div style="text-align:center;color:#aaa;font-size:14px;margin:8px 0;">请选择正确的回答</div>'+
-        '<div class="voice-btn-container"><button class="voice-btn" id="dialogueBtn" onclick="speakWord(\''+word.eng+'\',\'dialogueBtn\')"><span>🔊</span><span>听发音</span></button></div>'+
+        '<div style="text-align:center;color:#ffd93d;font-size:16px;margin:8px 0;">👂 听英文问题，选择正确的英文回答</div>'+
+        '<div class="voice-btn-container"><button class="voice-btn" id="dialogueBtn" onclick="speakWord(\''+word.eng+'\',\'dialogueBtn\')"><span>🔊</span><span>听问题</span></button></div>'+
         '<div id="options"></div>';
     
-    // 从题目池中找其他句子作为干扰项
+    // 从题目池中找其他句子作为干扰项（英文）
     let wrongItems = pool.filter(function(item){return item.eng!==word.eng && item.type==='sentence';}).slice(0,3);
     if(wrongItems.length<3){
         battleUnits.forEach(function(u){
@@ -1506,18 +1888,20 @@ function showDialogueQuestion(area, word, pool){
         });
     }
     
-    let opts=shuffle([word.chn].concat(wrongItems.map(function(item){return item.chn;})));
+    // 选项显示英文
+    let opts=shuffle([word.eng].concat(wrongItems.map(function(item){return item.eng;})));
     let optArea=document.getElementById('options');
     
     opts.forEach(function(o){
         let b=document.createElement('button');
         b.className='option-btn';
+        b.style.fontSize='18px';
         b.textContent=o;
-        b.onclick=function(){checkAnswer(o===word.chn, this);};
+        b.onclick=function(){checkAnswer(o===word.eng, this);};
         optArea.appendChild(b);
     });
     
-    // 自动播放发音
+    // 自动播放问题发音
     setTimeout(function(){speakWord(word.eng,'dialogueBtn');},500);
 }
 
@@ -1554,6 +1938,353 @@ function showPuzzleQuestion(area, word){
     setTimeout(function(){speakWord(word.eng,'puzzleVoiceBtn');},500);
 }
 
+// 口语题
+function showSpeakQuestion(area, word){
+    currentText=word.eng;
+    area.innerHTML='<div class="question-type speak">🎤 口语练习</div>'+
+        '<div class="word-display">'+word.eng+'</div>'+
+        '<div class="meaning-display">'+word.chn+'</div>'+
+        '<div class="voice-btn-container"><button class="voice-btn" id="speakVoiceBtn" onclick="speakWord(\''+word.eng+'\',\'speakVoiceBtn\')"><span>🔊</span><span>听发音</span></button></div>'+
+        '<div id="speakResultArea" style="text-align:center;padding:10px;background:rgba(0,0,0,0.3);border-radius:10px;margin:8px 0;"><div style="color:#aaa;">按住按钮说英文</div></div>'+
+        '<div style="text-align:center;margin:15px 0;"><button class="speak-btn" id="recBtn" onclick="toggleBattleRecord()"><span id="recText">点击录音</span></button></div>';
+    
+    // 自动播放发音
+    setTimeout(function(){speakWord(word.eng,'speakVoiceBtn');},500);
+}
+
+// 战斗模式录音切换
+function toggleBattleRecord(){
+    if(isRecording){
+        // 停止录音
+        isRecording=false;
+        document.getElementById('recBtn').classList.remove('recording');
+        document.getElementById('recText').textContent='点击录音';
+        try{recognition.stop();}catch(e){}
+    }else{
+        // 开始录音
+        startBattleRecording();
+    }
+}
+
+// 战斗模式录音
+function startBattleRecording(){
+    console.log('startBattleRecording 被调用');
+    
+    if(!recognition){
+        console.log('recognition 未初始化，尝试初始化...');
+        preInitSpeechRecognition();
+    }
+    
+    if(!recognition){
+        console.error('recognition 初始化失败');
+        document.getElementById('speakResultArea').innerHTML='<div style="color:#ff6b6b;">⚠️ 浏览器不支持语音识别</div>';
+        return;
+    }
+    
+    // 清除之前的超时
+    if(recordingTimeout){
+        clearTimeout(recordingTimeout);
+        recordingTimeout = null;
+    }
+    
+    isRecording=true;
+    document.getElementById('recBtn').classList.add('recording');
+    document.getElementById('recText').textContent='点击停止';
+    document.getElementById('speakResultArea').innerHTML='<div style="color:#ffd93d;">🎤 正在录音...</div><div style="color:#aaa;font-size:12px;margin-top:5px;">请说英文单词</div>';
+    
+    // 设置超时检测
+    recordingTimeout = setTimeout(function(){
+        if(isRecording){
+            console.warn('录音超时，自动停止');
+            isRecording = false;
+            document.getElementById('recBtn').classList.remove('recording');
+            document.getElementById('recText').textContent='点击录音';
+            document.getElementById('speakResultArea').innerHTML='<div style="color:#ffd93d;">⚠️ 录音超时</div><div style="color:#aaa;font-size:12px;margin-top:5px;">请重新尝试</div>';
+            try{ recognition.stop(); }catch(e){}
+        }
+    }, 15000);
+    
+    try{
+        console.log('调用 recognition.start()...');
+        recognition.start();
+        console.log('recognition.start() 调用成功');
+    }catch(e){
+        console.error('启动录音失败:', e);
+        clearTimeout(recordingTimeout);
+        isRecording=false;
+        document.getElementById('recBtn').classList.remove('recording');
+        document.getElementById('recText').textContent='点击录音';
+        document.getElementById('speakResultArea').innerHTML='<div style="color:#ff6b6b;">启动录音失败</div>';
+    }
+}
+
+// 听音选图题型 - PET听力Part1核心题型
+function showListenImageQuestion(area, word, pool){
+    currentText=word.eng;
+    
+    // 生成选项（1个正确+3个干扰）
+    let options=[word];
+    let others=pool.filter(function(i){return i.eng!==word.eng && i.type==='word';});
+    others=shuffle(others).slice(0,3);
+    
+    // 如果干扰项不够，从所有单元补充
+    if(others.length<3){
+        let unitsToUse = isWrongBookReview ? [1,2,3,4,5,6,7,8,9,10,11,12] : battleUnits;
+        unitsToUse.forEach(function(u){
+            if(ALL_WORDS[u]){
+                ALL_WORDS[u].words.forEach(function(w){
+                    if(w[0]!==word.eng && others.length<3){
+                        others.push({eng:w[0], chn:w[1], type:'word'});
+                    }
+                });
+            }
+        });
+        others=shuffle(others).slice(0,3);
+    }
+    
+    options=options.concat(others);
+    options=shuffle(options);
+    
+    // 改为听音选义题型 - 听发音选择正确的中文意思
+    let html='<div class="question-type hearing">🎧 听音选义</div>'+
+        '<div class="hint-text" style="text-align:center;color:#aaa;margin:10px 0;">点击听发音，选择正确的中文意思</div>'+
+        '<div class="voice-btn-container"><button class="voice-btn big-voice" onclick="speakWord(\''+word.eng+'\')"><span>🔊</span><span>点击听发音</span></button></div>'+
+        '<div class="meaning-options" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:15px 0;">';
+    
+    options.forEach(function(opt, idx){
+        html+='<button class="meaning-option" onclick="checkListenImage(\''+opt.eng+'\',\''+word.eng+'\',this)" style="background:linear-gradient(135deg, rgba(0,212,255,0.1), rgba(148,0,211,0.1));border:2px solid rgba(255,255,255,0.2);border-radius:12px;padding:18px;cursor:pointer;transition:all 0.3s;min-height:60px;">'+
+            '<div style="color:white;font-size:16px;font-weight:bold;">'+opt.chn+'</div>'+
+            '</button>';
+    });
+    
+    html+='</div>';
+    area.innerHTML=html;
+    
+    // 自动播放发音
+    setTimeout(function(){speakWord(word.eng);},500);
+}
+
+function checkListenImage(selected, correct, btn){
+    playSound('click');
+    let isCorrect = selected===correct;
+    
+    // 显示结果
+    let options = document.querySelectorAll('.meaning-option');
+    options.forEach(function(opt){
+        opt.style.pointerEvents='none';
+        if(opt===btn){
+            if(isCorrect){
+                opt.style.borderColor='#00ff88';
+                opt.style.background='linear-gradient(135deg, rgba(0,255,136,0.3), rgba(0,255,136,0.1))';
+            }else{
+                opt.style.borderColor='#ff6b6b';
+                opt.style.background='linear-gradient(135deg, rgba(255,107,107,0.3), rgba(255,107,107,0.1))';
+            }
+        }
+    });
+    
+    if(isCorrect){
+        playSound('correct');
+    }else{
+        playSound('wrong');
+        addToWrongBook(correct);
+    }
+    
+    setTimeout(function(){checkAnswer(isCorrect, null);}, 800);
+}
+
+// 看图说话题型 - PET口语Part2核心题型
+function showSpeakImageQuestion(area, word){
+    currentText=word.eng;
+    
+    // 生成emoji图标
+    let emojiMap={
+        'a':'🍎','b':'🏀','c':'🐱','d':'🐕','e':'🐘','f':'🌸','g':'🎸','h':'🏠','i':'💡','j':'🃏',
+        'k':'🔑','l':'🦁','m':'🌙','n':'🎵','o':'🍊','p':'🍕','q':'👸','r':'🌹','s':'⭐','t':'🌳',
+        'u':'☂️','v':'🎻','w':'🌊','x':'❌','y':'💛','z':'⚡'
+    };
+    let emoji = emojiMap[word.eng.charAt(0).toLowerCase()] || '📝';
+    
+    area.innerHTML='<div class="question-type speak">🖼️ 看图说话</div>'+
+        '<div class="hint-text" style="text-align:center;color:#aaa;margin:10px 0;">看图片，说出对应的英文单词</div>'+
+        '<div class="image-display" style="text-align:center;padding:30px;background:linear-gradient(135deg, rgba(0,212,255,0.2), rgba(148,0,211,0.2));border-radius:20px;margin:15px 0;">'+
+            '<div style="font-size:80px;margin-bottom:15px;">'+emoji+'</div>'+
+            '<div style="color:#aaa;font-size:14px;">'+word.chn+'</div>'+
+        '</div>'+
+        '<div id="speakImageResult" style="text-align:center;padding:10px;background:rgba(0,0,0,0.3);border-radius:10px;margin:8px 0;"><div style="color:#aaa;">按住按钮说英文</div></div>'+
+        '<div style="text-align:center;margin:15px 0;"><button class="speak-btn" id="recBtnImage" onclick="toggleSpeakImageRecord()"><span id="recTextImage">点击录音</span></button></div>'+
+        '<div style="text-align:center;margin-top:10px;"><button class="hint-btn" onclick="showSpeakImageHint(\''+word.eng+'\')" style="padding:8px 20px;border-radius:20px;border:1px solid #555;background:rgba(255,255,255,0.05);color:#aaa;cursor:pointer;">💡 提示</button></div>';
+}
+
+function toggleSpeakImageRecord(){
+    if(isRecording){
+        isRecording=false;
+        document.getElementById('recBtnImage').classList.remove('recording');
+        document.getElementById('recTextImage').textContent='点击录音';
+        try{recognition.stop();}catch(e){}
+    }else{
+        startSpeakImageRecording();
+    }
+}
+
+function startSpeakImageRecording(){
+    if(!recognition){
+        preInitSpeechRecognition();
+    }
+    
+    if(!recognition){
+        document.getElementById('speakImageResult').innerHTML='<div style="color:#ff6b6b;">⚠️ 浏览器不支持语音识别</div>';
+        return;
+    }
+    
+    if(recordingTimeout){
+        clearTimeout(recordingTimeout);
+        recordingTimeout = null;
+    }
+    
+    isRecording=true;
+    document.getElementById('recBtnImage').classList.add('recording');
+    document.getElementById('recTextImage').textContent='点击停止';
+    document.getElementById('speakImageResult').innerHTML='<div style="color:#ffd93d;">🎤 正在录音...</div><div style="color:#aaa;font-size:12px;margin-top:5px;">请说英文单词</div>';
+    
+    recordingTimeout = setTimeout(function(){
+        if(isRecording){
+            isRecording = false;
+            document.getElementById('recBtnImage').classList.remove('recording');
+            document.getElementById('recTextImage').textContent='点击录音';
+            document.getElementById('speakImageResult').innerHTML='<div style="color:#ffd93d;">⚠️ 录音超时</div>';
+            try{ recognition.stop(); }catch(e){}
+        }
+    }, 15000);
+    
+    try{
+        recognition.start();
+    }catch(e){
+        clearTimeout(recordingTimeout);
+        isRecording=false;
+        document.getElementById('recBtnImage').classList.remove('recording');
+        document.getElementById('recTextImage').textContent='点击录音';
+        document.getElementById('speakImageResult').innerHTML='<div style="color:#ff6b6b;">启动录音失败</div>';
+    }
+}
+
+function showSpeakImageHint(word){
+    let hint = word.charAt(0).toUpperCase() + '_'.repeat(word.length - 1);
+    document.getElementById('speakImageResult').innerHTML='<div style="color:#00d4ff;">💡 提示：'+hint+'</div>';
+}
+
+// 情景对话题型 - PET口语Part1/Part3核心题型
+function showDialogueSceneQuestion(area){
+    // 随机选择一个情景对话
+    let scene = DIALOGUE_SCENES[Math.floor(Math.random() * DIALOGUE_SCENES.length)];
+    currentText = scene.question;
+    
+    let html='<div class="question-type dialogue">🎭 情景对话</div>'+
+        '<div class="scene-badge" style="text-align:center;margin:10px 0;"><span style="background:linear-gradient(135deg, #667eea, #764ba2);padding:5px 15px;border-radius:20px;color:white;font-size:12px;">📍 '+scene.scene+'</span></div>'+
+        '<div class="question-box" style="background:linear-gradient(135deg, rgba(102,126,234,0.2), rgba(118,75,162,0.2));border-radius:15px;padding:20px;margin:15px 0;text-align:center;">'+
+            '<div style="color:#aaa;font-size:12px;margin-bottom:8px;">🔊 听问题，选择正确回答</div>'+
+            '<div class="voice-btn-container"><button class="voice-btn" onclick="speakWord(\''+scene.question.replace(/'/g, "\\'")+'\')"><span>🔊</span><span>听问题</span></button></div>'+
+            '<div style="color:white;font-size:16px;margin-top:10px;font-weight:bold;">"'+scene.question+'"</div>'+
+        '</div>'+
+        '<div class="dialogue-options" style="display:flex;flex-direction:column;gap:10px;margin:15px 0;">';
+    
+    scene.options.forEach(function(opt, idx){
+        let escapedOpt = opt.replace(/'/g, "\\'");
+        html+='<button class="dialogue-option" onclick="checkDialogueScene('+idx+','+scene.correct+',this)" style="background:rgba(255,255,255,0.05);border:2px solid rgba(255,255,255,0.2);border-radius:12px;padding:15px;cursor:pointer;text-align:left;transition:all 0.3s;display:flex;align-items:center;justify-content:space-between;">'+
+            '<div><span style="color:#00d4ff;margin-right:10px;">'+String.fromCharCode(65+idx)+'.</span>'+
+            '<span style="color:white;">'+opt+'</span></div>'+
+            '<span class="option-speak-btn" onclick="event.stopPropagation();speakWord(\''+escapedOpt+'\')" style="background:linear-gradient(135deg, #00d4ff, #9400d3);border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;flex-shrink:0;">🔊</span>'+
+            '</button>';
+    });
+    
+    html+='</div>';
+    area.innerHTML=html;
+    
+    // 自动播放问题
+    setTimeout(function(){speakWord(scene.question);},500);
+}
+
+function checkDialogueScene(selected, correct, btn){
+    playSound('click');
+    let isCorrect = selected===correct;
+    
+    // 显示结果
+    let options = document.querySelectorAll('.dialogue-option');
+    options.forEach(function(opt, idx){
+        opt.style.pointerEvents='none';
+        if(idx===correct){
+            opt.style.borderColor='#00ff88';
+            opt.style.background='linear-gradient(135deg, rgba(0,255,136,0.2), rgba(0,255,136,0.1))';
+        }else if(opt===btn && !isCorrect){
+            opt.style.borderColor='#ff6b6b';
+            opt.style.background='linear-gradient(135deg, rgba(255,107,107,0.2), rgba(255,107,107,0.1))';
+        }
+    });
+    
+    if(isCorrect){
+        playSound('correct');
+    }else{
+        playSound('wrong');
+    }
+    
+    setTimeout(function(){checkAnswer(isCorrect, null);}, 800);
+}
+
+// 听写填空题型 - PET写作预备
+function showDictationQuestion(area, word){
+    currentText=word.eng;
+    
+    // 从句子中选择一个单词作为填空
+    let sentence = word.eng;
+    let words = sentence.split(' ');
+    let blankIndex = Math.floor(Math.random() * words.length);
+    let blankWord = words[blankIndex].replace(/[.,!?]/g, ''); // 移除标点
+    let displaySentence = sentence.replace(words[blankIndex], '______');
+    
+    area.innerHTML='<div class="question-type hearing">✍️ 听写填空</div>'+
+        '<div class="hint-text" style="text-align:center;color:#aaa;margin:10px 0;">听句子，填写缺失的单词</div>'+
+        '<div class="voice-btn-container"><button class="voice-btn big-voice" onclick="speakWord(\''+sentence.replace(/'/g, "\\'")+'\')"><span>🔊</span><span>点击听句子</span></button></div>'+
+        '<div class="dictation-sentence" style="background:linear-gradient(135deg, rgba(0,212,255,0.2), rgba(148,0,211,0.2));border-radius:15px;padding:20px;margin:15px 0;text-align:center;font-size:18px;color:white;">'+
+            displaySentence+
+        '</div>'+
+        '<div class="dictation-input" style="text-align:center;margin:15px 0;">'+
+            '<input type="text" id="dictationInput" placeholder="输入缺失的单词" style="width:80%;padding:15px;border-radius:10px;border:2px solid rgba(255,255,255,0.2);background:rgba(0,0,0,0.3);color:white;font-size:16px;text-align:center;" onkeypress="if(event.key===\'Enter\')checkDictationAnswer(\''+blankWord+'\',\''+sentence+'\')">'+
+        '</div>'+
+        '<div style="text-align:center;margin-top:10px;">'+
+            '<button class="game-btn" style="padding:10px 30px;" onclick="checkDictationAnswer(\''+blankWord+'\',\''+sentence+'\')">确认答案</button>'+
+            '<button class="hint-btn" onclick="showDictationHint(\''+blankWord+'\')" style="margin-left:10px;padding:10px 20px;border-radius:20px;border:1px solid #555;background:rgba(255,255,255,0.05);color:#aaa;cursor:pointer;">💡 提示</button>'+
+        '</div>';
+    
+    // 自动播放句子
+    setTimeout(function(){speakWord(sentence);},500);
+}
+
+function checkDictationAnswer(correct, sentence){
+    let input = document.getElementById('dictationInput');
+    let answer = input.value.trim().toLowerCase();
+    let isCorrect = answer === correct.toLowerCase();
+    
+    input.disabled = true;
+    input.style.borderColor = isCorrect ? '#00ff88' : '#ff6b6b';
+    input.style.background = isCorrect ? 'rgba(0,255,136,0.1)' : 'rgba(255,107,107,0.1)';
+    
+    if(isCorrect){
+        playSound('correct');
+        showToast('✅ 正确！');
+    }else{
+        playSound('wrong');
+        showToast('❌ 正确答案：' + correct);
+        addToWrongBook(correct, sentence);
+    }
+    
+    setTimeout(function(){checkAnswer(isCorrect, null);}, 1000);
+}
+
+function showDictationHint(word){
+    let hint = word.charAt(0).toUpperCase() + '_'.repeat(Math.min(word.length - 1, 3));
+    showToast('💡 提示：' + hint + ' (' + word.length + '个字母)');
+}
+
 function toggleLetter(letter, idx, btn){
     // 如果已经使用，点击取消
     if(window.puzzleButtons[idx].used){
@@ -1581,6 +2312,9 @@ function toggleLetter(letter, idx, btn){
 }
 
 function checkAnswer(correct, btn){
+    // 记录答题统计
+    recordQuestionStats(currentQuestionType, correct);
+    
     if(correct){
         correctCount++;
         battleScore+=ENERGY_PER_CORRECT;
@@ -1646,6 +2380,10 @@ function endBattle(){
     let energyGained=battleScore;
     score+=energyGained;
     
+    // 更新学习统计
+    studyStats.totalBattles++;
+    updateDailyStats();
+    
     playSound('wrong');
     
     document.getElementById('resultEmoji').textContent='💪';
@@ -1673,6 +2411,10 @@ function endAllBattles(){
     score+=energyGained;
     totalStars+=starGained;
     
+    // 更新学习统计
+    studyStats.totalBattles++;
+    updateDailyStats();
+    
     if(isWrongBookReview){
         wrongReviewCount++;
         playSound('victory');
@@ -1680,12 +2422,16 @@ function endAllBattles(){
     }else{
         playSound('victory');
         
-        // 解锁下一单元
+        // 解锁下一单元（针对当前级别）
         let maxUnit = Math.max.apply(null, battleUnits);
         let nextUnit = maxUnit + 1;
-        if(nextUnit <= 12 && !unlockedUnits.includes(nextUnit)){
-            unlockedUnits.push(nextUnit);
-            showToast('🎉 解锁了单元 ' + nextUnit + '！');
+        if(nextUnit <= 12){
+            let currentLevelUnlocked = unlockedUnits[currentLevel] || [1];
+            if(!currentLevelUnlocked.includes(nextUnit)){
+                if(!unlockedUnits[currentLevel]) unlockedUnits[currentLevel] = [1];
+                unlockedUnits[currentLevel].push(nextUnit);
+                showToast('🎉 解锁了 Level ' + currentLevel + ' 单元 ' + nextUnit + '！');
+            }
         }
         
         // 根据表现解锁怪兽
@@ -1738,6 +2484,7 @@ function startFreeBattle(){
 // ========== 口语练习（独立） ==========
 let speakIdx=0, speakCorrect=0, speakData=[], speakUnit=1;
 let speechRecognitionReady = false;
+let recordingTimeout = null;
 
 const NUMBER_WORDS = {
     'zero': '0', 'one': '1', 'two': '2', 'three': '3', 'four': '4',
@@ -1810,13 +2557,124 @@ function checkSpeechAnswer(spoken, correct){
     return false;
 }
 
+// 发音评分系统 - 计算发音相似度（0-100分）
+function calculatePronunciationScore(spoken, correct){
+    spoken = spoken.toLowerCase().trim();
+    correct = correct.toLowerCase().trim();
+    
+    // 完全正确
+    if(spoken === correct){
+        return {score: 100, level: 'excellent', feedback: '发音完美！👍'};
+    }
+    
+    // 计算编辑距离（Levenshtein距离）
+    let matrix = [];
+    for(let i = 0; i <= correct.length; i++){
+        matrix[i] = [i];
+    }
+    for(let j = 0; j <= spoken.length; j++){
+        matrix[0][j] = j;
+    }
+    for(let i = 1; i <= correct.length; i++){
+        for(let j = 1; j <= spoken.length; j++){
+            if(correct.charAt(i-1) === spoken.charAt(j-1)){
+                matrix[i][j] = matrix[i-1][j-1];
+            }else{
+                matrix[i][j] = Math.min(
+                    matrix[i-1][j-1] + 1,
+                    matrix[i][j-1] + 1,
+                    matrix[i-1][j] + 1
+                );
+            }
+        }
+    }
+    
+    let distance = matrix[correct.length][spoken.length];
+    let maxLen = Math.max(correct.length, spoken.length);
+    let similarity = Math.max(0, (1 - distance / maxLen) * 100);
+    let score = Math.round(similarity);
+    
+    // 生成反馈
+    let feedback = '';
+    let level = '';
+    if(score >= 90){
+        level = 'excellent';
+        feedback = '发音非常棒！🌟';
+    }else if(score >= 75){
+        level = 'good';
+        feedback = '发音不错！继续加油！💪';
+    }else if(score >= 60){
+        level = 'fair';
+        feedback = '发音还可以，再练习一下！📚';
+    }else if(score >= 40){
+        level = 'needs_work';
+        feedback = '需要多练习这个单词哦~ 🎯';
+    }else{
+        level = 'try_again';
+        feedback = '再试一次，你可以的！💪';
+    }
+    
+    // 找出错误位置
+    let errors = [];
+    let i = 0, j = 0;
+    while(i < correct.length && j < spoken.length){
+        if(correct[i] !== spoken[j]){
+            errors.push({
+                position: i,
+                expected: correct[i],
+                got: spoken[j] || '(缺失)'
+            });
+        }
+        i++;
+        j++;
+    }
+    
+    return {
+        score: score,
+        level: level,
+        feedback: feedback,
+        errors: errors.slice(0, 3), // 最多显示3个错误
+        similarity: similarity.toFixed(1)
+    };
+}
+
+// 显示发音评分结果
+function showPronunciationResult(resultElement, score, feedback, isCorrect, spoken, correct){
+    let scoreColor = score >= 90 ? '#00ff88' : score >= 75 ? '#00d4ff' : score >= 60 ? '#ffd93d' : '#ff6b6b';
+    let scoreEmoji = score >= 90 ? '🌟' : score >= 75 ? '👍' : score >= 60 ? '💪' : '📚';
+    
+    let html = '<div style="text-align:center;">';
+    
+    if(isCorrect){
+        html += '<div style="color:#27ae60;font-size:18px;">✅ 正确！</div>';
+    }else{
+        html += '<div style="color:#e74c3c;font-size:18px;">❌ 再试一次</div>';
+    }
+    
+    html += '<div style="margin:10px 0;padding:10px;background:rgba(0,0,0,0.2);border-radius:10px;">'+
+            '<div style="font-size:32px;color:'+scoreColor+';">'+scoreEmoji+' '+score+'分</div>'+
+            '<div style="color:#aaa;font-size:12px;margin-top:5px;">发音准确度</div>'+
+            '</div>'+
+            '<div style="color:'+scoreColor+';font-size:14px;">'+feedback+'</div>';
+    
+    if(!isCorrect){
+        html += '<div style="margin-top:10px;color:#aaa;font-size:12px;">'+
+                '<div>你说：'+escapeHtml(spoken)+'</div>'+
+                '<div>答案：'+escapeHtml(correct)+'</div>'+
+                '</div>';
+    }
+    
+    html += '</div>';
+    resultElement.innerHTML = html;
+}
+
 function preInitSpeechRecognition(){
     let SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if(SpeechRecognition){
         try{
             recognition = new SpeechRecognition();
             recognition.lang='en-US';
-            recognition.continuous=false;
+            recognition.continuous=true; // 启用连续识别，防止过早结束
             recognition.interimResults=true; // 启用实时结果，提高响应速度
             recognition.maxAlternatives=3; // 获取多个候选结果，提高准确性
             
@@ -1845,9 +2703,14 @@ function preInitSpeechRecognition(){
                         }
                     }
                     
+                    // 判断当前是口语练习模式还是战斗模式
+                    let isBattleMode = document.getElementById('speakResultArea') !== null;
+                    let isSpeakImageMode = document.getElementById('speakImageResult') !== null;
+                    let resultElement = isSpeakImageMode ? document.getElementById('speakImageResult') : (isBattleMode ? document.getElementById('speakResultArea') : document.getElementById('speakResult'));
+                    
                     // 显示实时识别结果
-                    if(interimTranscript){
-                        document.getElementById('speakResult').innerHTML='<div style="color:#00d4ff;font-size:16px;">🎤 正在识别...</div><div style="color:#aaa;font-size:14px;">'+escapeHtml(interimTranscript)+'</div>';
+                    if(interimTranscript && resultElement){
+                        resultElement.innerHTML='<div style="color:#00d4ff;font-size:16px;">🎤 正在识别...</div><div style="color:#aaa;font-size:14px;">'+escapeHtml(interimTranscript)+'</div>';
                     }
                     
                     // 处理最终结果
@@ -1863,41 +2726,103 @@ function preInitSpeechRecognition(){
                             if(isCorrect) spoken = altSpoken;
                         }
                         
-                        if(isCorrect){
-                            speakCorrect++;
-                            playSound('correct');
-                            document.getElementById('speakResult').innerHTML='<div style="color:#27ae60;font-size:18px;">✅ 正确！</div><div style="color:#aaa;font-size:13px;">你说：'+escapeHtml(spoken)+'</div>';
-                        }else{
-                            playSound('wrong');
-                            document.getElementById('speakResult').innerHTML='<div style="color:#e74c3c;font-size:18px;">❌ 再试一次</div><div style="color:#aaa;font-size:13px;">你说：'+escapeHtml(spoken)+'<br>答案：'+escapeHtml(correct)+'</div>';
-                            
-                            if(currentText){
-                                let meaning = '';
-                                battleUnits.forEach(function(u){
-                                    ALL_WORDS[u].words.forEach(function(w){
-                                        if(w[0].toLowerCase() === currentText.toLowerCase()) meaning = w[1];
-                                    });
-                                });
-                                if(meaning){
-                                    addToWrongBook(currentText, meaning);
-                                }
-                            }
+                        // 计算发音评分
+                        let pronScore = calculatePronunciationScore(spoken, correct);
+                        
+                        // 清除超时
+                        if(recordingTimeout){
+                            clearTimeout(recordingTimeout);
+                            recordingTimeout = null;
                         }
-                        document.getElementById('nextSpeakBtn').style.display='block';
                         
                         // 重置录音状态
                         isRecording = false;
-                        document.getElementById('recBtn').classList.remove('recording');
-                        document.getElementById('recText').textContent='点击录音';
+                        let recBtn = document.getElementById('recBtn') || document.getElementById('recBtnImage');
+                        if(recBtn){
+                            recBtn.classList.remove('recording');
+                            let recText = document.getElementById('recText') || document.getElementById('recTextImage');
+                            if(recText) recText.textContent='点击录音';
+                        }
+                        
+                        // 记录发音分数用于学习报告
+                        studyStats.totalPronunciationScore += pronScore.score;
+                        studyStats.pronunciationCount++;
+                        
+                        if(isCorrect){
+                            if(isBattleMode || isSpeakImageMode){
+                                // 战斗模式或看图说话模式
+                                correctCount++;
+                                battleScore+=ENERGY_PER_CORRECT;
+                                let difficulty = getDifficulty(currentMonsterIndex);
+                                let damage = Math.ceil(100 / difficulty.questionCount);
+                                mHp -= damage;
+                                showEff('💥');
+                                playSound('correct');
+                                showPronunciationResult(resultElement, pronScore.score, pronScore.feedback, true, spoken, correct);
+                                updateHP();
+                                setTimeout(function(){showRoundQuestion();},2000);
+                            }else{
+                                // 口语练习模式
+                                speakCorrect++;
+                                playSound('correct');
+                                showPronunciationResult(resultElement, pronScore.score, pronScore.feedback, true, spoken, correct);
+                                document.getElementById('nextSpeakBtn').style.display='block';
+                            }
+                        }else{
+                            if(isBattleMode || isSpeakImageMode){
+                                // 战斗模式或看图说话模式
+                                zHp -= 15;
+                                showEff('💢');
+                                playSound('wrong');
+                                showPronunciationResult(resultElement, pronScore.score, pronScore.feedback, false, spoken, correct);
+                                updateHP();
+                                
+                                if(currentText){
+                                    let meaning = '';
+                                    battleUnits.forEach(function(u){
+                                        ALL_WORDS[u].words.forEach(function(w){
+                                            if(w[0].toLowerCase() === currentText.toLowerCase()) meaning = w[1];
+                                        });
+                                    });
+                                    if(meaning){
+                                        addToWrongBook(currentText, meaning);
+                                    }
+                                }
+                                
+                                setTimeout(function(){showRoundQuestion();},2000);
+                            }else{
+                                // 口语练习模式
+                                playSound('wrong');
+                                showPronunciationResult(resultElement, pronScore.score, pronScore.feedback, false, spoken, correct);
+                                
+                                if(currentText){
+                                    let meaning = '';
+                                    battleUnits.forEach(function(u){
+                                        ALL_WORDS[u].words.forEach(function(w){
+                                            if(w[0].toLowerCase() === currentText.toLowerCase()) meaning = w[1];
+                                        });
+                                    });
+                                    if(meaning){
+                                        addToWrongBook(currentText, meaning);
+                                    }
+                                }
+                                document.getElementById('nextSpeakBtn').style.display='block';
+                            }
+                        }
                     }
                 }catch(err){
                     console.error('处理语音结果失败:', err);
-                    document.getElementById('speakResult').innerHTML='<div style="color:#ff6b6b;">处理结果失败，请重试</div>';
+                    let resultElement = document.getElementById('speakResultArea') || document.getElementById('speakResult');
+                    if(resultElement) resultElement.innerHTML='<div style="color:#ff6b6b;">处理结果失败，请重试</div>';
                     
                     // 重置录音状态
                     isRecording = false;
-                    document.getElementById('recBtn').classList.remove('recording');
-                    document.getElementById('recText').textContent='点击录音';
+                    let recBtn = document.getElementById('recBtn');
+                    if(recBtn){
+                        recBtn.classList.remove('recording');
+                        let recText = document.getElementById('recText');
+                        if(recText) recText.textContent='点击录音';
+                    }
                 }
             };
             
@@ -1928,11 +2853,20 @@ function preInitSpeechRecognition(){
             };
             
             recognition.onend=function(){
-                if(isRecording){
-                    isRecording=false;
-                    document.getElementById('recBtn').classList.remove('recording');
-                    document.getElementById('recText').textContent='点击录音';
-                    document.getElementById('speakResult').innerHTML='<div style="color:#ffd93d;">⚠️ 录音已结束</div><div style="color:#aaa;font-size:12px;margin-top:5px;">请重新尝试</div>';
+                // 只有在没有最终结果且仍在录音状态下才显示结束提示
+                if(isRecording && !document.getElementById('speakResult').innerHTML.includes('正确') && !document.getElementById('speakResult').innerHTML.includes('再试一次')){
+                    console.log('录音意外结束，尝试重新启动...');
+                    // 尝试重新启动录音
+                    try{
+                        recognition.start();
+                        return;
+                    }catch(e){
+                        console.log('重新启动录音失败:', e);
+                        isRecording=false;
+                        document.getElementById('recBtn').classList.remove('recording');
+                        document.getElementById('recText').textContent='点击录音';
+                        document.getElementById('speakResult').innerHTML='<div style="color:#ffd93d;">⚠️ 录音已结束</div><div style="color:#aaa;font-size:12px;margin-top:5px;">请重新尝试</div>';
+                    }
                 }
             };
             
@@ -2063,8 +2997,14 @@ function startRecording(){
     document.getElementById('recText').textContent='点击停止';
     document.getElementById('speakResult').innerHTML='<div style="color:#ffd93d;">🎤 正在录音...</div><div style="color:#aaa;font-size:12px;margin-top:5px;">请说英文单词</div>';
     
+    // 清除之前的超时
+    if(recordingTimeout){
+        clearTimeout(recordingTimeout);
+        recordingTimeout = null;
+    }
+    
     // 设置超时检测，防止录音状态卡死
-    let recordingTimeout = setTimeout(function(){
+    recordingTimeout = setTimeout(function(){
         if(isRecording){
             console.warn('录音超时，自动停止');
             isRecording = false;
@@ -2073,7 +3013,7 @@ function startRecording(){
             document.getElementById('speakResult').innerHTML='<div style="color:#ffd93d;">⚠️ 录音超时</div><div style="color:#aaa;font-size:12px;margin-top:5px;">请重新尝试</div>';
             try{ recognition.stop(); }catch(e){}
         }
-    }, 10000); // 10秒超时
+    }, 15000); // 15秒超时（增加时间）
     
     try{
         // 检查用户代理，针对移动设备进行特殊处理
@@ -2203,7 +3143,7 @@ function speakWord(w, btnId){
             
             let u = new SpeechSynthesisUtterance(w);
             u.lang='en-US';
-            u.rate=0.85;
+            u.rate=speechRate;
             u.pitch=1;
             u.volume=1;
             
