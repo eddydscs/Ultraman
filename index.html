@@ -80,6 +80,7 @@
         .question-type.hearing { background: linear-gradient(135deg, #f39c12, #e74c3c); }
         .question-type.puzzle { background: linear-gradient(135deg, #27ae60, #2ecc71); }
         .question-type.speak { background: linear-gradient(135deg, #e74c3c, #c0392b); }
+        .question-type.dialogue { background: linear-gradient(135deg, #ff6b35, #f39c12); }
         
         .word-display { text-align: center; font-size: 28px; font-weight: bold; color: #00d4ff; margin: 12px 0; }
         .meaning-display { text-align: center; color: #ffd93d; font-size: 18px; margin: 8px 0; }
@@ -159,10 +160,19 @@
             </div>
             <div class="progress">选择单元（可多选）</div>
             <div class="stage-grid" id="homeUnitSelector" style="grid-template-columns: repeat(5, 1fr);"></div>
+            
+            <!-- 学习建议区域 -->
+            <div id="studyAdvice" class="card" style="background:rgba(255,215,0,0.1);border-color:rgba(255,215,0,0.3);margin:10px 0;">
+                <div style="color:#ffd93d;font-size:16px;font-weight:bold;margin-bottom:8px;">💡 学习建议</div>
+                <div id="adviceContent" style="color:#aaa;font-size:14px;line-height:1.6;">正在分析你的学习情况...</div>
+            </div>
+            
             <button class="game-btn btn-battle" onclick="confirmUnitsAndBattle()">⚔️ 开始战斗</button>
             <button class="game-btn btn-free" onclick="startFreeMode()">🎮 自由练习</button>
             <button class="game-btn btn-speak" onclick="startSpeakingPractice()">🎤 口语练习</button>
             <button class="game-btn wrong-book-btn" onclick="showWrongBook()">📖 错题本</button>
+            <button class="game-btn" style="background:linear-gradient(135deg, #9b59b6, #8e44ad);" onclick="showMonsterCollection()">👾 怪兽图鉴</button>
+            <button class="game-btn" style="background:linear-gradient(135deg, #f39c12, #e67e22);" onclick="showAchievements()">🏆 成就</button>
             <div class="sound-toggle">
                 <input type="checkbox" id="soundEnabled" checked onchange="toggleSound()">
                 <label for="soundEnabled">🔊 音效</label>
@@ -342,19 +352,169 @@ function updateLevelDisplay() {
     document.getElementById('levelTitle').textContent = 'Level ' + currentLevel;
 }
 
-// 10个怪兽
-const MONSTERS = [
-    {emoji:"👾",name:"小怪兽",desc:"外太空来的捣蛋鬼"},
-    {emoji:"🤖",name:"机器人",desc:"邪恶科学家的作品"},
-    {emoji:"👹",name:"红魔",desc:"火焰山的恶魔"},
-    {emoji:"👺",name:"天狗",desc:"传说中的妖怪"},
-    {emoji:"👻",name:"幽灵王",desc:"黑暗统治者"},
-    {emoji:"💀",name:"骷髅将军",desc:"不死军团首领"},
-    {emoji:"🎃",name:"南瓜魔王",desc:"万圣节恶灵"},
-    {emoji:"👽",name:"外星霸主",desc:"银河系威胁"},
-    {emoji:"🦖",name:"暴龙兽",desc:"远古恐龙复活"},
-    {emoji:"🐉",name:"暗黑龙",desc:"最终BOSS"}
+// 12个单元对应的怪兽（每个单元独特）
+const UNIT_MONSTERS = {
+    1: {emoji:"👾",name:"问候小怪兽",desc:"来自问候星球的友好使者"},
+    2: {emoji:"🤖",name:"教室机器人",desc:"守护教室的机械守卫"},
+    3: {emoji:"🧸",name:"玩具精灵",desc:"玩具箱里的调皮鬼"},
+    4: {emoji:"👨‍👩‍👧‍👦",name:"家庭守护者",desc:"保护家庭的神秘力量"},
+    5: {emoji:"🐱",name:"宠物之王",desc:"动物世界的统治者"},
+    6: {emoji:"👀",name:"五官精灵",desc:"身体奥秘的守护者"},
+    7: {emoji:"🦁",name:"丛林之王",desc:"野生动物的首领"},
+    8: {emoji:"👕",name:"时尚恶魔",desc:"衣柜里的捣蛋鬼"},
+    9: {emoji:"⚽",name:"运动冠军",desc:"体育场的霸主"},
+    10: {emoji:"🚗",name:"交通指挥官",desc:"道路安全的守护者"},
+    11: {emoji:"🏠",name:"房屋精灵",desc:"温馨家园的守护神"},
+    12: {emoji:"🍰",name:"美食大师",desc:"美食世界的统治者"}
+};
+
+// 所有怪兽库（100+个怪兽，通关解锁新怪兽）
+const ALL_MONSTERS = [
+    // === 初始怪兽（默认解锁）===
+    {id:1,emoji:"👾",name:"巴尔坦星人",desc:"蝉型宇宙人，初代奥特曼宿敌"},
+    {id:2,emoji:"🤖",name:"哥莫拉",desc:"古代怪兽，力大无穷"},
+    {id:3,emoji:"👹",name:"雷德王",desc:"骷髅怪兽，暴躁好战"},
+    {id:4,emoji:"👺",name:"杰顿",desc:"宇宙恐龙，初代最终BOSS"},
+    {id:5,emoji:"👻",name:"贝蒙斯坦",desc:"宇宙大怪兽，吞噬能量"},
+    {id:6,emoji:"💀",name:"艾雷王",desc:"宇宙怪兽，放电攻击"},
+    {id:7,emoji:"🎃",name:"纳克尔星人",desc:"暗杀宇宙人，狡猾阴险"},
+    {id:8,emoji:"👽",name:"布莱克王",desc:"怪兽王子，强力战士"},
+    {id:9,emoji:"🦖",name:"泰兰特",desc:"暴君怪兽，连败奥特兄弟"},
+    {id:10,emoji:"🐉",name:"贝劳克恩",desc:"超兽，导弹攻击"},
+    
+    // === 昭和系怪兽 ===
+    {id:11,emoji:"🦇",name:"凯姆尔人",desc:"X行星人，缩小光线"},
+    {id:12,emoji:"🕷️",name:"达达",desc:"三面怪人，缩小枪"},
+    {id:13,emoji:"🦂",name:"梅特龙星人",desc:"幻觉宇宙人"},
+    {id:14,emoji:"🦈",name:"古敦",desc:"大怪兽，双尾鞭"},
+    {id:15,emoji:"🦅",name:"双尾怪",desc:"古代怪兽，地下生活"},
+    {id:16,emoji:"🐺",name:"穆鲁奇",desc:"怪兽，水陆两栖"},
+    {id:17,emoji:"🦁",name:"哥尔赞",desc:"超古代怪兽，迪迦宿敌"},
+    {id:18,emoji:"🐻",name:"美尔巴",desc:"超古代怪兽，飞行速度极快"},
+    {id:19,emoji:"🐍",name:"加库玛",desc:"石化怪兽，石化光线"},
+    {id:20,emoji:"🦑",name:"加佐特",desc:"怪兽，电击攻击"},
+    {id:21,emoji:"🐙",name:"基里艾洛德人",desc:"炎魔战士，火焰攻击"},
+    {id:22,emoji:"🦀",name:"加坦杰厄",desc:"邪神，迪迦最终BOSS"},
+    {id:23,emoji:"🐊",name:"佐格",desc:"天使怪兽，盖亚最终BOSS"},
+    {id:24,emoji:"🐘",name:"格兰顿",desc:"怪兽，火焰吐息"},
+    {id:25,emoji:"🦏",name:"雷德巴斯",desc:"怪兽，高速移动"},
+    {id:26,emoji:"🦛",name:"格斯拉王",desc:"怪兽王，强化版"},
+    {id:27,emoji:"🦓",name:"安东拉",desc:"古代怪兽，磁力光线"},
+    {id:28,emoji:"🐪",name:"内隆嘎",desc:"怪兽，透明能力"},
+    {id:29,emoji:"🦒",name:"马格拉",desc:"地底怪兽，钻地"},
+    {id:30,emoji:"🦘",name:"哥斯特隆",desc:"地底怪兽，坚硬外壳"},
+    {id:31,emoji:"🦙",name:"强德拉",desc:"怪兽，飞行能力"},
+    {id:32,emoji:"🦚",name:"皮古蒙",desc:"友好怪兽，帮助人类"},
+    {id:33,emoji:"🦜",name:"詹伯A",desc:"怪兽，火焰攻击"},
+    {id:34,emoji:"🦢",name:"海兹尔王",desc:"怪兽王，强化版"},
+    {id:35,emoji:"🦩",name:"泰莱斯通",desc:"地底怪兽，火焰光线"},
+    {id:36,emoji:"🦚",name:"阳戈",desc:"怪兽，毒气攻击"},
+    
+    // === 平成系怪兽 ===
+    {id:37,emoji:"🦖",name:"迪迦奥特曼",desc:"光之巨人，复合型"},
+    {id:38,emoji:"🐉",name:"戴拿奥特曼",desc:"光之巨人，闪亮型"},
+    {id:39,emoji:"🦕",name:"盖亚奥特曼",desc:"大地之光，V2型"},
+    {id:40,emoji:"🦎",name:"阿古茹奥特曼",desc:"海洋之光，V2型"},
+    {id:41,emoji:"🦂",name:"高斯奥特曼",desc:"慈爱战士，月神型"},
+    {id:42,emoji:"🦈",name:"奈克瑟斯奥特曼",desc:"光之纽带，幼年型"},
+    {id:43,emoji:"🦅",name:"麦克斯奥特曼",desc:"最快最强"},
+    {id:44,emoji:"🐺",name:"梦比优斯奥特曼",desc:"奥特兄弟一员"},
+    {id:45,emoji:"🦁",name:"赛罗奥特曼",desc:"赛文之子，热血战士"},
+    {id:46,emoji:"🐻",name:"捷德奥特曼",desc:"贝利亚之子"},
+    {id:47,emoji:"🐍",name:"欧布奥特曼",desc:"借力战士"},
+    {id:48,emoji:"🦑",name:"艾克斯奥特曼",desc:"数据战士"},
+    {id:49,emoji:"🐙",name:"维克特利奥特曼",desc:"地底战士"},
+    {id:50,emoji:"🦀",name:"银河奥特曼",desc:"未来战士"},
+    
+    // === 黑暗怪兽 ===
+    {id:51,emoji:"👿",name:"贝利亚奥特曼",desc:"堕落的光之巨人"},
+    {id:52,emoji:"😈",name:"托雷基亚奥特曼",desc:"堕落的泰迦挚友"},
+    {id:53,emoji:"👹",name:"卡蜜拉",desc:"黑暗巨人，爱憎战士"},
+    {id:54,emoji:"👺",name:"希特拉",desc:"黑暗巨人，疾风战士"},
+    {id:55,emoji:"👻",name:"达拉姆",desc:"黑暗巨人，刚力战士"},
+    {id:56,emoji:"💀",name:"黑暗迪迦",desc:"迪迦黑暗形态"},
+    {id:57,emoji:"🎃",name:"黑暗扎基",desc:"黑暗诺亚"},
+    {id:58,emoji:"👽",name:"黑暗浮士德",desc:"黑暗巨人"},
+    {id:59,emoji:"🦖",name:"黑暗梅菲斯特",desc:"黑暗巨人"},
+    {id:60,emoji:"🐉",name:"黑暗路基艾尔",desc:"黑暗魔神"},
+    
+    // === 宇宙怪兽 ===
+    {id:61,emoji:"🌌",name:"亚波人",desc:"异次元人，艾斯宿敌"},
+    {id:62,emoji:"🌟",name:"帝国星人",desc:"帝国星战士"},
+    {id:63,emoji:"⭐",name:"扎拉布星人",desc:"凶恶宇宙人"},
+    {id:64,emoji:"🌠",name:"巴巴尔星人",desc:"黑暗宇宙人"},
+    {id:65,emoji:"💫",name:"嘎次星人",desc:"分身宇宙人"},
+    {id:66,emoji:"✨",name:"佩丹星人",desc:"宇宙猎人"},
+    {id:67,emoji:"🔥",name:"夏德星人",desc:"暗杀宇宙人"},
+    {id:68,emoji:"❄️",name:"冰河星人",desc:"冰冻宇宙人"},
+    {id:69,emoji:"⚡",name:"电波星人",desc:"电波攻击"},
+    {id:70,emoji:"🌊",name:"深海怪兽",desc:"深海霸主"},
+    
+    // === 机械怪兽 ===
+    {id:71,emoji:"🤖",name:"金古桥",desc:"宇宙机器人，强力"},
+    {id:72,emoji:"🔧",name:"英普莱扎",desc:"机械怪兽，火力强大"},
+    {id:73,emoji:"⚙️",name:"加拉特隆",desc:"机械怪兽，破坏神"},
+    {id:74,emoji:"🔩",name:"戴斯法萨",desc:"机械怪兽，导弹"},
+    {id:75,emoji:"🛠️",name:"因塞克特",desc:"机械怪兽，钻头"},
+    {id:76,emoji:"📡",name:"古维拉",desc:"地底机器人"},
+    {id:77,emoji:"💡",name:"克兹",desc:"音波怪兽"},
+    {id:78,emoji:"🔋",name:"伊卡尔斯星人",desc:"宇宙刺客"},
+    {id:79,emoji:"🖥️",name:"虚拟怪兽",desc:"数据怪兽"},
+    {id:80,emoji:"📱",name:"电子怪兽",desc:"网络怪兽"},
+    
+    // === 古代怪兽 ===
+    {id:81,emoji:"🦕",name:"古代哥莫拉",desc:"哥莫拉祖先"},
+    {id:82,emoji:"🦖",name:"暴龙怪兽",desc:"恐龙时代霸主"},
+    {id:83,emoji:"🦎",name:"翼龙怪兽",desc:"天空霸主"},
+    {id:84,emoji:"🐢",name:"甲龙怪兽",desc:"防御力极强"},
+    {id:85,emoji:"🐍",name:"蛇颈龙怪兽",desc:"海洋霸主"},
+    {id:86,emoji:"🦈",name:"巨齿鲨怪兽",desc:"深海霸主"},
+    {id:87,emoji:"🐊",name:"鳄鱼怪兽",desc:"沼泽霸主"},
+    {id:88,emoji:"🦅",name:"巨鸟怪兽",desc:"天空霸主"},
+    {id:89,emoji:"🐘",name:"猛犸怪兽",desc:"冰河时代霸主"},
+    {id:90,emoji:"🦁",name:"剑齿虎怪兽",desc:"远古霸主"},
+    
+    // === 元素怪兽 ===
+    {id:91,emoji:"🔥",name:"火焰怪兽",desc:"火焰元素，高温攻击"},
+    {id:92,emoji:"❄️",name:"冰霜怪兽",desc:"冰霜元素，冻结攻击"},
+    {id:93,emoji:"⚡",name:"雷电怪兽",desc:"雷电元素，电击攻击"},
+    {id:94,emoji:"🌊",name:"海洋怪兽",desc:"水元素，海啸攻击"},
+    {id:95,emoji:"🌪️",name:"风暴怪兽",desc:"风元素，龙卷攻击"},
+    {id:96,emoji:"🌍",name:"大地怪兽",desc:"土元素，地震攻击"},
+    {id:97,emoji:"☀️",name:"太阳怪兽",desc:"光元素，灼热攻击"},
+    {id:98,emoji:"🌙",name:"月亮怪兽",desc:"暗元素，黑暗攻击"},
+    {id:99,emoji:"💎",name:"水晶怪兽",desc:"水晶元素，反射攻击"},
+    {id:100,emoji:"🌈",name:"彩虹怪兽",desc:"七彩元素，多变攻击"},
+    
+    // === 特殊怪兽 ===
+    {id:101,emoji:"🎭",name:"幻影怪兽",desc:"幻影能力，分身术"},
+    {id:102,emoji:"👻",name:"幽灵怪兽",desc:"幽灵能力，穿透术"},
+    {id:103,emoji:"🔮",name:"魔法怪兽",desc:"魔法能力，咒语攻击"},
+    {id:104,emoji:"⏰",name:"时间怪兽",desc:"时间能力，时间停止"},
+    {id:105,emoji:"🚪",name:"空间怪兽",desc:"空间能力，传送术"},
+    {id:106,emoji:"🧬",name:"基因怪兽",desc:"基因能力，变形术"},
+    {id:107,emoji:"💊",name:"毒液怪兽",desc:"毒液能力，腐蚀攻击"},
+    {id:108,emoji:"🧪",name:"化学怪兽",desc:"化学能力，毒气攻击"},
+    {id:109,emoji:"☢️",name:"核能怪兽",desc:"核能能力，辐射攻击"},
+    {id:110,emoji:"🔮",name:"超能力怪兽",desc:"超能力，念力攻击"},
+    
+    // === 最终BOSS级怪兽 ===
+    {id:111,emoji:"👑",name:"黑暗路基艾尔",desc:"黑暗魔神，银河宿敌"},
+    {id:112,emoji:"🏆",name:"艾塔尔加",desc:"超时空魔神"},
+    {id:113,emoji:"💎",name:"格力扎",desc:"虚空怪兽，艾克斯宿敌"},
+    {id:114,emoji:"🌟",name:"极恶贝利亚",desc:"贝利亚最强形态"},
+    {id:115,emoji:"⭐",name:"托雷基亚",desc:"堕落的泰迦挚友"},
+    {id:116,emoji:"🔥",name:"格利姆德",desc:"格利姆德，泰迦宿敌"},
+    {id:117,emoji:"❄️",name:"法伊布王",desc:"超合体怪兽"},
+    {id:118,emoji:"⚡",name:"五帝王",desc:"五体合一怪兽"},
+    {id:119,emoji:"🌊",name:"奇美拉柏洛斯",desc:"超合体怪兽"},
+    {id:120,emoji:"🌍",name:"歼灭机甲兽",desc:"机械怪兽王"}
 ];
+
+// 当前闯关使用的怪兽（从已解锁中随机选择10个）
+let battleMonsters = [];
+// 已解锁的怪兽ID列表
+let unlockedMonsterIds = [1,2,3,4,5,6,7,8,9,10];
 
 let score=0, currentStage=1, monstersDef=0;
 let selectedUnit=1, qIdx=0, correctCount=0;
@@ -382,6 +542,116 @@ let audioContext = null;
 let wrongBook = [];
 let wrongReviewCount = 0;
 let isWrongBookReview = false;
+
+// 单元解锁系统
+let unlockedUnits = [1]; // 默认解锁第一单元
+
+// 成就系统
+const ACHIEVEMENTS = {
+    first_blood: {name:"初战告捷",desc:"完成第一场战斗",icon:"⚔️",condition:function(){return monstersDef>=10;}},
+    unit_master: {name:"单元大师",desc:"解锁所有单元",icon:"🎓",condition:function(){return unlockedUnits.length>=12;}},
+    level_5: {name:"小有所成",desc:"达到Lv.5",icon:"🏅",condition:function(){return level>=5;}},
+    level_10: {name:"英语达人",desc:"达到Lv.10",icon:"🏆",condition:function(){return level>=10;}},
+    star_collector: {name:"星星收集者",desc:"获得50颗星星",icon:"⭐",condition:function(){return totalStars>=50;}},
+    wrong_book_master: {name:"错题终结者",desc:"复习错题10次",icon:"📖",condition:function(){return wrongReviewCount>=10;}},
+    perfect_battle: {name:"完美战斗",desc:"一场战斗中答对20题",icon:"💯",condition:function(){return battleScore>=200;}},
+    persistent: {name:"坚持不懈",desc:"累计答对100题",icon:"💪",condition:function(){return score>=1000;}},
+    monster_collector: {name:"怪兽收藏家",desc:"解锁20种怪兽",icon:"👾",condition:function(){return unlockedMonsterIds.length>=20;}},
+    monster_master: {name:"怪兽大师",desc:"解锁所有怪兽",icon:"🐉",condition:function(){return unlockedMonsterIds.length>=ALL_MONSTERS.length;}}
+};
+
+let unlockedAchievements = [];
+
+// 从已解锁怪兽中随机选择10个作为本次闯关的怪兽
+function selectBattleMonsters(){
+    let unlockedMonsters = ALL_MONSTERS.filter(function(m){return unlockedMonsterIds.includes(m.id);});
+    
+    // 打乱顺序
+    unlockedMonsters = shuffle(unlockedMonsters);
+    
+    // 选择前10个（如果不足10个则全部使用）
+    battleMonsters = unlockedMonsters.slice(0, Math.min(10, unlockedMonsters.length));
+    
+    return battleMonsters;
+}
+
+// 解锁新怪兽（支持解锁多个）
+function unlockNewMonster(count){
+    count = count || 1; // 默认解锁1个
+    let unlocked = [];
+    
+    for(let i = 0; i < count; i++){
+        // 找出未解锁的怪兽
+        let lockedMonsters = ALL_MONSTERS.filter(function(m){return !unlockedMonsterIds.includes(m.id);});
+        
+        if(lockedMonsters.length > 0){
+            // 随机选择一个解锁
+            let newMonster = lockedMonsters[Math.floor(Math.random() * lockedMonsters.length)];
+            unlockedMonsterIds.push(newMonster.id);
+            unlocked.push(newMonster);
+        }
+    }
+    
+    if(unlocked.length > 0){
+        // 显示解锁提示
+        let names = unlocked.map(function(m){return m.emoji + ' ' + m.name;}).join('、');
+        showToast('🎉 解锁新怪兽：' + names + '！');
+        saveProgress();
+        checkAchievements();
+    }
+    
+    return unlocked;
+}
+
+// 根据表现计算应解锁的怪兽数量
+function calculateUnlockCount(){
+    let baseCount = 2; // 基础解锁2个
+    
+    // 根据答对数量额外解锁
+    let correctCount = battleScore / ENERGY_PER_CORRECT;
+    if(correctCount >= 50){
+        baseCount += 3; // 答对50题以上，额外解锁3个
+    }else if(correctCount >= 40){
+        baseCount += 2; // 答对40题以上，额外解锁2个
+    }else if(correctCount >= 30){
+        baseCount += 1; // 答对30题以上，额外解锁1个
+    }
+    
+    return baseCount;
+}
+
+// 检查并解锁稀有怪兽（特定条件）
+function checkSpecialUnlock(){
+    let specialUnlocks = [];
+    let correctCount = battleScore / ENERGY_PER_CORRECT;
+    
+    // 条件1：连续答对10题解锁稀有怪兽
+    if(correctCount >= 10 && !unlockedMonsterIds.includes(111)){
+        unlockedMonsterIds.push(111);
+        specialUnlocks.push(ALL_MONSTERS.find(function(m){return m.id === 111;}));
+    }
+    
+    // 条件2：答对30题解锁BOSS级怪兽
+    if(correctCount >= 30 && !unlockedMonsterIds.includes(112)){
+        unlockedMonsterIds.push(112);
+        specialUnlocks.push(ALL_MONSTERS.find(function(m){return m.id === 112;}));
+    }
+    
+    // 条件3：答对50题解锁最终BOSS
+    if(correctCount >= 50 && !unlockedMonsterIds.includes(120)){
+        unlockedMonsterIds.push(120);
+        specialUnlocks.push(ALL_MONSTERS.find(function(m){return m.id === 120;}));
+    }
+    
+    if(specialUnlocks.length > 0){
+        let names = specialUnlocks.map(function(m){return m.emoji + ' ' + m.name;}).join('、');
+        showToast('🏆 达成成就！解锁稀有怪兽：' + names + '！');
+        saveProgress();
+        checkAchievements();
+    }
+    
+    return specialUnlocks;
+}
 
 // 预加载语音列表
 if('speechSynthesis' in window){
@@ -623,6 +893,9 @@ function loadProgress(){
             wrongBook = data.wrongBook || [];
             wrongReviewCount = data.wrongReviewCount || 0;
             soundEnabled = data.soundEnabled !== undefined ? data.soundEnabled : true;
+            unlockedUnits = data.unlockedUnits || [1];
+            unlockedAchievements = data.unlockedAchievements || [];
+            unlockedMonsterIds = data.unlockedMonsterIds || [1,2,3,4,5,6,7,8,9,10];
             document.getElementById('soundEnabled').checked = soundEnabled;
         }
     }catch(e){
@@ -641,6 +914,9 @@ function saveProgress(){
             wrongBook: wrongBook,
             wrongReviewCount: wrongReviewCount,
             soundEnabled: soundEnabled,
+            unlockedUnits: unlockedUnits,
+            unlockedAchievements: unlockedAchievements,
+            unlockedMonsterIds: unlockedMonsterIds,
             saveTime: new Date().toISOString()
         };
         localStorage.setItem('ultraman_progress', JSON.stringify(data));
@@ -674,14 +950,32 @@ function createHomeUnitSelector(){
     grid.innerHTML='';
     for(let i=1;i<=12;i++){
         let btn=document.createElement('button');
-        btn.className='stage-btn '+(battleUnits.includes(i)?'current':'unlocked');
-        btn.innerHTML='<span>📖</span><span class="stage-num">U'+i+'</span>';
-        btn.onclick=function(){toggleHomeUnit(i, this);};
+        let isUnlocked = unlockedUnits.includes(i);
+        let isSelected = battleUnits.includes(i);
+        let monster = UNIT_MONSTERS[i];
+        
+        if(!isUnlocked){
+            btn.className='stage-btn locked';
+            btn.innerHTML='<span>🔒</span><span class="stage-num">U'+i+'</span>';
+            btn.title='单元'+i+' - '+monster.name+' (未解锁)';
+            btn.onclick=function(){showToast('请先完成单元 '+(i-1)+' 解锁此单元');};
+        }else{
+            btn.className='stage-btn '+(isSelected?'current':'unlocked');
+            btn.innerHTML='<span>'+monster.emoji+'</span><span class="stage-num">U'+i+'</span>';
+            btn.title='单元'+i+' - '+monster.name+'：'+monster.desc;
+            btn.onclick=function(){toggleHomeUnit(i, this);};
+        }
         grid.appendChild(btn);
     }
 }
 
 function toggleHomeUnit(i, btn){
+    // 检查单元是否已解锁
+    if(!unlockedUnits.includes(i)){
+        showToast('请先完成单元 '+(i-1)+' 解锁此单元');
+        return;
+    }
+    
     if(battleUnits.includes(i)){
         if(battleUnits.length>1){
             battleUnits=battleUnits.filter(function(u){return u!==i;});
@@ -702,6 +996,117 @@ function updateUI(){
     document.getElementById('totalScore').textContent=score;
     document.getElementById('levelDisplay').textContent='Lv.'+level;
     document.getElementById('totalStars').textContent=totalStars;
+    updateStudyAdvice();
+}
+
+// 生成个性化学习建议
+function updateStudyAdvice(){
+    let advice = [];
+    
+    // 基于错题本生成建议
+    if(wrongBook.length > 0){
+        let totalWrong = wrongBook.reduce(function(sum, item){ return sum + item.count; }, 0);
+        let avgWrong = totalWrong / wrongBook.length;
+        
+        if(avgWrong >= 3){
+            advice.push('📌 你的错题重复率较高，建议重点复习错题本中的内容');
+        }
+        
+        if(wrongBook.length > 10){
+            advice.push('📚 错题较多，建议每天复习5-10个错题');
+        }
+        
+        // 找出错误最多的单词
+        let topWrong = wrongBook.sort(function(a, b){ return b.count - a.count; })[0];
+        if(topWrong && topWrong.count >= 2){
+            advice.push('⚠️ 重点攻克："' + topWrong.word + '" 已错' + topWrong.count + '次');
+        }
+    }else{
+        advice.push('✨ 太棒了！暂无错题，继续保持！');
+    }
+    
+    // 基于解锁进度生成建议
+    if(unlockedUnits.length < 12){
+        let nextUnit = unlockedUnits.length + 1;
+        advice.push('🎯 下一步：解锁单元 ' + nextUnit);
+    }else{
+        advice.push('🏆 已解锁所有单元！可以自由选择复习');
+    }
+    
+    // 基于等级生成建议
+    if(level < 5){
+        advice.push('💪 继续努力，提升到 Lv.5 解锁更多内容');
+    }
+    
+    // 显示建议
+    let adviceHtml = advice.map(function(a){ return '<div style="margin:5px 0;">' + a + '</div>'; }).join('');
+    document.getElementById('adviceContent').innerHTML = adviceHtml;
+}
+
+// 成就系统
+function checkAchievements(){
+    let newUnlocked = [];
+    for(let key in ACHIEVEMENTS){
+        if(!unlockedAchievements.includes(key) && ACHIEVEMENTS[key].condition()){
+            unlockedAchievements.push(key);
+            newUnlocked.push(ACHIEVEMENTS[key]);
+        }
+    }
+    
+    // 显示新解锁的成就
+    if(newUnlocked.length > 0){
+        newUnlocked.forEach(function(ach){
+            showToast('🎉 成就解锁：' + ach.icon + ' ' + ach.name);
+        });
+        saveProgress();
+    }
+}
+
+function showAchievements(){
+    let html = '<div style="text-align:center;margin-bottom:15px;"><div style="font-size:24px;color:#ffd93d;">🏆 成就系统</div><div style="color:#aaa;font-size:14px;margin-top:5px;">已解锁 ' + unlockedAchievements.length + '/' + Object.keys(ACHIEVEMENTS).length + '</div></div>';
+    html += '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;">';
+    
+    for(let key in ACHIEVEMENTS){
+        let ach = ACHIEVEMENTS[key];
+        let unlocked = unlockedAchievements.includes(key);
+        html += '<div style="background:'+(unlocked?'rgba(39,174,96,0.2)':'rgba(255,255,255,0.05)')+';padding:10px;border-radius:10px;border:1px solid '+(unlocked?'#27ae60':'rgba(255,255,255,0.1)')+';">';
+        html += '<div style="font-size:24px;text-align:center;">'+(unlocked?ach.icon:'🔒')+'</div>';
+        html += '<div style="font-size:14px;color:'+(unlocked?'#27ae60':'#aaa')+';text-align:center;margin-top:5px;">'+ach.name+'</div>';
+        html += '<div style="font-size:12px;color:#aaa;text-align:center;margin-top:3px;">'+ach.desc+'</div>';
+        html += '</div>';
+    }
+    
+    html += '</div>';
+    html += '<button class="game-btn" style="background:#555;margin-top:15px;" onclick="backToMenu()">🏠 返回</button>';
+    
+    document.getElementById('menu').innerHTML = html;
+    document.getElementById('menu').classList.remove('hidden');
+}
+
+// 怪兽图鉴
+function showMonsterCollection(){
+    let html = '<div style="text-align:center;margin-bottom:15px;"><div style="font-size:24px;color:#ffd93d;">👾 怪兽图鉴</div><div style="color:#aaa;font-size:14px;margin-top:5px;">已解锁 ' + unlockedMonsterIds.length + '/' + ALL_MONSTERS.length + '</div></div>';
+    html += '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;max-height:400px;overflow-y:auto;">';
+    
+    ALL_MONSTERS.forEach(function(monster){
+        let unlocked = unlockedMonsterIds.includes(monster.id);
+        html += '<div style="background:'+(unlocked?'rgba(0,212,255,0.1)':'rgba(255,255,255,0.02)')+';padding:10px;border-radius:10px;border:1px solid '+(unlocked?'rgba(0,212,255,0.3)':'rgba(255,255,255,0.05)')+';text-align:center;">';
+        html += '<div style="font-size:28px;">'+(unlocked?monster.emoji:'❓')+'</div>';
+        if(unlocked){
+            html += '<div style="font-size:12px;color:#00d4ff;margin-top:5px;">'+monster.name+'</div>';
+            html += '<div style="font-size:10px;color:#aaa;margin-top:2px;">'+monster.desc+'</div>';
+        }else{
+            html += '<div style="font-size:12px;color:#666;margin-top:5px;">未解锁</div>';
+        }
+        html += '</div>';
+    });
+    
+    html += '</div>';
+    html += '<div style="text-align:center;margin-top:15px;color:#aaa;font-size:12px;">💡 通关战斗可解锁新怪兽</div>';
+    html += '<button class="game-btn" style="background:#555;margin-top:10px;" onclick="backToMenu()">🏠 返回</button>';
+    
+    document.getElementById('menu').innerHTML = html;
+    document.getElementById('menu').classList.remove('hidden');
 }
 
 function show(id){
@@ -713,9 +1118,53 @@ function backToMenu(){
     if(window.speechSynthesis) window.speechSynthesis.cancel();
     isWrongBookReview = false;
     playSound('click');
+    
+    // 恢复原始菜单内容
+    restoreMenuContent();
+    
     createHomeUnitSelector();
     updateUI();
     show('menu');
+}
+
+// 恢复原始菜单内容
+function restoreMenuContent(){
+    let menu = document.getElementById('menu');
+    menu.innerHTML = `
+        <div class="zero-header">
+            <div class="zero-icon">🦸</div>
+            <div class="title">⚔️ 赛罗奥特曼英语大作战 ⚔️</div>
+            <div class="subtitle">打败10个怪兽，守护地球！</div>
+        </div>
+        <div class="score-panel">
+            <div class="score-item"><div class="score-value" id="totalScore">0</div><div class="score-label">⚡能量</div></div>
+            <div class="score-item"><div class="score-value" id="levelDisplay">Lv.1</div><div class="score-label">🏅等级</div></div>
+            <div class="score-item"><div class="score-value" id="totalStars">0</div><div class="score-label">⭐星星</div></div>
+        </div>
+        <div class="progress" style="display:flex;justify-content:center;gap:10px;margin-bottom:10px;">
+            <button class="level-btn" id="level1Btn" onclick="switchLevel(1)" style="padding:8px 20px;border-radius:10px;border:2px solid #00d4ff;background:rgba(0,212,255,0.2);color:#00d4ff;cursor:pointer;">📘 Level 1</button>
+            <button class="level-btn" id="level2Btn" onclick="switchLevel(2)" style="padding:8px 20px;border-radius:10px;border:2px solid rgba(255,255,255,0.3);background:rgba(255,255,255,0.05);color:#aaa;cursor:pointer;">📗 Level 2</button>
+            <button class="level-btn" id="level3Btn" onclick="switchLevel(3)" style="padding:8px 20px;border-radius:10px;border:2px solid rgba(255,255,255,0.3);background:rgba(255,255,255,0.05);color:#aaa;cursor:pointer;">📕 Level 3</button>
+        </div>
+        <div class="progress">选择单元（可多选）</div>
+        <div class="stage-grid" id="homeUnitSelector" style="grid-template-columns: repeat(5, 1fr);"></div>
+        
+        <div id="studyAdvice" class="card" style="background:rgba(255,215,0,0.1);border-color:rgba(255,215,0,0.3);margin:10px 0;">
+            <div style="color:#ffd93d;font-size:16px;font-weight:bold;margin-bottom:8px;">💡 学习建议</div>
+            <div id="adviceContent" style="color:#aaa;font-size:14px;line-height:1.6;">正在分析你的学习情况...</div>
+        </div>
+        
+        <button class="game-btn btn-battle" onclick="confirmUnitsAndBattle()">⚔️ 开始战斗</button>
+        <button class="game-btn btn-free" onclick="startFreeMode()">🎮 自由练习</button>
+        <button class="game-btn btn-speak" onclick="startSpeakingPractice()">🎤 口语练习</button>
+        <button class="game-btn wrong-book-btn" onclick="showWrongBook()">📖 错题本</button>
+        <button class="game-btn" style="background:linear-gradient(135deg, #9b59b6, #8e44ad);" onclick="showMonsterCollection()">👾 怪兽图鉴</button>
+        <button class="game-btn" style="background:linear-gradient(135deg, #f39c12, #e67e22);" onclick="showAchievements()">🏆 成就</button>
+        <div class="sound-toggle">
+            <input type="checkbox" id="soundEnabled" checked onchange="toggleSound()">
+            <label for="soundEnabled">🔊 音效</label>
+        </div>
+    `;
 }
 
 // ========== 自由练习模式 ==========
@@ -740,6 +1189,9 @@ function startBattle(){
     usedQuestions=[];
     currentMonsterIndex=0;
     
+    // 选择本次闯关的怪兽
+    selectBattleMonsters();
+    
     // 生成题目池
     battleUnits.forEach(function(u){
         ALL_WORDS[u].words.forEach(function(w){
@@ -756,7 +1208,7 @@ function startBattle(){
 
 function startRound(round){
     qIdx=0;correctCount=0;mHp=100;zHp=100;
-    currentMonster=MONSTERS[round-1];
+    currentMonster=battleMonsters[round-1];
     
     document.getElementById('stageNum').textContent=round;
     document.getElementById('monsterEmoji').textContent=currentMonster.emoji;
@@ -773,24 +1225,40 @@ function startRound(round){
 function getDifficulty(round){
     let difficulty = {
         questionCount: 5,
-        types: ['choice','match','puzzle']
+        types: ['choice','match','dialogue','hearing']
     };
     
-    if(round<=2){
+    // 优化难度曲线，使增长更加平滑
+    if(round===1){
         difficulty.questionCount=3;
         difficulty.types=['choice','match'];
-    }else if(round<=4){
+    }else if(round===2){
+        difficulty.questionCount=3;
+        difficulty.types=['choice','match','dialogue'];
+    }else if(round===3){
         difficulty.questionCount=4;
-        difficulty.types=['choice','match','puzzle'];
-    }else if(round<=6){
+        difficulty.types=['choice','match','dialogue'];
+    }else if(round===4){
+        difficulty.questionCount=4;
+        difficulty.types=['choice','match','dialogue','hearing'];
+    }else if(round===5){
         difficulty.questionCount=5;
-        difficulty.types=['choice','match','puzzle'];
-    }else if(round<=8){
+        difficulty.types=['choice','match','dialogue','hearing'];
+    }else if(round===6){
+        difficulty.questionCount=5;
+        difficulty.types=['choice','dialogue','hearing','match'];
+    }else if(round===7){
+        difficulty.questionCount=5;
+        difficulty.types=['choice','dialogue','hearing','match','puzzle'];
+    }else if(round===8){
         difficulty.questionCount=6;
-        difficulty.types=['choice','match','hearing','puzzle'];
+        difficulty.types=['choice','dialogue','hearing','match','puzzle'];
+    }else if(round===9){
+        difficulty.questionCount=6;
+        difficulty.types=['choice','dialogue','hearing','match','puzzle'];
     }else{
         difficulty.questionCount=7;
-        difficulty.types=['choice','match','hearing','puzzle'];
+        difficulty.types=['choice','dialogue','hearing','match','puzzle'];
     }
     
     return difficulty;
@@ -865,6 +1333,18 @@ function showRoundQuestion(){
         }
     }
     
+    // 对话题只用句子
+    if(type==='dialogue' && item.type!=='sentence'){
+        // 找一个句子
+        let sentenceIndex=battleQuestionPool.findIndex(function(i){return i.type==='sentence';});
+        if(sentenceIndex>=0){
+            item=battleQuestionPool[sentenceIndex];
+            itemIndex=sentenceIndex;
+        }else{
+            type='choice';
+        }
+    }
+    
     // 记录已用
     usedQuestions.push(item.eng+'_'+type);
     battleQuestionPool.splice(itemIndex,1);
@@ -881,6 +1361,8 @@ function showRoundQuestion(){
         showHearingQuestion(area, item, battleQuestionPool.slice(0,10));
     }else if(type==='puzzle'){
         showPuzzleQuestion(area, item);
+    }else if(type==='dialogue'){
+        showDialogueQuestion(area, item, battleQuestionPool.slice(0,10));
     }
 }
 
@@ -1001,6 +1483,42 @@ function showHearingQuestion(area, word, pool){
     
     // 自动播放发音
     setTimeout(function(){speakWord(word.eng,'hearBtn');},500);
+}
+
+// 对话题（句子对话选择题）
+function showDialogueQuestion(area, word, pool){
+    currentText=word.eng;
+    area.innerHTML='<div class="question-type dialogue">💬 对话选择</div>'+
+        '<div class="word-display" style="font-size:22px;margin:15px 0;">'+word.eng+'</div>'+
+        '<div style="text-align:center;color:#aaa;font-size:14px;margin:8px 0;">请选择正确的回答</div>'+
+        '<div class="voice-btn-container"><button class="voice-btn" id="dialogueBtn" onclick="speakWord(\''+word.eng+'\',\'dialogueBtn\')"><span>🔊</span><span>听发音</span></button></div>'+
+        '<div id="options"></div>';
+    
+    // 从题目池中找其他句子作为干扰项
+    let wrongItems = pool.filter(function(item){return item.eng!==word.eng && item.type==='sentence';}).slice(0,3);
+    if(wrongItems.length<3){
+        battleUnits.forEach(function(u){
+            ALL_WORDS[u].sentences.forEach(function(s){
+                if(s[0]!==word.eng && wrongItems.length<3){
+                    wrongItems.push({eng:s[0], chn:s[1]});
+                }
+            });
+        });
+    }
+    
+    let opts=shuffle([word.chn].concat(wrongItems.map(function(item){return item.chn;})));
+    let optArea=document.getElementById('options');
+    
+    opts.forEach(function(o){
+        let b=document.createElement('button');
+        b.className='option-btn';
+        b.textContent=o;
+        b.onclick=function(){checkAnswer(o===word.chn, this);};
+        optArea.appendChild(b);
+    });
+    
+    // 自动播放发音
+    setTimeout(function(){speakWord(word.eng,'dialogueBtn');},500);
 }
 
 // 拼写题
@@ -1161,6 +1679,21 @@ function endAllBattles(){
         showToast('错题复习完成！');
     }else{
         playSound('victory');
+        
+        // 解锁下一单元
+        let maxUnit = Math.max.apply(null, battleUnits);
+        let nextUnit = maxUnit + 1;
+        if(nextUnit <= 12 && !unlockedUnits.includes(nextUnit)){
+            unlockedUnits.push(nextUnit);
+            showToast('🎉 解锁了单元 ' + nextUnit + '！');
+        }
+        
+        // 根据表现解锁怪兽
+        let unlockCount = calculateUnlockCount();
+        unlockNewMonster(unlockCount);
+        
+        // 检查特殊解锁条件
+        checkSpecialUnlock();
     }
     
     let oldLevel=level;
@@ -1187,6 +1720,7 @@ function endAllBattles(){
     monstersDef+=10;
     isWrongBookReview = false;
     updateUI();
+    checkAchievements();
     show('victory');
 }
 
@@ -1283,7 +1817,8 @@ function preInitSpeechRecognition(){
             recognition = new SpeechRecognition();
             recognition.lang='en-US';
             recognition.continuous=false;
-            recognition.interimResults=false;
+            recognition.interimResults=true; // 启用实时结果，提高响应速度
+            recognition.maxAlternatives=3; // 获取多个候选结果，提高准确性
             
             // 移动设备特殊处理
             let isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
@@ -1297,37 +1832,64 @@ function preInitSpeechRecognition(){
             recognition.onresult=function(e){
                 if(!isRecording) return;
                 try{
-                    let spoken=e.results[0][0].transcript.toLowerCase().trim();
-                    let correct=currentText.toLowerCase().trim();
+                    // 获取实时识别结果
+                    let interimTranscript = '';
+                    let finalTranscript = '';
                     
-                    let isCorrect = checkSpeechAnswer(spoken, correct);
-                    
-                    if(isCorrect){
-                        speakCorrect++;
-                        playSound('correct');
-                        document.getElementById('speakResult').innerHTML='<div style="color:#27ae60;font-size:18px;">✅ 正确！</div><div style="color:#aaa;font-size:13px;">你说：'+escapeHtml(spoken)+'</div>';
-                    }else{
-                        playSound('wrong');
-                        document.getElementById('speakResult').innerHTML='<div style="color:#e74c3c;font-size:18px;">❌ 再试一次</div><div style="color:#aaa;font-size:13px;">你说：'+escapeHtml(spoken)+'<br>答案：'+escapeHtml(correct)+'</div>';
-                        
-                        if(currentText){
-                            let meaning = '';
-                            battleUnits.forEach(function(u){
-                                ALL_WORDS[u].words.forEach(function(w){
-                                    if(w[0].toLowerCase() === currentText.toLowerCase()) meaning = w[1];
-                                });
-                            });
-                            if(meaning){
-                                addToWrongBook(currentText, meaning);
-                            }
+                    for(let i = e.resultIndex; i < e.results.length; i++){
+                        let transcript = e.results[i][0].transcript.toLowerCase().trim();
+                        if(e.results[i].isFinal){
+                            finalTranscript = transcript;
+                        }else{
+                            interimTranscript += transcript;
                         }
                     }
-                    document.getElementById('nextSpeakBtn').style.display='block';
                     
-                    // 重置录音状态
-                    isRecording = false;
-                    document.getElementById('recBtn').classList.remove('recording');
-                    document.getElementById('recText').textContent='点击录音';
+                    // 显示实时识别结果
+                    if(interimTranscript){
+                        document.getElementById('speakResult').innerHTML='<div style="color:#00d4ff;font-size:16px;">🎤 正在识别...</div><div style="color:#aaa;font-size:14px;">'+escapeHtml(interimTranscript)+'</div>';
+                    }
+                    
+                    // 处理最终结果
+                    if(finalTranscript){
+                        let spoken = finalTranscript;
+                        let correct=currentText.toLowerCase().trim();
+                        
+                        // 尝试所有候选结果
+                        let isCorrect = false;
+                        for(let i = 0; i < e.results[0].length && !isCorrect; i++){
+                            let altSpoken = e.results[0][i].transcript.toLowerCase().trim();
+                            isCorrect = checkSpeechAnswer(altSpoken, correct);
+                            if(isCorrect) spoken = altSpoken;
+                        }
+                        
+                        if(isCorrect){
+                            speakCorrect++;
+                            playSound('correct');
+                            document.getElementById('speakResult').innerHTML='<div style="color:#27ae60;font-size:18px;">✅ 正确！</div><div style="color:#aaa;font-size:13px;">你说：'+escapeHtml(spoken)+'</div>';
+                        }else{
+                            playSound('wrong');
+                            document.getElementById('speakResult').innerHTML='<div style="color:#e74c3c;font-size:18px;">❌ 再试一次</div><div style="color:#aaa;font-size:13px;">你说：'+escapeHtml(spoken)+'<br>答案：'+escapeHtml(correct)+'</div>';
+                            
+                            if(currentText){
+                                let meaning = '';
+                                battleUnits.forEach(function(u){
+                                    ALL_WORDS[u].words.forEach(function(w){
+                                        if(w[0].toLowerCase() === currentText.toLowerCase()) meaning = w[1];
+                                    });
+                                });
+                                if(meaning){
+                                    addToWrongBook(currentText, meaning);
+                                }
+                            }
+                        }
+                        document.getElementById('nextSpeakBtn').style.display='block';
+                        
+                        // 重置录音状态
+                        isRecording = false;
+                        document.getElementById('recBtn').classList.remove('recording');
+                        document.getElementById('recText').textContent='点击录音';
+                    }
                 }catch(err){
                     console.error('处理语音结果失败:', err);
                     document.getElementById('speakResult').innerHTML='<div style="color:#ff6b6b;">处理结果失败，请重试</div>';
@@ -1593,6 +2155,37 @@ function speakWord(w, btnId){
         return;
     }
     
+    // 备选方案：使用Web Audio API生成简单的提示音
+    function playFallbackSound(){
+        try {
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(400, audioContext.currentTime + 0.3);
+            
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.3);
+            
+            setTimeout(() => {
+                if(btn){
+                    btn.classList.remove('playing');
+                    let spanEl = btn.querySelector('span:last-child');
+                    if(spanEl) spanEl.textContent='听发音';
+                }
+            }, 300);
+        } catch (e) {
+            console.warn('播放备选声音失败:', e);
+        }
+    }
+    
     function doSpeak(retryCount){
         retryCount = retryCount || 0;
         
@@ -1642,31 +2235,42 @@ function speakWord(w, btnId){
                     let spanEl = btn.querySelector('span:last-child');
                     if(spanEl) spanEl.textContent='听发音';
                 }
+                
                 if(e.error === 'not-allowed'){
-                    showToast('Chrome阻止了语音播放，请尝试Edge浏览器');
+                    showToast('浏览器阻止了语音播放');
+                }else if(e.error === 'synthesis-failed'){
+                    console.log('语音合成失败，尝试备选方案');
+                    playFallbackSound();
+                    showToast('语音播放失败，已使用提示音替代');
                 }else if(e.error !== 'canceled' && e.error !== 'interrupted'){
                     showToast('语音播放失败: ' + e.error);
                 }
             };
             
+            // 尝试播放
             window.speechSynthesis.speak(u);
             
-            if(!window.speechSynthesis.speaking && retryCount < 3){
-                setTimeout(function(){
-                    if(!window.speechSynthesis.speaking){
-                        console.log('Chrome TTS 重试...');
-                        window.speechSynthesis.speak(u);
-                    }
-                }, 100);
-            }
+            // 检查是否真的在播放
+            setTimeout(function(){
+                if(!window.speechSynthesis.speaking && retryCount < 3){
+                    console.log('语音未播放，重试...');
+                    window.speechSynthesis.cancel();
+                    setTimeout(function(){
+                        try {
+                            window.speechSynthesis.speak(u);
+                        } catch (e) {
+                            console.error('重试播放失败:', e);
+                            playFallbackSound();
+                            showToast('语音播放失败，已使用提示音替代');
+                        }
+                    }, 100);
+                }
+            }, 100);
+            
         }catch(e){
             console.error('TTS speak error:', e);
-            showToast('语音播放失败');
-            if(btn){
-                btn.classList.remove('playing');
-                let spanEl = btn.querySelector('span:last-child');
-                if(spanEl) spanEl.textContent='听发音';
-            }
+            showToast('语音播放失败，已使用提示音替代');
+            playFallbackSound();
         }
     }
     
