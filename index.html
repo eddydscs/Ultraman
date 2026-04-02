@@ -27,7 +27,7 @@
         .zero-header { text-align: center; padding: 15px 0; }
         .zero-icon { font-size: 80px; animation: zeroPulse 2s infinite; display: inline-block; filter: drop-shadow(0 0 20px rgba(0,200,255,0.8)); }
         @keyframes zeroPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.08); } }
-        .title { font-size: 22px; font-weight: bold; text-align: center; background: linear-gradient(45deg, #00d4ff, #ff6b35, #ffd93d); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; margin: 8px 0; }
+        .title { font-size: 22px; font-weight: bold; text-align: center; background: linear-gradient(45deg, #00d4ff, #ff6b35, #ffd93d); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin: 8px 0; }
         .subtitle { text-align: center; font-size: 13px; color: #aaa; margin-bottom: 10px; }
         
         .card { background: rgba(255,255,255,0.08); backdrop-filter: blur(10px); border-radius: 20px; padding: 18px; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.15); transition: opacity 0.3s ease, transform 0.3s ease; }
@@ -220,34 +220,11 @@
                 <div id="adviceContent" style="color:#aaa;font-size:14px;line-height:1.6;">正在分析你的学习情况...</div>
             </div>
             
-            <!-- 语音识别状态区域 -->
-            <div id="voiceStatusPanel" style="background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.3);border-radius:10px;padding:15px;margin:10px 0;">
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-                    <div style="color:#00d4ff;font-size:16px;font-weight:bold;">🎤 语音识别</div>
-                    <div id="voiceStatusBadge" style="padding:3px 10px;border-radius:10px;font-size:12px;background:rgba(255,255,255,0.1);color:#aaa;">检测中...</div>
-                </div>
-                <div id="voiceStatusContent" style="color:#aaa;font-size:14px;line-height:1.6;">
-                    <div style="display:flex;align-items:center;gap:10px;">
-                        <div style="flex:1;height:6px;background:rgba(255,255,255,0.1);border-radius:3px;overflow:hidden;">
-                            <div id="voiceProgressBar" style="width:0%;height:100%;background:linear-gradient(90deg,#00d4ff,#00ff88);transition:width 0.3s;"></div>
-                        </div>
-                        <span id="voiceProgressText" style="font-size:12px;min-width:40px;">0%</span>
-                    </div>
-                    <div id="voiceStatusMessage" style="margin-top:8px;font-size:13px;">正在检测浏览器支持...</div>
-                </div>
-                <div id="voiceStatusActions" style="margin-top:10px;display:none;">
-                    <button onclick="preloadVoiceModel()" style="padding:8px 15px;border-radius:8px;border:none;background:linear-gradient(135deg,#00d4ff,#00ff88);color:#0a0a1a;font-size:13px;font-weight:bold;cursor:pointer;">📥 预加载语音模型</button>
-                    <button onclick="switchVoiceEngine()" style="padding:8px 15px;border-radius:8px;border:1px solid #00d4ff;background:transparent;color:#00d4ff;font-size:13px;cursor:pointer;margin-left:10px;">🔄 切换引擎</button>
-                </div>
-            </div>
-            
             <button class="game-btn btn-battle" onclick="confirmUnitsAndBattle()">⚔️ 开始战斗</button>
-            <button class="game-btn" style="background:linear-gradient(135deg, #f39c12, #e67e22);" onclick="showLeaderboard()">🏆 排行榜</button>
             <button class="game-btn" style="background:linear-gradient(135deg, #9b59b6, #8e44ad);" onclick="showMonsterCollection()">👾 怪兽图鉴</button>
             <button class="game-btn" style="background:linear-gradient(135deg, #f39c12, #e67e22);" onclick="showAchievements()">🏆 成就</button>
             <button class="game-btn" style="background:linear-gradient(135deg, #00b894, #00cec9);" onclick="showStudyReport()">📊 学习报告</button>
             <button class="game-btn" style="background:linear-gradient(135deg, #e74c3c, #c0392b);" onclick="showWrongBook()">📖 错题本</button>
-            <button class="game-btn" style="background:linear-gradient(135deg, #6c5ce7, #a29bfe);" onclick="showGoalSettings()">🎯 学习目标</button>
             <div class="speed-control" style="text-align:center;margin:10px 0;">
                 <span style="color:#aaa;font-size:14px;">语速：</span>
                 <button class="speed-btn" id="speedSlowBtn" onclick="setSpeechRate('slow')" style="padding:5px 10px;border-radius:5px;border:1px solid #555;background:rgba(255,255,255,0.05);color:#aaa;cursor:pointer;margin:0 3px;">🐢 慢速</button>
@@ -743,31 +720,6 @@ let battleMonsters = [];
 // 已解锁的怪兽ID列表
 let unlockedMonsterIds = [1,2,3,4,5,6,7,8,9,10];
 
-// 本地排行榜（模拟多人数据）
-let leaderboard = {
-    energy: [
-        {name: '你', score: 0, isPlayer: true},
-        {name: '小明', score: 5000},
-        {name: '小红', score: 4500},
-        {name: '小刚', score: 4000},
-        {name: '小美', score: 3500}
-    ],
-    stars: [
-        {name: '你', score: 0, isPlayer: true},
-        {name: '小明', score: 100},
-        {name: '小红', score: 85},
-        {name: '小刚', score: 70},
-        {name: '小美', score: 60}
-    ],
-    monsters: [
-        {name: '你', score: 10, isPlayer: true},
-        {name: '小明', score: 80},
-        {name: '小红', score: 65},
-        {name: '小刚', score: 50},
-        {name: '小美', score: 40}
-    ]
-};
-
 let score=0, currentStage=1, monstersDef=0;
 let selectedUnit=1, qIdx=0, correctCount=0;
 let mHp=100, zHp=100, currentMonster=null;
@@ -775,257 +727,6 @@ let currentText='';
 let currentQuestionType=''; // 当前题型
 let recognition=null, isRecording=false, isStoppingRecording=false;
 let recordingTimeout=null;
-
-// ========== Whisper.js 离线语音识别系统 ==========
-let whisperTranscriber = null;
-let whisperLoading = false;
-let whisperLoaded = false;
-let whisperProgress = 0;
-let useWhisper = true;
-let audioContextForWhisper = null;
-let mediaStreamForWhisper = null;
-let mediaRecorderForWhisper = null;
-let audioChunksForWhisper = [];
-let whisperSupported = false;
-
-async function initWhisperFunctions(){
-    whisperSupported = await checkWhisperSupport();
-    
-    if (!whisperSupported) {
-        console.log('Whisper.js 不支持当前环境');
-        useWhisper = false;
-        return;
-    }
-    
-    window.initWhisper = async function(showProgressCallback) {
-        if (whisperLoaded || whisperLoading) {
-            console.log('Whisper 已加载或正在加载中');
-            return whisperLoaded;
-        }
-        
-        whisperLoading = true;
-        whisperProgress = 0;
-        
-        try {
-            const cdnSources = [
-                'https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.1',
-                'https://unpkg.com/@xenova/transformers@2.17.1',
-                'https://cdnjs.cloudflare.com/ajax/libs/transformers.js/2.17.1/transformers.min.js'
-            ];
-            
-            let moduleLoaded = false;
-            let moduleError = null;
-            
-            for (let i = 0; i < cdnSources.length && !moduleLoaded; i++) {
-                try {
-                    if (showProgressCallback) showProgressCallback(5, `正在加载语音引擎... (${i + 1}/${cdnSources.length})`);
-                    
-                    const module = await import(cdnSources[i]);
-                    const { pipeline, env } = module;
-                    
-                    env.allowLocalModels = false;
-                    
-                    const mirrors = [
-                        'https://huggingface.co',
-                        'https://hf-mirror.com'
-                    ];
-                    
-                    let loaded = false;
-                    let lastError = null;
-                    
-                    for (let j = 0; j < mirrors.length && !loaded; j++) {
-                        const mirror = mirrors[j];
-                        console.log(`尝试镜像源: ${mirror}`);
-                        
-                        try {
-                            env.remoteHost = mirror;
-                            
-                            if (showProgressCallback) showProgressCallback(10 + j * 10, `正在从镜像源加载... (${j + 1}/${mirrors.length})`);
-                            
-                            whisperTranscriber = await pipeline(
-                                'automatic-speech-recognition',
-                                'Xenova/whisper-tiny.en',
-                                {
-                                    progress_callback: function(progress) {
-                                        if (progress.status === 'downloading') {
-                                            let percent = progress.progress || 0;
-                                            whisperProgress = 30 + Math.round(percent * 0.65);
-                                            let loadedMB = progress.loaded ? (progress.loaded / 1024 / 1024).toFixed(1) : 0;
-                                            let totalMB = progress.total ? (progress.total / 1024 / 1024).toFixed(1) : 0;
-                                            if (showProgressCallback) {
-                                                showProgressCallback(whisperProgress, `下载语音模型... ${loadedMB}/${totalMB}MB`);
-                                            }
-                                        } else if (progress.status === 'loading') {
-                                            if (showProgressCallback) showProgressCallback(95, '正在加载模型到内存...');
-                                        }
-                                    }
-                                }
-                            );
-                            
-                            loaded = true;
-                            moduleLoaded = true;
-                            console.log(`成功从 ${mirror} 加载模型`);
-                            
-                        } catch (mirrorError) {
-                            console.warn(`镜像 ${mirror} 失败:`, mirrorError.message);
-                            lastError = mirrorError;
-                        }
-                    }
-                    
-                    if (!loaded) {
-                        throw lastError || new Error('所有镜像源都失败');
-                    }
-                    
-                } catch (cdnError) {
-                    console.warn(`CDN ${cdnSources[i]} 失败:`, cdnError.message);
-                    moduleError = cdnError;
-                }
-            }
-            
-            if (!moduleLoaded) {
-                throw moduleError || new Error('所有 CDN 源都失败');
-            }
-            
-            whisperLoaded = true;
-            whisperLoading = false;
-            whisperProgress = 100;
-            
-            if (showProgressCallback) showProgressCallback(100, '语音模型加载完成！');
-            console.log('Whisper 模型加载完成');
-            
-            return true;
-        } catch (e) {
-            console.error('Whisper 加载失败:', e);
-            whisperLoading = false;
-            whisperLoaded = false;
-            useWhisper = false;
-            
-            if (showProgressCallback) showProgressCallback(-1, '离线模型加载失败，将使用在线识别');
-            
-            return false;
-        }
-    };
-
-    window.startWhisperRecording = async function(resultCallback, statusCallback) {
-        try {
-            if (!whisperLoaded) {
-                const supported = await checkWhisperSupport();
-                if (!supported) {
-                    return { success: false, error: 'browser_not_supported' };
-                }
-                
-                if (statusCallback) statusCallback('loading', '正在加载语音模型...');
-                
-                const loaded = await window.initWhisper(function(progress, message) {
-                    if (statusCallback) statusCallback('loading', message, progress);
-                });
-                
-                if (!loaded) {
-                    return { success: false, error: 'model_load_failed' };
-                }
-            }
-            
-            if (statusCallback) statusCallback('recording', '正在录音...', 0);
-            
-            const stream = await navigator.mediaDevices.getUserMedia({ 
-                audio: {
-                    echoCancellation: true,
-                    noiseSuppression: true,
-                    sampleRate: 16000
-                } 
-            });
-            
-            mediaStreamForWhisper = stream;
-            audioContextForWhisper = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 16000 });
-            
-            mediaRecorderForWhisper = new MediaRecorder(stream, { mimeType: 'audio/webm' });
-            audioChunksForWhisper = [];
-            
-            return new Promise((resolve) => {
-                mediaRecorderForWhisper.ondataavailable = function(event) {
-                    if (event.data.size > 0) {
-                        audioChunksForWhisper.push(event.data);
-                    }
-                };
-                
-                mediaRecorderForWhisper.onstop = async function() {
-                    if (statusCallback) statusCallback('processing', '正在识别...', 50);
-                    
-                    try {
-                        const audioBlob = new Blob(audioChunksForWhisper, { type: 'audio/webm' });
-                        const audioBuffer = await audioContextForWhisper.decodeAudioData(await audioBlob.arrayBuffer());
-                        
-                        const audioData = audioBuffer.getChannelData(0);
-                        
-                        if (statusCallback) statusCallback('processing', '正在识别...', 80);
-                        
-                        const result = await whisperTranscriber(audioData, {
-                            language: 'en',
-                            task: 'transcribe'
-                        });
-                        
-                        const text = result.text.trim().toLowerCase();
-                        
-                        if (statusCallback) statusCallback('done', '识别完成', 100);
-                        
-                        resolve({ 
-                            success: true, 
-                            text: text,
-                            confidence: 0.9
-                        });
-                        
-                    } catch (e) {
-                        console.error('Whisper 识别失败:', e);
-                        resolve({ success: false, error: 'recognition_failed', message: e.message });
-                    }
-                    
-                    if (mediaStreamForWhisper) {
-                        mediaStreamForWhisper.getTracks().forEach(track => track.stop());
-                    }
-                };
-                
-                mediaRecorderForWhisper.start();
-                
-                setTimeout(() => {
-                    if (mediaRecorderForWhisper && mediaRecorderForWhisper.state === 'recording') {
-                        mediaRecorderForWhisper.stop();
-                    }
-                }, 10000);
-            });
-            
-        } catch (e) {
-            console.error('Whisper 录音失败:', e);
-            return { success: false, error: 'recording_failed', message: e.message };
-        }
-    };
-
-    window.stopWhisperRecording = function() {
-        if (mediaRecorderForWhisper && mediaRecorderForWhisper.state === 'recording') {
-            mediaRecorderForWhisper.stop();
-        }
-    };
-    
-    console.log('Whisper.js 函数已初始化');
-}
-
-async function checkWhisperSupport(){
-    try {
-        if (window.location.protocol === 'file:') {
-            console.log('file:// 协议不支持 ES modules，Whisper.js 不可用');
-            return false;
-        }
-        
-        if (typeof WebAssembly !== 'object') {
-            console.log('浏览器不支持 WebAssembly');
-            return false;
-        }
-        
-        return true;
-    } catch (e) {
-        console.log('Whisper 支持检测失败:', e);
-        return false;
-    }
-}
 let currentMonsterIndex=0;
 let stageCompleted = [];
 let battleScore=0;
@@ -1111,13 +812,6 @@ let dailyTasks = {
     speakCount: 0,             // 今日口语练习数量
     speakTarget: 5,            // 口语目标
     speakReward: false         // 口语奖励是否已领取
-};
-
-// 个性化学习目标设置
-let learningGoals = {
-    dailyQuestions: 20,        // 每日答题目标
-    weeklyBattles: 5,          // 每周战斗目标
-    targetLevel: 3             // 目标等级
 };
 
 // 从已解锁怪兽中随机选择10个作为本次闯关的怪兽
@@ -1317,27 +1011,23 @@ function init(){
     loadProgress();
     createHomeUnitSelector();
     updateUI();
-    initAudioContext();
     
-    initWhisperFunctions().then(function() {
-        initVoiceStatus();
-    });
-    
+    // 初始化每日任务UI
     updateDailyTaskUI();
     
+    // 检查每日登录奖励
     checkLoginReward();
     
+    // 预加载语音引擎（异步执行，不阻塞页面加载）
     setTimeout(function(){
         preloadVoices();
         preloadCommonWords();
     }, 100);
     
     document.body.addEventListener('click', function initAudio(){
+        // 首次点击时再次确保语音引擎已预热
         if('speechSynthesis' in window && !voiceEngineReady){
             warmupVoiceEngine();
-        }
-        if(audioContext && audioContext.state === 'suspended'){
-            audioContext.resume();
         }
         document.body.removeEventListener('click', initAudio);
     }, {once: true});
@@ -1525,16 +1215,23 @@ function incrementSpeakCount(){
     }
 }
 
-function initAudioContext(){
-    try{
-        audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    }catch(e){
-        console.warn('Web Audio API 不支持');
-    }
-}
-
 function playSound(type){
-    if(!soundEnabled || !audioContext) return;
+    if(!soundEnabled) return;
+    
+    // 延迟创建AudioContext（在用户交互后）
+    if(!audioContext){
+        try{
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        }catch(e){
+            console.warn('Web Audio API 不支持');
+            return;
+        }
+    }
+    
+    // 如果AudioContext被暂停，尝试恢复
+    if(audioContext.state === 'suspended'){
+        audioContext.resume();
+    }
     
     try{
         let oscillator = audioContext.createOscillator();
@@ -1852,193 +1549,6 @@ function startQuickReview(){
     }, 500);
 }
 
-// ========== 语音识别状态管理 ==========
-function initVoiceStatus(){
-    console.log('初始化语音状态...');
-    
-    let badge = document.getElementById('voiceStatusBadge');
-    let message = document.getElementById('voiceStatusMessage');
-    let progressBar = document.getElementById('voiceProgressBar');
-    let progressText = document.getElementById('voiceProgressText');
-    let actions = document.getElementById('voiceStatusActions');
-    
-    if (!badge || !message) return;
-    
-    let hasWebSpeech = !!(window.SpeechRecognition || window.webkitSpeechRecognition);
-    let isFileProtocol = window.location.protocol === 'file:';
-    
-    console.log('Web Speech API 支持:', hasWebSpeech);
-    console.log('Whisper 支持:', whisperSupported);
-    console.log('file:// 协议:', isFileProtocol);
-    
-    if (isFileProtocol) {
-        badge.textContent = '本地文件';
-        badge.style.background = 'rgba(243,156,18,0.3)';
-        badge.style.color = '#f39c12';
-        message.textContent = '⚠️ 本地文件模式：离线语音不可用，请使用 Edge 浏览器的在线识别';
-        progressBar.style.width = '0%';
-        progressText.textContent = '不可用';
-        actions.style.display = 'block';
-        useWhisper = false;
-        
-        let actionsHtml = '<button onclick="showVoiceHelp()" style="padding:8px 15px;border-radius:8px;border:none;background:linear-gradient(135deg,#00d4ff,#00ff88);color:#0a0a1a;font-size:13px;font-weight:bold;cursor:pointer;">❓ 使用帮助</button>';
-        actions.innerHTML = actionsHtml;
-        
-        return;
-    }
-    
-    if (whisperSupported) {
-        badge.textContent = '离线可用';
-        badge.style.background = 'rgba(39,174,96,0.3)';
-        badge.style.color = '#27ae60';
-        message.textContent = '✅ 支持离线语音识别（Whisper.js），首次使用需下载模型';
-        progressBar.style.width = '0%';
-        progressText.textContent = '未加载';
-        actions.style.display = 'block';
-        
-        if (whisperLoaded) {
-            badge.textContent = '已就绪';
-            progressBar.style.width = '100%';
-            progressText.textContent = '已加载';
-            message.textContent = '✅ 离线语音模型已加载，可随时使用';
-        }
-    } else if (hasWebSpeech) {
-        badge.textContent = '仅在线';
-        badge.style.background = 'rgba(243,156,18,0.3)';
-        badge.style.color = '#f39c12';
-        message.textContent = '⚠️ 仅支持在线语音识别，需要网络连接';
-        progressBar.style.width = '100%';
-        progressText.textContent = '在线';
-        actions.style.display = 'block';
-        useWhisper = false;
-    } else {
-        badge.textContent = '不支持';
-        badge.style.background = 'rgba(231,76,60,0.3)';
-        badge.style.color = '#e74c3c';
-        message.textContent = '❌ 浏览器不支持语音识别，请使用 Chrome 或 Edge';
-        progressBar.style.width = '0%';
-        progressText.textContent = '不可用';
-        actions.style.display = 'none';
-    }
-}
-
-function showVoiceHelp(){
-    let helpHtml = `
-        <div style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);display:flex;align-items:center;justify-content:center;z-index:3000;" onclick="this.remove()">
-            <div style="background:linear-gradient(135deg,#1a1a3e,#0f2040);border:2px solid #00d4ff;border-radius:20px;padding:30px;max-width:400px;width:90%;" onclick="event.stopPropagation()">
-                <div style="color:#00d4ff;font-size:20px;font-weight:bold;margin-bottom:15px;">🎤 语音识别使用说明</div>
-                <div style="color:#aaa;font-size:14px;line-height:1.8;">
-                    <p><b style="color:#ffd93d;">本地文件模式限制：</b></p>
-                    <p>• Chrome 浏览器不支持本地文件的语音识别</p>
-                    <p>• 离线语音模型无法在本地文件模式下加载</p>
-                    <br>
-                    <p><b style="color:#27ae60;">解决方案：</b></p>
-                    <p>1. 使用 <b>Edge 浏览器</b> 打开此文件（支持在线识别）</p>
-                    <p>2. 将文件部署到本地服务器（如 Live Server）</p>
-                    <p>3. 上传到网站服务器使用 HTTPS 访问</p>
-                </div>
-                <button onclick="this.parentElement.parentElement.remove()" style="margin-top:20px;padding:10px 30px;border-radius:10px;border:none;background:linear-gradient(135deg,#00d4ff,#00ff88);color:#0a0a1a;font-size:14px;font-weight:bold;cursor:pointer;">我知道了</button>
-            </div>
-        </div>
-    `;
-    document.body.insertAdjacentHTML('beforeend', helpHtml);
-}
-
-async function preloadVoiceModel(){
-    console.log('预加载语音模型...');
-    
-    if (window.location.protocol === 'file:') {
-        showToast('⚠️ 本地文件模式不支持加载语音模型');
-        showVoiceHelp();
-        return;
-    }
-    
-    if (!whisperSupported) {
-        showToast('⚠️ 当前环境不支持离线语音识别');
-        return;
-    }
-    
-    if (!window.initWhisper) {
-        showToast('⚠️ 语音引擎未初始化，请刷新页面重试');
-        return;
-    }
-    
-    let badge = document.getElementById('voiceStatusBadge');
-    let message = document.getElementById('voiceStatusMessage');
-    let progressBar = document.getElementById('voiceProgressBar');
-    let progressText = document.getElementById('voiceProgressText');
-    let actions = document.getElementById('voiceStatusActions');
-    
-    badge.textContent = '加载中';
-    badge.style.background = 'rgba(0,212,255,0.3)';
-    badge.style.color = '#00d4ff';
-    
-    actions.style.display = 'none';
-    
-    try {
-        const loaded = await window.initWhisper(function(progress, msg) {
-            console.log('加载进度:', progress, msg);
-            progressBar.style.width = progress + '%';
-            progressText.textContent = progress + '%';
-            message.textContent = msg;
-        });
-        
-        if (loaded) {
-            badge.textContent = '已就绪';
-            badge.style.background = 'rgba(39,174,96,0.3)';
-            badge.style.color = '#27ae60';
-            message.textContent = '✅ 离线语音模型已加载，可随时使用';
-            progressBar.style.width = '100%';
-            progressText.textContent = '已加载';
-            showToast('🎉 语音模型加载完成！');
-        } else {
-            throw new Error('加载失败');
-        }
-    } catch (e) {
-        console.error('预加载失败:', e);
-        badge.textContent = '加载失败';
-        badge.style.background = 'rgba(231,76,60,0.3)';
-        badge.style.color = '#e74c3c';
-        message.textContent = '⚠️ 模型加载失败，将使用在线识别';
-        actions.style.display = 'block';
-        showToast('⚠️ 模型加载失败，将使用在线识别');
-    }
-}
-
-function switchVoiceEngine(){
-    if (window.location.protocol === 'file:') {
-        showToast('⚠️ 本地文件模式无法切换引擎');
-        showVoiceHelp();
-        return;
-    }
-    
-    useWhisper = !useWhisper;
-    
-    let badge = document.getElementById('voiceStatusBadge');
-    let message = document.getElementById('voiceStatusMessage');
-    let actions = document.getElementById('voiceStatusActions');
-    
-    if (useWhisper) {
-        badge.textContent = whisperLoaded ? '离线模式' : '离线(未加载)';
-        badge.style.background = whisperLoaded ? 'rgba(39,174,96,0.3)' : 'rgba(243,156,18,0.3)';
-        badge.style.color = whisperLoaded ? '#27ae60' : '#f39c12';
-        message.textContent = whisperLoaded ? 
-            '✅ 当前使用离线语音识别（Whisper.js）' : 
-            '⚠️ 离线模式：首次使用需下载模型';
-        actions.style.display = 'block';
-        showToast('已切换到离线语音识别模式');
-    } else {
-        badge.textContent = '在线模式';
-        badge.style.background = 'rgba(0,212,255,0.3)';
-        badge.style.color = '#00d4ff';
-        message.textContent = '🌐 当前使用在线语音识别（需联网）';
-        actions.style.display = 'block';
-        showToast('已切换到在线语音识别模式');
-    }
-    
-    console.log('切换语音引擎，useWhisper:', useWhisper);
-}
-
 function createStars(){
     for(let i=0;i<50;i++){
         let s=document.createElement('div');
@@ -2092,11 +1602,6 @@ function loadProgress(){
                 dailyTasks = data.dailyTasks;
             }
             
-            // 加载学习目标设置
-            if(data.learningGoals){
-                learningGoals = data.learningGoals;
-            }
-            
             // 检查是否需要重置每日任务（新的一天）
             checkDailyTaskReset();
         }
@@ -2121,7 +1626,6 @@ function saveProgress(){
             unlockedMonsterIds: unlockedMonsterIds,
             studyStats: studyStats,
             dailyTasks: dailyTasks,
-            learningGoals: learningGoals,
             saveTime: new Date().toISOString()
         };
         localStorage.setItem('ultraman_progress', JSON.stringify(data));
@@ -2422,96 +1926,6 @@ function showStudyReport(){
     html += '<div style="display:flex;justify-content:space-between;margin:8px 0;"><span style="color:#aaa;">口语练习次数</span><span style="color:white;">'+studyStats.totalSpeakAttempts+'次</span></div>';
     html += '</div></div>';
     
-    // 学习路径规划
-    let learningPath = generateLearningPath();
-    html += '<div style="margin:15px 0;"><div style="color:#00d4ff;font-size:16px;margin-bottom:10px;">🛤️ 学习路径规划</div>';
-    html += '<div style="background:linear-gradient(135deg, rgba(0,212,255,0.1), rgba(148,0,211,0.1));border-radius:15px;padding:15px;">';
-    
-    // 当前进度
-    html += '<div style="margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid rgba(255,255,255,0.1);">';
-    html += '<div style="display:flex;justify-content:space-between;align-items:center;">';
-    html += '<span style="color:#aaa;font-size:14px;">📍 当前进度</span>';
-    html += '<span style="color:#00d4ff;font-size:14px;font-weight:bold;">Level ' + learningPath.currentLevel + ' / 单元 ' + (unlockedUnits[currentLevel] ? unlockedUnits[currentLevel].length : 0) + '</span>';
-    html += '</div></div>';
-    
-    // 薄弱领域
-    if(learningPath.weakAreas.length > 0){
-        html += '<div style="margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid rgba(255,255,255,0.1);">';
-        html += '<div style="color:#ff6b6b;font-size:14px;margin-bottom:8px;">⚠️ 薄弱领域</div>';
-        html += '<div style="display:flex;flex-wrap:wrap;gap:8px;">';
-        learningPath.weakAreas.forEach(function(area){
-            html += '<span style="background:rgba(255,107,107,0.2);color:#ff6b6b;padding:4px 12px;border-radius:15px;font-size:13px;">' + area + '</span>';
-        });
-        html += '</div></div>';
-    }
-    
-    // 推荐行动
-    if(learningPath.recommendations.length > 0){
-        html += '<div style="margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid rgba(255,255,255,0.1);">';
-        html += '<div style="color:#ffd93d;font-size:14px;margin-bottom:8px;">💡 推荐行动</div>';
-        learningPath.recommendations.forEach(function(rec){
-            html += '<div style="color:#aaa;font-size:13px;margin:5px 0;padding-left:15px;position:relative;">';
-            html += '<span style="position:absolute;left:0;color:#ffd93d;">•</span>' + rec + '</div>';
-        });
-        html += '</div>';
-    }
-    
-    // 下一步目标
-    html += '<div style="text-align:center;padding:10px;background:rgba(0,212,255,0.15);border-radius:10px;">';
-    html += '<div style="color:#aaa;font-size:12px;margin-bottom:5px;">🎯 下一步目标</div>';
-    html += '<div style="color:#00d4ff;font-size:16px;font-weight:bold;">' + learningPath.nextGoal + '</div>';
-    html += '</div>';
-    
-    html += '</div></div>';
-    
-    // 目标完成进度
-    let todayQuestions = getTodayQuestionCount();
-    let weeklyBattles = getWeeklyBattleCount();
-    let dailyProgress = Math.min(100, Math.round((todayQuestions / learningGoals.dailyQuestions) * 100));
-    let weeklyProgress = Math.min(100, Math.round((weeklyBattles / learningGoals.weeklyBattles) * 100));
-    
-    html += '<div style="margin:15px 0;"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">';
-    html += '<span style="color:#ffd93d;font-size:16px;">🎯 学习目标进度</span>';
-    html += '<button onclick="showGoalSettings()" style="padding:5px 12px;border-radius:15px;border:1px solid #00d4ff;background:transparent;color:#00d4ff;font-size:12px;cursor:pointer;">⚙️ 设置</button>';
-    html += '</div>';
-    html += '<div style="background:rgba(255,255,255,0.05);border-radius:10px;padding:15px;">';
-    
-    // 每日答题目标
-    html += '<div style="margin-bottom:15px;">';
-    html += '<div style="display:flex;justify-content:space-between;margin-bottom:5px;">';
-    html += '<span style="color:#aaa;font-size:13px;">📚 每日答题</span>';
-    html += '<span style="color:' + (dailyProgress >= 100 ? '#27ae60' : '#00d4ff') + ';font-size:13px;">' + todayQuestions + '/' + learningGoals.dailyQuestions + '</span>';
-    html += '</div>';
-    html += '<div style="height:8px;background:rgba(255,255,255,0.1);border-radius:4px;overflow:hidden;">';
-    html += '<div style="height:100%;width:' + dailyProgress + '%;background:' + (dailyProgress >= 100 ? 'linear-gradient(90deg, #27ae60, #2ecc71)' : 'linear-gradient(90deg, #00d4ff, #00ff88)') + ';border-radius:4px;transition:width 0.3s;"></div>';
-    html += '</div>';
-    html += '</div>';
-    
-    // 每周战斗目标
-    html += '<div style="margin-bottom:15px;">';
-    html += '<div style="display:flex;justify-content:space-between;margin-bottom:5px;">';
-    html += '<span style="color:#aaa;font-size:13px;">⚔️ 每周战斗</span>';
-    html += '<span style="color:' + (weeklyProgress >= 100 ? '#27ae60' : '#00d4ff') + ';font-size:13px;">' + weeklyBattles + '/' + learningGoals.weeklyBattles + '</span>';
-    html += '</div>';
-    html += '<div style="height:8px;background:rgba(255,255,255,0.1);border-radius:4px;overflow:hidden;">';
-    html += '<div style="height:100%;width:' + weeklyProgress + '%;background:' + (weeklyProgress >= 100 ? 'linear-gradient(90deg, #27ae60, #2ecc71)' : 'linear-gradient(90deg, #00d4ff, #00ff88)') + ';border-radius:4px;transition:width 0.3s;"></div>';
-    html += '</div>';
-    html += '</div>';
-    
-    // 目标等级
-    html += '<div style="display:flex;justify-content:space-between;align-items:center;">';
-    html += '<span style="color:#aaa;font-size:13px;">🏆 目标等级</span>';
-    html += '<span style="color:' + (currentLevel >= learningGoals.targetLevel ? '#27ae60' : '#ffd93d') + ';font-size:13px;">';
-    html += 'Level ' + learningGoals.targetLevel;
-    if(currentLevel >= learningGoals.targetLevel){
-        html += ' ✓ 已达成';
-    } else {
-        html += ' (当前 Level ' + currentLevel + ')';
-    }
-    html += '</span></div>';
-    
-    html += '</div></div>';
-    
     // 学习建议
     html += '<div style="margin:15px 0;"><div style="color:#ffd93d;font-size:16px;margin-bottom:10px;">💡 学习建议</div>';
     html += '<div style="background:rgba(255,215,0,0.1);border-radius:10px;padding:15px;">';
@@ -2666,129 +2080,7 @@ function getAllTypeRates(){
     return rates;
 }
 
-// 生成学习路径推荐
-function generateLearningPath(){
-    let path = {
-        currentLevel: currentLevel,
-        currentUnit: (unlockedUnits[currentLevel] ? unlockedUnits[currentLevel].length : 0) + 1,
-        weakAreas: [],           // 薄弱领域
-        recommendations: [],     // 推荐行动
-        nextGoal: ''             // 下一步目标
-    };
-    
-    // 分析薄弱领域
-    if(studyStats.listeningTotal > 0 && (studyStats.listeningCorrect / studyStats.listeningTotal) < 0.7) {
-        path.weakAreas.push('听力理解');
-        path.recommendations.push('多练习听力挑战题型');
-    }
-    if(studyStats.pronunciationCount > 0 && (studyStats.totalPronunciationScore / studyStats.pronunciationCount) < 70) {
-        path.weakAreas.push('口语发音');
-        path.recommendations.push('多进行口语跟读练习');
-    }
-    if(studyStats.dialogueTotal > 0 && (studyStats.dialogueCorrect / studyStats.dialogueTotal) < 0.7) {
-        path.weakAreas.push('情景对话');
-        path.recommendations.push('多练习情景对话题型');
-    }
-    if(studyStats.dictationTotal > 0 && (studyStats.dictationCorrect / studyStats.dictationTotal) < 0.7) {
-        path.weakAreas.push('听写填空');
-        path.recommendations.push('多练习听写填空题型');
-    }
-    
-    // 设定下一步目标
-    if(path.weakAreas.length > 0) {
-        path.nextGoal = '重点攻克：' + path.weakAreas[0];
-    } else if(unlockedUnits[currentLevel] && unlockedUnits[currentLevel].length < 12) {
-        path.nextGoal = '解锁 Level ' + currentLevel + ' 单元 ' + (unlockedUnits[currentLevel].length + 1);
-    } else if(currentLevel < 3) {
-        path.nextGoal = '挑战 Level ' + (currentLevel + 1);
-    } else {
-        path.nextGoal = '继续保持，巩固所学';
-    }
-    
-    return path;
-}
-
-// 获取本周战斗次数
-function getWeeklyBattleCount(){
-    let count = 0;
-    let today = new Date();
-    let weekStart = new Date(today);
-    weekStart.setDate(today.getDate() - today.getDay()); // 本周开始（周日）
-    weekStart.setHours(0, 0, 0, 0);
-    
-    for(let dateStr in studyStats.dailyStats){
-        let date = new Date(dateStr);
-        if(date >= weekStart){
-            count += studyStats.dailyStats[dateStr].battles || 0;
-        }
-    }
-    return count;
-}
-
-// 获取今日答题数
-function getTodayQuestionCount(){
-    let today = new Date().toISOString().split('T')[0];
-    if(studyStats.dailyStats[today]){
-        return studyStats.dailyStats[today].questions || 0;
-    }
-    return 0;
-}
-
-// 显示学习目标设置弹窗
-function showGoalSettings(){
-    let html = '<div class="login-reward-modal" id="goalModal" onclick="closeGoalModal(event)">'+
-        '<div class="login-reward-content" onclick="event.stopPropagation()">'+
-        '<div style="font-size:40px;margin-bottom:10px;">🎯</div>'+
-        '<div style="color:#ffd93d;font-size:22px;font-weight:bold;margin-bottom:20px;">学习目标设置</div>'+
-        '<div style="text-align:left;margin:15px 0;">'+
-        '<div style="margin:15px 0;">'+
-        '<label style="color:#aaa;font-size:14px;display:block;margin-bottom:8px;">📚 每日答题目标</label>'+
-        '<input type="number" id="goalDailyQuestions" value="'+learningGoals.dailyQuestions+'" min="5" max="100" style="width:100%;padding:10px;border-radius:10px;border:1px solid #00d4ff;background:rgba(0,0,0,0.3);color:white;font-size:16px;text-align:center;">'+
-        '</div>'+
-        '<div style="margin:15px 0;">'+
-        '<label style="color:#aaa;font-size:14px;display:block;margin-bottom:8px;">⚔️ 每周战斗目标</label>'+
-        '<input type="number" id="goalWeeklyBattles" value="'+learningGoals.weeklyBattles+'" min="1" max="50" style="width:100%;padding:10px;border-radius:10px;border:1px solid #00d4ff;background:rgba(0,0,0,0.3);color:white;font-size:16px;text-align:center;">'+
-        '</div>'+
-        '<div style="margin:15px 0;">'+
-        '<label style="color:#aaa;font-size:14px;display:block;margin-bottom:8px;">🏆 目标等级</label>'+
-        '<select id="goalTargetLevel" style="width:100%;padding:10px;border-radius:10px;border:1px solid #00d4ff;background:rgba(0,0,0,0.3);color:white;font-size:16px;">'+
-        '<option value="1" '+(learningGoals.targetLevel===1?'selected':'')+'>Level 1 - 基础</option>'+
-        '<option value="2" '+(learningGoals.targetLevel===2?'selected':'')+'>Level 2 - 进阶</option>'+
-        '<option value="3" '+(learningGoals.targetLevel===3?'selected':'')+'>Level 3 - 高级</option>'+
-        '</select>'+
-        '</div>'+
-        '</div>'+
-        '<button onclick="saveGoalSettings()" style="padding:12px 40px;border-radius:25px;border:none;background:linear-gradient(135deg, #00d4ff, #00ff88);color:#0a0a1a;font-size:16px;font-weight:bold;cursor:pointer;margin-top:10px;">💾 保存目标</button>'+
-        '</div></div>';
-    
-    document.body.insertAdjacentHTML('beforeend', html);
-}
-
-// 关闭目标设置弹窗
-function closeGoalModal(event){
-    if(event.target.id === 'goalModal'){
-        document.getElementById('goalModal').remove();
-    }
-}
-
-// 保存学习目标设置
-function saveGoalSettings(){
-    let dailyQuestions = parseInt(document.getElementById('goalDailyQuestions').value) || 20;
-    let weeklyBattles = parseInt(document.getElementById('goalWeeklyBattles').value) || 5;
-    let targetLevel = parseInt(document.getElementById('goalTargetLevel').value) || 3;
-    
-    // 限制范围
-    dailyQuestions = Math.max(5, Math.min(100, dailyQuestions));
-    weeklyBattles = Math.max(1, Math.min(50, weeklyBattles));
-    
-    learningGoals.dailyQuestions = dailyQuestions;
-    learningGoals.weeklyBattles = weeklyBattles;
-    learningGoals.targetLevel = targetLevel;
-    
-    saveProgress();
-    showToast('✅ 学习目标已保存');
-    document.getElementById('goalModal').remove();
-}
+// 专项练习模式
 function startWeaknessPractice(type){
     if(audioContext && audioContext.state === 'suspended'){
         audioContext.resume();
@@ -2929,74 +2221,6 @@ function showWeaknessRoundQuestion(){
         // 默认显示听力题
         showHearingQuestion(area, item, battleQuestionPool.slice(0,10));
     }
-}
-
-// 更新排行榜数据
-function updateLeaderboard() {
-    // 更新玩家分数
-    leaderboard.energy.find(function(item){ return item.isPlayer; }).score = score;
-    leaderboard.stars.find(function(item){ return item.isPlayer; }).score = totalStars;
-    leaderboard.monsters.find(function(item){ return item.isPlayer; }).score = unlockedMonsterIds.length;
-    
-    // 排序（从高到低）
-    leaderboard.energy.sort(function(a, b){ return b.score - a.score; });
-    leaderboard.stars.sort(function(a, b){ return b.score - a.score; });
-    leaderboard.monsters.sort(function(a, b){ return b.score - a.score; });
-}
-
-// 显示排行榜界面
-function showLeaderboard() {
-    updateLeaderboard();
-    
-    let html = '<div style="text-align:center;margin-bottom:15px;">'+
-        '<div style="font-size:24px;color:#ffd93d;">🏆 排行榜</div>'+
-        '<div style="color:#aaa;font-size:14px;margin-top:5px;">与其他玩家一较高下</div>'+
-    '</div>';
-    
-    // 能量排行
-    html += '<div style="margin:15px 0;"><div style="color:#00d4ff;font-size:16px;margin-bottom:10px;">⚡ 能量排行</div>';
-    html += '<div style="background:rgba(0,212,255,0.1);border-radius:10px;padding:10px;">';
-    leaderboard.energy.slice(0, 5).forEach(function(item, index){
-        let medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : (index + 1);
-        let highlight = item.isPlayer ? 'background:rgba(0,212,255,0.2);border:1px solid #00d4ff;' : '';
-        html += '<div style="display:flex;justify-content:space-between;padding:8px;margin:5px 0;border-radius:8px;'+highlight+'">'+
-            '<span>'+medal+' '+item.name+'</span>'+
-            '<span style="color:#ffd93d;">'+item.score+'</span>'+
-        '</div>';
-    });
-    html += '</div></div>';
-    
-    // 星星排行
-    html += '<div style="margin:15px 0;"><div style="color:#ffd93d;font-size:16px;margin-bottom:10px;">⭐ 星星排行</div>';
-    html += '<div style="background:rgba(255,217,61,0.1);border-radius:10px;padding:10px;">';
-    leaderboard.stars.slice(0, 5).forEach(function(item, index){
-        let medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : (index + 1);
-        let highlight = item.isPlayer ? 'background:rgba(255,217,61,0.2);border:1px solid #ffd93d;' : '';
-        html += '<div style="display:flex;justify-content:space-between;padding:8px;margin:5px 0;border-radius:8px;'+highlight+'">'+
-            '<span>'+medal+' '+item.name+'</span>'+
-            '<span style="color:#ffd93d;">'+item.score+'</span>'+
-        '</div>';
-    });
-    html += '</div></div>';
-    
-    // 怪兽收集排行
-    html += '<div style="margin:15px 0;"><div style="color:#ff6b6b;font-size:16px;margin-bottom:10px;">👾 怪兽收集排行</div>';
-    html += '<div style="background:rgba(255,107,107,0.1);border-radius:10px;padding:10px;">';
-    leaderboard.monsters.slice(0, 5).forEach(function(item, index){
-        let medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : (index + 1);
-        let highlight = item.isPlayer ? 'background:rgba(255,107,107,0.2);border:1px solid #ff6b6b;' : '';
-        html += '<div style="display:flex;justify-content:space-between;padding:8px;margin:5px 0;border-radius:8px;'+highlight+'">'+
-            '<span>'+medal+' '+item.name+'</span>'+
-            '<span style="color:#ffd93d;">'+item.score+'</span>'+
-        '</div>';
-    });
-    html += '</div></div>';
-    
-    html += '<div style="text-align:center;margin-top:15px;color:#aaa;font-size:12px;">💡 继续努力，冲击榜首！</div>';
-    html += '<button class="game-btn" style="background:#555;margin-top:15px;" onclick="backToMenu()">🏠 返回</button>';
-    
-    document.getElementById('menu').innerHTML = html;
-    document.getElementById('menu').classList.remove('hidden');
 }
 
 // 怪兽图鉴
@@ -4773,153 +3997,33 @@ function speakCurrentWord(){
 
 function toggleRecord(){
     if(isRecording){
+        // 停止录音
         isRecording=false;
         isStoppingRecording=true;
         document.getElementById('recBtn').classList.remove('recording');
         document.getElementById('recText').textContent='点击录音';
-        
-        if(useWhisper && window.stopWhisperRecording){
-            window.stopWhisperRecording();
-        } else {
-            try{recognition.abort();}catch(e){}
-        }
-        
+        try{recognition.abort();}catch(e){}
         setTimeout(function(){isStoppingRecording=false;},200);
     }else{
+        // 开始录音
         startRecording();
     }
 }
 
 function startRecording(){
     console.log('startRecording 被调用');
-    console.log('使用 Whisper:', useWhisper);
-    console.log('Whisper 已加载:', whisperLoaded);
-    
-    document.getElementById('nextSpeakBtn').style.display='none';
-    
-    if(useWhisper){
-        startWhisperRecordingSession();
-    }else{
-        startWebSpeechRecording();
-    }
-}
-
-async function startWhisperRecordingSession(){
-    console.log('使用 Whisper.js 进行语音识别');
-    
-    let resultElement = document.getElementById('speakResult');
-    let recBtn = document.getElementById('recBtn');
-    let recText = document.getElementById('recText');
-    
-    if (window.location.protocol === 'file:') {
-        resultElement.innerHTML = '<div style="color:#ffd93d;">⚠️ 本地文件模式不支持离线语音</div><div style="color:#aaa;font-size:12px;margin-top:5px;">正在切换到在线识别...</div>';
-        setTimeout(function() {
-            startWebSpeechRecording();
-        }, 500);
-        return;
-    }
-    
-    if (!window.startWhisperRecording) {
-        resultElement.innerHTML = '<div style="color:#ffd93d;">⚠️ 语音引擎未初始化</div><div style="color:#aaa;font-size:12px;margin-top:5px;">正在切换到在线识别...</div>';
-        setTimeout(function() {
-            startWebSpeechRecording();
-        }, 500);
-        return;
-    }
-    
-    if(!whisperLoaded && !whisperLoading){
-        resultElement.innerHTML = '<div style="color:#00d4ff;">🎤 正在加载语音模型...</div><div style="color:#aaa;font-size:12px;margin-top:5px;">首次使用需要下载模型（约40MB）</div><div style="margin-top:10px;"><div style="height:6px;background:rgba(255,255,255,0.1);border-radius:3px;overflow:hidden;"><div id="whisperLoadProgress" style="width:0%;height:100%;background:linear-gradient(90deg,#00d4ff,#00ff88);transition:width 0.3s;"></div></div></div>';
-    }
-    
-    isRecording = true;
-    recBtn.classList.add('recording');
-    recText.textContent = '点击停止';
-    
-    try {
-        const result = await window.startWhisperRecording(null, function(status, message, progress) {
-            console.log('Whisper 状态:', status, message, progress);
-            
-            if (status === 'loading') {
-                let progressBar = document.getElementById('whisperLoadProgress');
-                if (progressBar) progressBar.style.width = progress + '%';
-                resultElement.innerHTML = '<div style="color:#00d4ff;">🎤 ' + escapeHtml(message) + '</div><div style="margin-top:10px;"><div style="height:6px;background:rgba(255,255,255,0.1);border-radius:3px;overflow:hidden;"><div style="width:' + progress + '%;height:100%;background:linear-gradient(90deg,#00d4ff,#00ff88);"></div></div></div>';
-            } else if (status === 'recording') {
-                resultElement.innerHTML = '<div style="color:#ffd93d;">🎤 正在录音...</div><div style="color:#aaa;font-size:12px;margin-top:5px;">请说英文单词（最长10秒）</div>';
-            } else if (status === 'processing') {
-                resultElement.innerHTML = '<div style="color:#00d4ff;">🔄 ' + escapeHtml(message) + '</div>';
-            }
-        });
-        
-        isRecording = false;
-        recBtn.classList.remove('recording');
-        recText.textContent = '点击录音';
-        
-        if (result.success) {
-            let spoken = result.text;
-            let correct = currentText.toLowerCase().trim();
-            
-            console.log('Whisper 识别结果:', spoken, '正确答案:', correct);
-            
-            let isCorrect = checkSpeechAnswer(spoken, correct);
-            let pronScore = calculatePronunciationScore(spoken, correct);
-            
-            studyStats.totalPronunciationScore += pronScore.score;
-            studyStats.pronunciationCount++;
-            
-            if (isCorrect) {
-                incrementSpeakCount();
-                speakCorrect++;
-                playSound('correct');
-                showPronunciationResult(resultElement, pronScore.score, pronScore.feedback, true, spoken, correct);
-                document.getElementById('nextSpeakBtn').style.display = 'block';
-            } else {
-                playSound('wrong');
-                showPronunciationResult(resultElement, pronScore.score, pronScore.feedback, false, spoken, correct);
-                
-                if (currentText) {
-                    let meaning = getWordMeaning(currentText);
-                    if (meaning) {
-                        addToWrongBook(currentText, meaning);
-                    }
-                }
-                document.getElementById('nextSpeakBtn').style.display = 'block';
-            }
-        } else {
-            console.log('Whisper 识别失败，尝试使用 Web Speech API');
-            resultElement.innerHTML = '<div style="color:#ffd93d;">⚠️ 离线识别失败，尝试在线识别...</div>';
-            
-            setTimeout(function() {
-                startWebSpeechRecording();
-            }, 500);
-        }
-        
-    } catch (e) {
-        console.error('Whisper 录音失败:', e);
-        isRecording = false;
-        recBtn.classList.remove('recording');
-        recText.textContent = '点击录音';
-        
-        resultElement.innerHTML = '<div style="color:#ffd93d;">⚠️ 离线识别失败，尝试在线识别...</div>';
-        setTimeout(function() {
-            startWebSpeechRecording();
-        }, 500);
-    }
-}
-
-function startWebSpeechRecording(){
-    console.log('使用 Web Speech API 进行语音识别');
     console.log('当前协议:', window.location.protocol);
     console.log('当前主机名:', window.location.hostname);
     
     if(window.location.protocol !== 'https:' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1'){
-        document.getElementById('speakResult').innerHTML='<div style="color:#ff6b6b;">⚠️ 语音识别需要HTTPS环境</div><div style="color:#aaa;font-size:12px;margin-top:5px;">请使用HTTPS连接访问，或切换到离线模式</div>';
+        document.getElementById('speakResult').innerHTML='<div style="color:#ff6b6b;">⚠️ 语音识别需要HTTPS环境</div><div style="color:#aaa;font-size:12px;margin-top:5px;">请使用HTTPS连接访问</div>';
         return;
     }
     
     if(window.location.protocol === 'file:'){
         let isChrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
         if(isChrome){
-            document.getElementById('speakResult').innerHTML='<div style="color:#ff6b6b;">⚠️ Chrome本地文件不支持在线语音识别</div><div style="color:#aaa;font-size:12px;margin-top:5px;">请使用Edge浏览器，或将文件部署到服务器</div>';
+            document.getElementById('speakResult').innerHTML='<div style="color:#ff6b6b;">⚠️ Chrome本地文件不支持语音识别</div><div style="color:#aaa;font-size:12px;margin-top:5px;">请使用Edge浏览器，或将文件部署到服务器</div>';
             return;
         }
     }
@@ -4937,20 +4041,26 @@ function startWebSpeechRecording(){
     
     console.log('recognition 已准备好，准备启动录音');
     
+    document.getElementById('nextSpeakBtn').style.display='none';
+    
+    // 清除之前的超时
     if(recordingTimeout){
         clearTimeout(recordingTimeout);
         recordingTimeout = null;
     }
     
+    // 先停止之前的识别
     isStoppingRecording = true;
     try{
         recognition.abort();
     }catch(stopErr){}
     
+    // 更新UI
     document.getElementById('recBtn').classList.add('recording');
     document.getElementById('recText').textContent='点击停止';
     document.getElementById('speakResult').innerHTML='<div style="color:#ffd93d;">🎤 正在录音...</div><div style="color:#aaa;font-size:12px;margin-top:5px;">请说英文单词</div>';
     
+    // 设置超时检测，防止录音状态卡死
     recordingTimeout = setTimeout(function(){
         if(isRecording){
             console.warn('录音超时，自动停止');
@@ -4964,6 +4074,7 @@ function startWebSpeechRecording(){
         }
     }, 15000);
     
+    // 延迟后启动新识别
     setTimeout(function(){
         isStoppingRecording = true;
         
