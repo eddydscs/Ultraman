@@ -93,9 +93,21 @@
         .voice-btn.playing { background: linear-gradient(135deg, #ffd93d, #ff6b35); animation: vPulse 0.5s infinite; }
         @keyframes vPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
         
-        .speak-btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 25px; background: linear-gradient(135deg, #f39c12, #e74c3c); border: none; border-radius: 25px; color: white; font-size: 15px; font-weight: bold; cursor: pointer; margin: 10px; }
+        .speak-btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 25px; background: linear-gradient(135deg, #f39c12, #e74c3c); border: none; border-radius: 25px; color: white; font-size: 15px; font-weight: bold; cursor: pointer; margin: 10px; user-select: none; -webkit-user-select: none; touch-action: manipulation; }
         .speak-btn.recording { background: linear-gradient(135deg, #e74c3c, #c0392b); animation: recPulse 0.8s infinite; }
+        .speak-btn:active { transform: scale(0.95); }
         @keyframes recPulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(231,76,60,0.7); } 50% { box-shadow: 0 0 0 12px rgba(231,76,60,0); } }
+        
+        /* 音量波形动画 */
+        .wave-container { display: flex; align-items: center; justify-content: center; gap: 3px; height: 30px; margin: 10px 0; }
+        .wave-bar { width: 4px; height: 10px; background: #00d4ff; border-radius: 2px; transition: height 0.1s; }
+        .wave-bar.active { animation: waveAnim 0.5s ease-in-out infinite; }
+        .wave-bar:nth-child(1) { animation-delay: 0s; }
+        .wave-bar:nth-child(2) { animation-delay: 0.1s; }
+        .wave-bar:nth-child(3) { animation-delay: 0.2s; }
+        .wave-bar:nth-child(4) { animation-delay: 0.3s; }
+        .wave-bar:nth-child(5) { animation-delay: 0.4s; }
+        @keyframes waveAnim { 0%, 100% { height: 10px; } 50% { height: 25px; } }
         
         .option-btn { display: block; width: 100%; padding: 12px; margin: 5px 0; border: 2px solid rgba(255,255,255,0.2); border-radius: 10px; font-size: 15px; background: rgba(255,255,255,0.08); color: white; cursor: pointer; }
         .option-btn.correct { background: rgba(39, 174, 96, 0.5); border-color: #27ae60; }
@@ -271,9 +283,22 @@
             <div class="meaning-display" id="speakMeaning">你好</div>
             <div class="voice-btn-container"><button class="voice-btn" id="speakListenBtn" onclick="speakCurrentWord()"><span>🔊</span><span>听示范</span></button></div>
             <div style="text-align:center;margin:15px 0;">
-                <button class="speak-btn" id="recBtn" onclick="toggleRecord()">
-                    <span>🎙️</span><span id="recText">点击录音</span>
+                <button class="speak-btn" id="recBtn" 
+                    onmousedown="startRecordHold()" 
+                    onmouseup="stopRecordHold()" 
+                    onmouseleave="stopRecordHold()"
+                    ontouchstart="startRecordHold()" 
+                    ontouchend="stopRecordHold()"
+                    ontouchcancel="stopRecordHold()">
+                    <span>🎙️</span><span id="recText">按住说话</span>
                 </button>
+            </div>
+            <div id="waveContainer" class="wave-container" style="display:none;">
+                <div class="wave-bar"></div>
+                <div class="wave-bar"></div>
+                <div class="wave-bar"></div>
+                <div class="wave-bar"></div>
+                <div class="wave-bar"></div>
             </div>
             <div id="speakResult" style="text-align:center;padding:10px;background:rgba(0,0,0,0.3);border-radius:10px;margin:8px 0;">
                 <div style="color:#aaa;">按住按钮说英文</div>
@@ -2315,7 +2340,6 @@ function restoreMenuContent(){
         </div>
         
         <button class="game-btn btn-battle" onclick="confirmUnitsAndBattle()">⚔️ 开始战斗</button>
-        <button class="game-btn" style="background:linear-gradient(135deg, #f39c12, #e67e22);" onclick="showLeaderboard()">🏆 排行榜</button>
         <button class="game-btn" style="background:linear-gradient(135deg, #9b59b6, #8e44ad);" onclick="showMonsterCollection()">👾 怪兽图鉴</button>
         <button class="game-btn" style="background:linear-gradient(135deg, #f39c12, #e67e22);" onclick="showAchievements()">🏆 成就</button>
         <button class="game-btn" style="background:linear-gradient(135deg, #00b894, #00cec9);" onclick="showStudyReport()">📊 学习报告</button>
@@ -2899,102 +2923,58 @@ function showSpeakQuestion(area, word){
         '<div class="word-display">'+word.eng+'</div>'+
         '<div class="meaning-display">'+word.chn+'</div>'+
         '<div class="voice-btn-container"><button class="voice-btn" id="speakVoiceBtn" onclick="speakWord(\''+word.eng.replace(/'/g, "\\'")+'\',\'speakVoiceBtn\')"><span>🔊</span><span>听发音</span></button></div>'+
-        '<div id="speakResultArea" style="text-align:center;padding:10px;background:rgba(0,0,0,0.3);border-radius:10px;margin:8px 0;"><div style="color:#aaa;">点击按钮说英文</div></div>'+
-        '<div style="text-align:center;margin:15px 0;"><button class="speak-btn" id="recBtn" onclick="toggleBattleRecord()"><span id="recText">点击录音</span></button></div>';
+        '<div id="speakResultArea" style="text-align:center;padding:10px;background:rgba(0,0,0,0.3);border-radius:10px;margin:8px 0;"><div style="color:#aaa;">按住按钮说英文</div></div>'+
+        '<div style="text-align:center;margin:15px 0;"><button class="speak-btn" id="recBtn" '+
+        'onmousedown="startBattleRecordHold()" onmouseup="stopBattleRecordHold()" onmouseleave="stopBattleRecordHold()" '+
+        'ontouchstart="startBattleRecordHold()" ontouchend="stopBattleRecordHold()" ontouchcancel="stopBattleRecordHold()">'+
+        '<span>🎙️</span><span id="recText">按住说话</span></button></div>';
 }
 
-// 战斗模式录音切换
-function toggleBattleRecord(){
-    if(isRecording){
-        // 停止录音
-        isRecording=false;
-        isStoppingRecording=true; // 标记正在停止
-        document.getElementById('recBtn').classList.remove('recording');
-        document.getElementById('recText').textContent='点击录音';
-        try{recognition.abort();}catch(e){} // 使用abort立即停止
-        setTimeout(function(){isStoppingRecording=false;},200);
-    }else{
-        // 开始录音
-        startBattleRecording();
-    }
-}
-
-// 战斗模式录音
-function startBattleRecording(){
-    console.log('startBattleRecording 被调用');
+// 战斗模式 - 按住说话开始
+function startBattleRecordHold(){
+    if(isRecording) return;
     
+    if(!recognition) preInitSpeechRecognition();
     if(!recognition){
-        console.log('recognition 未初始化，尝试初始化...');
-        preInitSpeechRecognition();
-    }
-    
-    if(!recognition){
-        console.error('recognition 初始化失败');
-        document.getElementById('speakResultArea').innerHTML='<div style="color:#ff6b6b;">⚠️ 浏览器不支持语音识别</div>';
+        document.getElementById('speakResultArea').innerHTML='<div style="color:#ff6b6b;">⚠️ 浏览器不支持</div>';
         return;
     }
     
-    // 清除之前的超时
-    if(recordingTimeout){
-        clearTimeout(recordingTimeout);
-        recordingTimeout = null;
-    }
+    if(recordingTimeout){ clearTimeout(recordingTimeout); recordingTimeout = null; }
+    try{ recognition.abort(); }catch(e){}
     
-    // 先停止之前的识别（如果正在运行）
-    isStoppingRecording = true;
-    try{
-        recognition.abort();
-    }catch(stopErr){
-        // 忽略停止错误
-    }
-    
-    // 更新UI
     document.getElementById('recBtn').classList.add('recording');
-    document.getElementById('recText').textContent='点击停止';
-    document.getElementById('speakResultArea').innerHTML='<div style="color:#ffd93d;">🎤 正在录音...</div><div style="color:#aaa;font-size:12px;margin-top:5px;">请说英文单词</div>';
+    document.getElementById('recText').textContent='松开结束';
+    document.getElementById('speakResultArea').innerHTML='<div style="color:#ffd93d;">🎤 正在录音...</div><div style="color:#aaa;font-size:12px;margin-top:5px;">请说英文</div>';
     
-    // 设置超时检测
-    recordingTimeout = setTimeout(function(){
-        if(isRecording){
-            console.warn('录音超时，自动停止');
-            isRecording = false;
-            isStoppingRecording = true;
-            document.getElementById('recBtn').classList.remove('recording');
-            document.getElementById('recText').textContent='点击录音';
-            document.getElementById('speakResultArea').innerHTML='<div style="color:#ffd93d;">⚠️ 录音超时</div><div style="color:#aaa;font-size:12px;margin-top:5px;">请重新尝试</div>';
-            try{ recognition.abort(); }catch(e){}
-            setTimeout(function(){isStoppingRecording=false;},200);
-        }
-    }, 15000);
+    recordingTimeout = setTimeout(function(){ if(isRecording) stopBattleRecordHold(); }, 10000);
     
-    // 延迟后启动新识别（确保之前的识别完全停止）
     setTimeout(function(){
-        // 在启动前再次设置停止标记，防止 onend 干扰
-        isStoppingRecording = true;
-        
         try{
-            console.log('调用 recognition.start()...');
             recognition.start();
-            console.log('recognition.start() 调用成功');
-            
-            // 启动成功后，重置标记
-            isStoppingRecording = false;
             isRecording = true;
-        }catch(startErr){
-            console.error('启动录音失败:', startErr);
-            clearTimeout(recordingTimeout);
-            isRecording=false;
-            isStoppingRecording=false;
-            document.getElementById('recBtn').classList.remove('recording');
-            document.getElementById('recText').textContent='点击录音';
-            if(startErr.message && startErr.message.indexOf('already started') !== -1){
-                document.getElementById('speakResultArea').innerHTML='<div style="color:#ffd93d;">⚠️ 录音已在运行</div><div style="color:#aaa;font-size:12px;margin-top:5px;">请直接说话</div>';
-            }else{
-                document.getElementById('speakResultArea').innerHTML='<div style="color:#ff6b6b;">启动录音失败</div><div style="color:#aaa;font-size:12px;margin-top:5px;">'+escapeHtml(startErr.message || '未知错误')+'</div>';
-            }
+        }catch(e){
+            stopBattleRecordHold();
+            document.getElementById('speakResultArea').innerHTML='<div style="color:#ff6b6b;">启动失败</div>';
         }
-    }, 500);
+    }, 100);
 }
+
+// 战斗模式 - 按住说话结束
+function stopBattleRecordHold(){
+    if(!isRecording) return;
+    isRecording = false;
+    if(recordingTimeout){ clearTimeout(recordingTimeout); recordingTimeout = null; }
+    document.getElementById('recBtn').classList.remove('recording');
+    document.getElementById('recText').textContent='按住说话';
+    try{ recognition.abort(); }catch(e){}
+}
+
+// 战斗模式录音切换（已废弃）
+function toggleBattleRecord(){}
+
+// 战斗模式录音（已废弃）
+function startBattleRecording(){}
 
 // 看图说话题型 - PET口语Part2核心题型
 function showSpeakImageQuestion(area, word){
@@ -3016,83 +2996,58 @@ function showSpeakImageQuestion(area, word){
             '<div style="color:#aaa;font-size:14px;">'+word.chn+'</div>'+
         '</div>'+
         '<div id="speakImageResult" style="text-align:center;padding:10px;background:rgba(0,0,0,0.3);border-radius:10px;margin:8px 0;"><div style="color:#aaa;">按住按钮说英文</div></div>'+
-        '<div style="text-align:center;margin:15px 0;"><button class="speak-btn" id="recBtnImage" onclick="toggleSpeakImageRecord()"><span id="recTextImage">点击录音</span></button></div>'+
+        '<div style="text-align:center;margin:15px 0;"><button class="speak-btn" id="recBtnImage" '+
+        'onmousedown="startSpeakImageHold()" onmouseup="stopSpeakImageHold()" onmouseleave="stopSpeakImageHold()" '+
+        'ontouchstart="startSpeakImageHold()" ontouchend="stopSpeakImageHold()" ontouchcancel="stopSpeakImageHold()">'+
+        '<span>🎙️</span><span id="recTextImage">按住说话</span></button></div>'+
         '<div style="text-align:center;margin-top:10px;"><button class="hint-btn" onclick="showSpeakImageHint(\''+escapedEng+'\')" style="padding:8px 20px;border-radius:20px;border:1px solid #555;background:rgba(255,255,255,0.05);color:#aaa;cursor:pointer;">💡 提示</button></div>';
 }
 
-function toggleSpeakImageRecord(){
-    if(isRecording){
-        isRecording=false;
-        isStoppingRecording=true;
-        document.getElementById('recBtnImage').classList.remove('recording');
-        document.getElementById('recTextImage').textContent='点击录音';
-        try{recognition.abort();}catch(e){}
-        setTimeout(function(){isStoppingRecording=false;},200);
-    }else{
-        startSpeakImageRecording();
-    }
-}
-
-function startSpeakImageRecording(){
-    if(!recognition){
-        preInitSpeechRecognition();
-    }
+// 看图说话 - 按住说话开始
+function startSpeakImageHold(){
+    if(isRecording) return;
     
+    if(!recognition) preInitSpeechRecognition();
     if(!recognition){
-        document.getElementById('speakImageResult').innerHTML='<div style="color:#ff6b6b;">⚠️ 浏览器不支持语音识别</div>';
+        document.getElementById('speakImageResult').innerHTML='<div style="color:#ff6b6b;">⚠️ 浏览器不支持</div>';
         return;
     }
     
-    if(recordingTimeout){
-        clearTimeout(recordingTimeout);
-        recordingTimeout = null;
-    }
+    if(recordingTimeout){ clearTimeout(recordingTimeout); recordingTimeout = null; }
+    try{ recognition.abort(); }catch(e){}
     
-    // 先停止之前的识别
-    isStoppingRecording = true;
-    try{
-        recognition.abort();
-    }catch(stopErr){}
-    
-    // 更新UI
     document.getElementById('recBtnImage').classList.add('recording');
-    document.getElementById('recTextImage').textContent='点击停止';
-    document.getElementById('speakImageResult').innerHTML='<div style="color:#ffd93d;">🎤 正在录音...</div><div style="color:#aaa;font-size:12px;margin-top:5px;">请说英文单词</div>';
+    document.getElementById('recTextImage').textContent='松开结束';
+    document.getElementById('speakImageResult').innerHTML='<div style="color:#ffd93d;">🎤 正在录音...</div><div style="color:#aaa;font-size:12px;margin-top:5px;">请说英文</div>';
     
-    recordingTimeout = setTimeout(function(){
-        if(isRecording){
-            isRecording = false;
-            isStoppingRecording = true;
-            document.getElementById('recBtnImage').classList.remove('recording');
-            document.getElementById('recTextImage').textContent='点击录音';
-            document.getElementById('speakImageResult').innerHTML='<div style="color:#ffd93d;">⚠️ 录音超时</div>';
-            try{ recognition.abort(); }catch(e){}
-            setTimeout(function(){isStoppingRecording=false;},200);
-        }
-    }, 15000);
+    recordingTimeout = setTimeout(function(){ if(isRecording) stopSpeakImageHold(); }, 10000);
     
-    // 延迟后启动新识别
     setTimeout(function(){
-        isStoppingRecording = true;
-        
         try{
             recognition.start();
-            isStoppingRecording = false;
             isRecording = true;
         }catch(e){
-            clearTimeout(recordingTimeout);
-            isRecording=false;
-            isStoppingRecording=false;
-            document.getElementById('recBtnImage').classList.remove('recording');
-            document.getElementById('recTextImage').textContent='点击录音';
-            if(e.message && e.message.indexOf('already started') !== -1){
-                document.getElementById('speakImageResult').innerHTML='<div style="color:#ffd93d;">⚠️ 录音已在运行</div><div style="color:#aaa;font-size:12px;margin-top:5px;">请直接说话</div>';
-            }else{
-                document.getElementById('speakImageResult').innerHTML='<div style="color:#ff6b6b;">启动录音失败</div>';
-            }
+            stopSpeakImageHold();
+            document.getElementById('speakImageResult').innerHTML='<div style="color:#ff6b6b;">启动失败</div>';
         }
-    }, 500);
+    }, 100);
 }
+
+// 看图说话 - 按住说话结束
+function stopSpeakImageHold(){
+    if(!isRecording) return;
+    isRecording = false;
+    if(recordingTimeout){ clearTimeout(recordingTimeout); recordingTimeout = null; }
+    document.getElementById('recBtnImage').classList.remove('recording');
+    document.getElementById('recTextImage').textContent='按住说话';
+    try{ recognition.abort(); }catch(e){}
+}
+
+// 看图说话录音切换（已废弃）
+function toggleSpeakImageRecord(){}
+
+// 看图说话录音（已废弃）
+function startSpeakImageRecording(){}
 
 function showSpeakImageHint(word){
     let hint = word.charAt(0).toUpperCase() + '_'.repeat(word.length - 1);
@@ -3116,10 +3071,11 @@ function showDialogueSceneQuestion(area){
     
     scene.options.forEach(function(opt, idx){
         let escapedOpt = opt.replace(/'/g, "\\'");
-        html+='<button class="dialogue-option" onclick="checkDialogueScene('+idx+','+scene.correct+',this)" style="background:rgba(255,255,255,0.05);border:2px solid rgba(255,255,255,0.2);border-radius:12px;padding:15px;cursor:pointer;text-align:left;transition:all 0.3s;display:flex;align-items:center;justify-content:space-between;">'+
-            '<div><span style="color:#00d4ff;margin-right:10px;">'+String.fromCharCode(65+idx)+'.</span>'+
-            '<span style="color:white;">'+opt+'</span></div>'+
-            '<span class="option-speak-btn" onclick="event.stopPropagation();speakWord(\''+escapedOpt+'\')" style="background:linear-gradient(135deg, #00d4ff, #9400d3);border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;flex-shrink:0;">🔊</span>'+
+        let btnId = 'dialogueOptBtn'+idx;
+        html+='<button class="dialogue-option" id="'+btnId+'" onclick="checkDialogueScene('+idx+','+scene.correct+',this)" style="background:rgba(255,255,255,0.05);border:2px solid rgba(255,255,255,0.2);border-radius:12px;padding:15px;padding-right:50px;cursor:pointer;text-align:left;transition:all 0.3s;position:relative;">'+
+            '<span style="color:#00d4ff;margin-right:10px;">'+String.fromCharCode(65+idx)+'.</span>'+
+            '<span style="color:white;display:inline-block;max-width:70%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+opt+'</span>'+
+            '<span class="option-speak-btn" id="dialogueSpeakBtn'+idx+'" onclick="event.stopPropagation();playDialogueOption(\''+escapedOpt+'\', '+idx+')" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:linear-gradient(135deg, #00d4ff, #9400d3);border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;flex-shrink:0;">🔊</span>'+
             '</button>';
     });
     
@@ -3128,6 +3084,36 @@ function showDialogueSceneQuestion(area){
     
     // 自动播放问题
     setTimeout(function(){speakWord(scene.question,'dialogueSceneBtn');},500);
+}
+
+// 播放情境对话选项发音
+function playDialogueOption(text, idx){
+    playSound('click');
+    let speakBtn = document.getElementById('dialogueSpeakBtn'+idx);
+    if(speakBtn){
+        speakBtn.innerHTML='🎵';
+        speakBtn.style.animation='pulse 0.5s infinite';
+    }
+    
+    let utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'en-US';
+    utterance.rate = speechRate;
+    
+    utterance.onend = function(){
+        if(speakBtn){
+            speakBtn.innerHTML='🔊';
+            speakBtn.style.animation='';
+        }
+    };
+    
+    utterance.onerror = function(){
+        if(speakBtn){
+            speakBtn.innerHTML='🔊';
+            speakBtn.style.animation='';
+        }
+    };
+    
+    window.speechSynthesis.speak(utterance);
 }
 
 function checkDialogueScene(selected, correct, btn){
@@ -3175,6 +3161,7 @@ function showDictationQuestion(area, word){
     
     // 存储正确答案
     window.dictationCorrect = blankWord;
+    window.dictationCorrectLength = blankWord.length;
     
     let html='<div class="question-type hearing">✍️ 听写填空</div>'+
         '<div class="hint-text" style="text-align:center;color:#aaa;margin:10px 0;">听句子，选择字母拼出缺失的单词</div>'+
@@ -3185,8 +3172,7 @@ function showDictationQuestion(area, word){
         '<div class="input-display" id="dictationInputDisplay" style="min-height:40px;"></div>'+
         '<div class="letters-grid" id="dictationLettersGrid"></div>'+
         '<div style="text-align:center;margin-top:10px;">'+
-            '<button class="game-btn" style="padding:10px 30px;" onclick="checkDictationAnswer()">确认答案</button>'+
-            '<button class="hint-btn" onclick="showDictationHint(\''+escapedBlankWord+'\')" style="margin-left:10px;padding:10px 20px;border-radius:20px;border:1px solid #555;background:rgba(255,255,255,0.05);color:#aaa;cursor:pointer;">💡 提示</button>'+
+            '<button class="hint-btn" onclick="showDictationHint(\''+escapedBlankWord+'\')" style="padding:10px 20px;border-radius:20px;border:1px solid #555;background:rgba(255,255,255,0.05);color:#aaa;cursor:pointer;">💡 提示</button>'+
         '</div>';
     
     area.innerHTML=html;
@@ -3194,6 +3180,7 @@ function showDictationQuestion(area, word){
     // 初始化字母按钮
     window.dictationAnswer=[];
     window.dictationButtons=[];
+    window.dictationChecked=false;
     
     let grid=document.getElementById('dictationLettersGrid');
     shuffled.forEach(function(l, idx){
@@ -3212,6 +3199,8 @@ function showDictationQuestion(area, word){
 }
 
 function toggleDictationLetter(letter, idx, btn){
+    if(window.dictationChecked) return; // 已经判定过了
+    
     // 如果已经使用，点击取消
     if(window.dictationButtons[idx].used){
         window.dictationButtons[idx].used=false;
@@ -3227,9 +3216,19 @@ function toggleDictationLetter(letter, idx, btn){
     // 更新显示
     let display=window.dictationAnswer.map(function(item){return item.letter;}).join('');
     document.getElementById('dictationInputDisplay').textContent=display;
+    
+    // 自动判定：当选择的字母数量等于正确答案的字母数量时
+    if(window.dictationAnswer.length === window.dictationCorrectLength){
+        setTimeout(function(){
+            checkDictationAnswer();
+        }, 300);
+    }
 }
 
 function checkDictationAnswer(){
+    if(window.dictationChecked) return;
+    window.dictationChecked = true;
+    
     let answer = window.dictationAnswer.map(function(item){return item.letter;}).join('').toLowerCase();
     let correct = window.dictationCorrect.toLowerCase();
     let isCorrect = answer === correct;
@@ -3697,25 +3696,15 @@ function preInitSpeechRecognition(){
         try{
             recognition = new SpeechRecognition();
             recognition.lang='en-US';
-            recognition.continuous=true; // 启用连续识别，防止过早结束
-            recognition.interimResults=true; // 启用实时结果，提高响应速度
-            recognition.maxAlternatives=3; // 获取多个候选结果，提高准确性
-            
-            // 移动设备特殊处理
-            let isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-            if(isMobile){
-                // 移动设备设置较短的超时时间
-                if('timeout' in recognition){
-                    recognition.timeout = 8000;
-                }
-            }
+            recognition.continuous=false; // 按住说话模式：单次识别
+            recognition.interimResults=true; // 实时结果
+            recognition.maxAlternatives=5; // 更多候选结果
             
             recognition.onresult=function(e){
                 if(!isRecording) return;
                 try{
-                    // 获取实时识别结果
-                    let interimTranscript = '';
                     let finalTranscript = '';
+                    let interimTranscript = '';
                     
                     for(let i = e.resultIndex; i < e.results.length; i++){
                         let transcript = e.results[i][0].transcript.toLowerCase().trim();
@@ -3726,14 +3715,13 @@ function preInitSpeechRecognition(){
                         }
                     }
                     
-                    // 判断当前是口语练习模式还是战斗模式
                     let isBattleMode = document.getElementById('speakResultArea') !== null;
                     let isSpeakImageMode = document.getElementById('speakImageResult') !== null;
                     let resultElement = isSpeakImageMode ? document.getElementById('speakImageResult') : (isBattleMode ? document.getElementById('speakResultArea') : document.getElementById('speakResult'));
                     
                     // 显示实时识别结果
                     if(interimTranscript && resultElement){
-                        resultElement.innerHTML='<div style="color:#00d4ff;font-size:16px;">🎤 正在识别...</div><div style="color:#aaa;font-size:14px;">'+escapeHtml(interimTranscript)+'</div>';
+                        resultElement.innerHTML='<div style="color:#00d4ff;font-size:16px;">🎤 识别中...</div><div style="color:#aaa;font-size:14px;">'+escapeHtml(interimTranscript)+'</div>';
                     }
                     
                     // 处理最终结果
@@ -3749,38 +3737,28 @@ function preInitSpeechRecognition(){
                             if(isCorrect) spoken = altSpoken;
                         }
                         
-                        // 计算发音评分
                         let pronScore = calculatePronunciationScore(spoken, correct);
                         
-                        // 清除超时
-                        if(recordingTimeout){
-                            clearTimeout(recordingTimeout);
-                            recordingTimeout = null;
-                        }
-                        
-                        // 重置录音状态
+                        // 清除超时并重置状态
+                        if(recordingTimeout){ clearTimeout(recordingTimeout); recordingTimeout = null; }
                         isRecording = false;
-                        isStoppingRecording = true; // 标记为正常结束，防止 onend 重启
+                        
+                        // 重置UI
                         let recBtn = document.getElementById('recBtn') || document.getElementById('recBtnImage');
-                        if(recBtn){
-                            recBtn.classList.remove('recording');
-                            let recText = document.getElementById('recText') || document.getElementById('recTextImage');
-                            if(recText) recText.textContent='点击录音';
-                        }
+                        if(recBtn) recBtn.classList.remove('recording');
+                        let recText = document.getElementById('recText') || document.getElementById('recTextImage');
+                        if(recText) recText.textContent='按住说话';
+                        let waveContainer = document.getElementById('waveContainer');
+                        if(waveContainer) waveContainer.style.display='none';
+                        document.querySelectorAll('.wave-bar').forEach(function(bar){ bar.classList.remove('active'); });
                         
-                        // 延迟重置停止标记
-                        setTimeout(function(){isStoppingRecording=false;},200);
-                        
-                        // 记录发音分数用于学习报告
+                        // 记录分数
                         studyStats.totalPronunciationScore += pronScore.score;
                         studyStats.pronunciationCount++;
                         
                         if(isCorrect){
-                            // 增加每日口语计数
                             incrementSpeakCount();
-                            
                             if(isBattleMode || isSpeakImageMode){
-                                // 战斗模式或看图说话模式
                                 correctCount++;
                                 battleScore+=ENERGY_PER_CORRECT;
                                 let difficulty = getDifficulty(currentMonsterIndex);
@@ -3792,7 +3770,6 @@ function preInitSpeechRecognition(){
                                 updateHP();
                                 setTimeout(function(){showRoundQuestion();},2000);
                             }else{
-                                // 口语练习模式
                                 speakCorrect++;
                                 playSound('correct');
                                 showPronunciationResult(resultElement, pronScore.score, pronScore.feedback, true, spoken, correct);
@@ -3800,31 +3777,22 @@ function preInitSpeechRecognition(){
                             }
                         }else{
                             if(isBattleMode || isSpeakImageMode){
-                                // 战斗模式或看图说话模式
                                 zHp -= 15;
                                 showEff('💢');
                                 playSound('wrong');
                                 showPronunciationResult(resultElement, pronScore.score, pronScore.feedback, false, spoken, correct);
                                 updateHP();
-                                
                                 if(currentText){
                                     let meaning = getWordMeaning(currentText);
-                                    if(meaning){
-                                        addToWrongBook(currentText, meaning);
-                                    }
+                                    if(meaning) addToWrongBook(currentText, meaning);
                                 }
-                                
                                 setTimeout(function(){showRoundQuestion();},2000);
                             }else{
-                                // 口语练习模式
                                 playSound('wrong');
                                 showPronunciationResult(resultElement, pronScore.score, pronScore.feedback, false, spoken, correct);
-                                
                                 if(currentText){
                                     let meaning = getWordMeaning(currentText);
-                                    if(meaning){
-                                        addToWrongBook(currentText, meaning);
-                                    }
+                                    if(meaning) addToWrongBook(currentText, meaning);
                                 }
                                 document.getElementById('nextSpeakBtn').style.display='block';
                             }
@@ -3833,94 +3801,53 @@ function preInitSpeechRecognition(){
                 }catch(err){
                     console.error('处理语音结果失败:', err);
                     let resultElement = document.getElementById('speakResultArea') || document.getElementById('speakResult');
-                    if(resultElement) resultElement.innerHTML='<div style="color:#ff6b6b;">处理结果失败，请重试</div>';
-                    
-                    // 重置录音状态
+                    if(resultElement) resultElement.innerHTML='<div style="color:#ff6b6b;">处理失败，请重试</div>';
                     isRecording = false;
-                    isStoppingRecording = true; // 标记为正常结束，防止 onend 重启
-                    let recBtn = document.getElementById('recBtn') || document.getElementById('recBtnImage');
-                    if(recBtn){
-                        recBtn.classList.remove('recording');
-                        let recText = document.getElementById('recText') || document.getElementById('recTextImage');
-                        if(recText) recText.textContent='点击录音';
-                    }
-                    // 延迟重置停止标记
-                    setTimeout(function(){isStoppingRecording=false;},200);
                 }
             };
             
             recognition.onerror=function(e){
-                // 忽略主动中止的错误（这是正常行为）
-                if(e.error==='aborted'){
-                    console.log('录音已中止（正常行为）');
-                    return;
-                }
+                if(e.error==='aborted') return; // 正常中止
                 
                 console.error('语音识别错误:', e.error);
+                isRecording = false;
                 
-                // 重置录音状态
-                isRecording=false;
-                isStoppingRecording=true; // 标记为正常结束，防止 onend 重启
                 let recBtn = document.getElementById('recBtn') || document.getElementById('recBtnImage');
-                let recText = document.getElementById('recText') || document.getElementById('recTextImage');
-                let resultEl = document.getElementById('speakResultArea') || document.getElementById('speakResult');
-                
                 if(recBtn) recBtn.classList.remove('recording');
-                if(recText) recText.textContent='点击录音';
+                let recText = document.getElementById('recText') || document.getElementById('recTextImage');
+                if(recText) recText.textContent='按住说话';
+                let waveContainer = document.getElementById('waveContainer');
+                if(waveContainer) waveContainer.style.display='none';
                 
-                // 延迟重置停止标记
-                setTimeout(function(){isStoppingRecording=false;},200);
-                
+                let resultEl = document.getElementById('speakResultArea') || document.getElementById('speakResult') || document.getElementById('speakImageResult');
                 if(!resultEl) return;
                 
-                if(e.error==='not-allowed'){
-                    resultEl.innerHTML='<div style="color:#ff6b6b;">⚠️ 请授权麦克风权限</div><div style="color:#aaa;font-size:12px;margin-top:5px;">在浏览器设置中允许麦克风访问</div>';
-                }else if(e.error==='no-speech'){
-                    resultEl.innerHTML='<div style="color:#ffd93d;">⚠️ 没有检测到语音</div><div style="color:#aaa;font-size:12px;margin-top:5px;">请对着麦克风说话</div>';
-                }else if(e.error==='network'){
-                    resultEl.innerHTML='<div style="color:#ff6b6b;">⚠️ 网络错误</div><div style="color:#aaa;font-size:12px;margin-top:5px;">请检查网络连接</div>';
-                }else if(e.error==='audio-capture'){
-                    resultEl.innerHTML='<div style="color:#ff6b6b;">⚠️ 未检测到麦克风</div><div style="color:#aaa;font-size:12px;margin-top:5px;">请连接麦克风设备</div>';
-                }else if(e.error==='language-not-supported'){
-                    resultEl.innerHTML='<div style="color:#ff6b6b;">⚠️ 不支持英语识别</div><div style="color:#aaa;font-size:12px;margin-top:5px;">请使用Chrome浏览器</div>';
-                }else if(e.error==='timeout'){
-                    resultEl.innerHTML='<div style="color:#ffd93d;">⚠️ 录音超时</div><div style="color:#aaa;font-size:12px;margin-top:5px;">请重新尝试</div>';
-                }else{
-                    resultEl.innerHTML='<div style="color:#ff6b6b;">错误：'+escapeHtml(e.error)+'</div>';
-                }
+                let errorTips = {
+                    'not-allowed': '请授权麦克风权限',
+                    'no-speech': '没有检测到语音',
+                    'network': '网络错误，请检查连接',
+                    'audio-capture': '未检测到麦克风',
+                    'language-not-supported': '不支持英语识别',
+                    'timeout': '录音超时，请重试'
+                };
+                resultEl.innerHTML='<div style="color:#ff6b6b;">⚠️ '+(errorTips[e.error] || '错误：'+e.error)+'</div>';
             };
             
             recognition.onend=function(){
-                // 如果是主动停止，不重启
-                if(isStoppingRecording){
-                    console.log('主动停止录音，不重启');
-                    return;
-                }
-                
-                // 获取结果元素（战斗模式用 speakResultArea，口语练习用 speakResult）
-                let resultEl = document.getElementById('speakResultArea') || document.getElementById('speakResult');
-                
-                // 只有在没有最终结果且仍在录音状态下才显示结束提示
-                if(isRecording && resultEl && !resultEl.innerHTML.includes('正确') && !resultEl.innerHTML.includes('再试一次')){
-                    console.log('录音意外结束，尝试重新启动...');
-                    // 尝试重新启动录音
-                    try{
-                        recognition.start();
-                        return;
-                    }catch(e){
-                        console.log('重新启动录音失败:', e);
-                        isRecording=false;
-                        let recBtn = document.getElementById('recBtn') || document.getElementById('recBtnImage');
-                        let recText = document.getElementById('recText') || document.getElementById('recTextImage');
-                        if(recBtn) recBtn.classList.remove('recording');
-                        if(recText) recText.textContent='点击录音';
-                        if(resultEl) resultEl.innerHTML='<div style="color:#ffd93d;">⚠️ 录音已结束</div><div style="color:#aaa;font-size:12px;margin-top:5px;">请重新尝试</div>';
-                    }
+                // 按住说话模式：不需要自动重启
+                if(isRecording){
+                    isRecording = false;
+                    let recBtn = document.getElementById('recBtn') || document.getElementById('recBtnImage');
+                    if(recBtn) recBtn.classList.remove('recording');
+                    let recText = document.getElementById('recText') || document.getElementById('recTextImage');
+                    if(recText) recText.textContent='按住说话';
+                    let waveContainer = document.getElementById('waveContainer');
+                    if(waveContainer) waveContainer.style.display='none';
                 }
             };
             
             speechRecognitionReady = true;
-            console.log('SpeechRecognition 预初始化完成');
+            console.log('SpeechRecognition 初始化完成');
         }catch(e){
             console.error('初始化语音识别失败:', e);
             speechRecognitionReady = false;
@@ -3996,18 +3923,98 @@ function speakCurrentWord(){
 }
 
 function toggleRecord(){
-    if(isRecording){
-        // 停止录音
-        isRecording=false;
-        isStoppingRecording=true;
-        document.getElementById('recBtn').classList.remove('recording');
-        document.getElementById('recText').textContent='点击录音';
-        try{recognition.abort();}catch(e){}
-        setTimeout(function(){isStoppingRecording=false;},200);
-    }else{
-        // 开始录音
-        startRecording();
+    // 已废弃，改为按住说话模式
+}
+
+// 按住说话 - 开始录音
+function startRecordHold(){
+    if(isRecording) return;
+    
+    console.log('按住说话 - 开始录音');
+    
+    // 检查环境
+    if(window.location.protocol !== 'https:' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1'){
+        document.getElementById('speakResult').innerHTML='<div style="color:#ff6b6b;">⚠️ 需要HTTPS环境</div><div style="color:#aaa;font-size:12px;margin-top:5px;">请使用HTTPS访问</div>';
+        return;
     }
+    
+    if(window.location.protocol === 'file:'){
+        let isChrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
+        if(isChrome){
+            document.getElementById('speakResult').innerHTML='<div style="color:#ff6b6b;">⚠️ Chrome不支持本地文件</div><div style="color:#aaa;font-size:12px;margin-top:5px;">请用Edge或部署到服务器</div>';
+            return;
+        }
+    }
+    
+    if(!recognition){
+        preInitSpeechRecognition();
+    }
+    
+    if(!recognition){
+        document.getElementById('speakResult').innerHTML='<div style="color:#ff6b6b;">⚠️ 浏览器不支持</div><div style="color:#aaa;font-size:12px;margin-top:5px;">请用Chrome或Edge</div>';
+        return;
+    }
+    
+    document.getElementById('nextSpeakBtn').style.display='none';
+    
+    // 清除超时
+    if(recordingTimeout){
+        clearTimeout(recordingTimeout);
+        recordingTimeout = null;
+    }
+    
+    // 停止之前的识别
+    try{ recognition.abort(); }catch(e){}
+    
+    // 更新UI
+    document.getElementById('recBtn').classList.add('recording');
+    document.getElementById('recText').textContent='松开结束';
+    document.getElementById('waveContainer').style.display='flex';
+    document.querySelectorAll('.wave-bar').forEach(function(bar){ bar.classList.add('active'); });
+    document.getElementById('speakResult').innerHTML='<div style="color:#ffd93d;">🎤 正在录音...</div><div style="color:#aaa;font-size:12px;margin-top:5px;">请说英文</div>';
+    
+    // 设置超时（最多10秒）
+    recordingTimeout = setTimeout(function(){
+        if(isRecording){
+            stopRecordHold();
+        }
+    }, 10000);
+    
+    // 启动识别
+    setTimeout(function(){
+        try{
+            recognition.start();
+            isRecording = true;
+            console.log('录音已启动');
+        }catch(e){
+            console.error('启动录音失败:', e);
+            stopRecordHold();
+            document.getElementById('speakResult').innerHTML='<div style="color:#ff6b6b;">启动失败</div><div style="color:#aaa;font-size:12px;margin-top:5px;">'+escapeHtml(e.message || '未知错误')+'</div>';
+        }
+    }, 100);
+}
+
+// 按住说话 - 停止录音
+function stopRecordHold(){
+    if(!isRecording) return;
+    
+    console.log('松开 - 停止录音');
+    isRecording = false;
+    
+    // 清除超时
+    if(recordingTimeout){
+        clearTimeout(recordingTimeout);
+        recordingTimeout = null;
+    }
+    
+    // 更新UI
+    document.getElementById('recBtn').classList.remove('recording');
+    document.getElementById('recText').textContent='按住说话';
+    document.getElementById('waveContainer').style.display='none';
+    document.querySelectorAll('.wave-bar').forEach(function(bar){ bar.classList.remove('active'); });
+    
+    // 停止识别
+    try{ recognition.abort(); }catch(e){}
 }
 
 function startRecording(){
