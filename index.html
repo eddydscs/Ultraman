@@ -283,14 +283,8 @@
             <div class="meaning-display" id="speakMeaning">你好</div>
             <div class="voice-btn-container"><button class="voice-btn" id="speakListenBtn" onclick="speakCurrentWord()"><span>🔊</span><span>听示范</span></button></div>
             <div style="text-align:center;margin:15px 0;">
-                <button class="speak-btn" id="recBtn" 
-                    onmousedown="startRecordHold()" 
-                    onmouseup="stopRecordHold()" 
-                    onmouseleave="stopRecordHold()"
-                    ontouchstart="startRecordHold()" 
-                    ontouchend="stopRecordHold()"
-                    ontouchcancel="stopRecordHold()">
-                    <span>🎙️</span><span id="recText">按住说话</span>
+                <button class="speak-btn" id="recBtn" onclick="toggleRecordClick()">
+                    <span>🎙️</span><span id="recText">点击录音</span>
                 </button>
             </div>
             <div id="waveContainer" class="wave-container" style="display:none;">
@@ -785,7 +779,13 @@ let unlockedUnits = {1: [1], 2: [1], 3: [1]}; // 每个级别默认解锁第一�
 // 成就系统
 const ACHIEVEMENTS = {
     first_blood: {name:"初战告捷",desc:"完成第一场战斗",icon:"⚔️",condition:function(){return monstersDef>=10;}},
-    unit_master: {name:"单元大师",desc:"解锁所有单元",icon:"🎓",condition:function(){return (unlockedUnits[1].length + unlockedUnits[2].length + unlockedUnits[3].length) >= 36;}},
+    unit_master: {name:"单元大师",desc:"解锁所有单元",icon:"🎓",condition:function(){
+        let count = 0;
+        [1,2,3].forEach(function(lvl){
+            if(unlockedUnits[lvl]) count += unlockedUnits[lvl].length;
+        });
+        return count >= 36;
+    }},
     level_5: {name:"小有所成",desc:"达到Lv.5",icon:"🏅",condition:function(){return level>=5;}},
     level_10: {name:"英语达人",desc:"达到Lv.10",icon:"🏆",condition:function(){return level>=10;}},
     star_collector: {name:"星星收集者",desc:"获得50颗星星",icon:"⭐",condition:function(){return totalStars>=50;}},
@@ -2923,14 +2923,61 @@ function showSpeakQuestion(area, word){
         '<div class="word-display">'+word.eng+'</div>'+
         '<div class="meaning-display">'+word.chn+'</div>'+
         '<div class="voice-btn-container"><button class="voice-btn" id="speakVoiceBtn" onclick="speakWord(\''+word.eng.replace(/'/g, "\\'")+'\',\'speakVoiceBtn\')"><span>🔊</span><span>听发音</span></button></div>'+
-        '<div id="speakResultArea" style="text-align:center;padding:10px;background:rgba(0,0,0,0.3);border-radius:10px;margin:8px 0;"><div style="color:#aaa;">按住按钮说英文</div></div>'+
-        '<div style="text-align:center;margin:15px 0;"><button class="speak-btn" id="recBtn" '+
-        'onmousedown="startBattleRecordHold()" onmouseup="stopBattleRecordHold()" onmouseleave="stopBattleRecordHold()" '+
-        'ontouchstart="startBattleRecordHold()" ontouchend="stopBattleRecordHold()" ontouchcancel="stopBattleRecordHold()">'+
-        '<span>🎙️</span><span id="recText">按住说话</span></button></div>';
+        '<div id="speakResultArea" style="text-align:center;padding:10px;background:rgba(0,0,0,0.3);border-radius:10px;margin:8px 0;"><div style="color:#aaa;">点击按钮说英文</div></div>'+
+        '<div style="text-align:center;margin:15px 0;"><button class="speak-btn" id="recBtn" onclick="toggleBattleRecordClick()">'+
+        '<span>🎙️</span><span id="recText">点击录音</span></button></div>';
 }
 
-// 战斗模式 - 按住说话开始
+// 战斗模式 - 点击录音切换
+function toggleBattleRecordClick(){
+    if(isRecording){
+        stopBattleRecordClick();
+    }else{
+        startBattleRecordClick();
+    }
+}
+
+// 战斗模式 - 点击录音开始
+function startBattleRecordClick(){
+    if(isRecording) return;
+    
+    if(!recognition) preInitSpeechRecognition();
+    if(!recognition){
+        document.getElementById('speakResultArea').innerHTML='<div style="color:#ff6b6b;">⚠️ 浏览器不支持</div>';
+        return;
+    }
+    
+    if(recordingTimeout){ clearTimeout(recordingTimeout); recordingTimeout = null; }
+    try{ recognition.abort(); }catch(e){}
+    
+    document.getElementById('recBtn').classList.add('recording');
+    document.getElementById('recText').textContent='点击结束';
+    document.getElementById('speakResultArea').innerHTML='<div style="color:#ffd93d;">🎤 正在录音...</div><div style="color:#aaa;font-size:12px;margin-top:5px;">点击按钮结束录音</div>';
+    
+    recordingTimeout = setTimeout(function(){ if(isRecording) stopBattleRecordClick(); }, 15000);
+    
+    setTimeout(function(){
+        try{
+            recognition.start();
+            isRecording = true;
+        }catch(e){
+            stopBattleRecordClick();
+            document.getElementById('speakResultArea').innerHTML='<div style="color:#ff6b6b;">启动失败</div>';
+        }
+    }, 100);
+}
+
+// 战斗模式 - 点击录音结束
+function stopBattleRecordClick(){
+    if(!isRecording) return;
+    isRecording = false;
+    if(recordingTimeout){ clearTimeout(recordingTimeout); recordingTimeout = null; }
+    document.getElementById('recBtn').classList.remove('recording');
+    document.getElementById('recText').textContent='点击录音';
+    try{ recognition.abort(); }catch(e){}
+}
+
+// 战斗模式 - 按住说话开始（已废弃，保留兼容）
 function startBattleRecordHold(){
     if(isRecording) return;
     
@@ -2995,15 +3042,62 @@ function showSpeakImageQuestion(area, word){
             '<div style="font-size:80px;margin-bottom:15px;">'+emoji+'</div>'+
             '<div style="color:#aaa;font-size:14px;">'+word.chn+'</div>'+
         '</div>'+
-        '<div id="speakImageResult" style="text-align:center;padding:10px;background:rgba(0,0,0,0.3);border-radius:10px;margin:8px 0;"><div style="color:#aaa;">按住按钮说英文</div></div>'+
-        '<div style="text-align:center;margin:15px 0;"><button class="speak-btn" id="recBtnImage" '+
-        'onmousedown="startSpeakImageHold()" onmouseup="stopSpeakImageHold()" onmouseleave="stopSpeakImageHold()" '+
-        'ontouchstart="startSpeakImageHold()" ontouchend="stopSpeakImageHold()" ontouchcancel="stopSpeakImageHold()">'+
-        '<span>🎙️</span><span id="recTextImage">按住说话</span></button></div>'+
+        '<div id="speakImageResult" style="text-align:center;padding:10px;background:rgba(0,0,0,0.3);border-radius:10px;margin:8px 0;"><div style="color:#aaa;">点击按钮说英文</div></div>'+
+        '<div style="text-align:center;margin:15px 0;"><button class="speak-btn" id="recBtnImage" onclick="toggleSpeakImageClick()">'+
+        '<span>🎙️</span><span id="recTextImage">点击录音</span></button></div>'+
         '<div style="text-align:center;margin-top:10px;"><button class="hint-btn" onclick="showSpeakImageHint(\''+escapedEng+'\')" style="padding:8px 20px;border-radius:20px;border:1px solid #555;background:rgba(255,255,255,0.05);color:#aaa;cursor:pointer;">💡 提示</button></div>';
 }
 
-// 看图说话 - 按住说话开始
+// 看图说话 - 点击录音切换
+function toggleSpeakImageClick(){
+    if(isRecording){
+        stopSpeakImageClick();
+    }else{
+        startSpeakImageClick();
+    }
+}
+
+// 看图说话 - 点击录音开始
+function startSpeakImageClick(){
+    if(isRecording) return;
+    
+    if(!recognition) preInitSpeechRecognition();
+    if(!recognition){
+        document.getElementById('speakImageResult').innerHTML='<div style="color:#ff6b6b;">⚠️ 浏览器不支持</div>';
+        return;
+    }
+    
+    if(recordingTimeout){ clearTimeout(recordingTimeout); recordingTimeout = null; }
+    try{ recognition.abort(); }catch(e){}
+    
+    document.getElementById('recBtnImage').classList.add('recording');
+    document.getElementById('recTextImage').textContent='点击结束';
+    document.getElementById('speakImageResult').innerHTML='<div style="color:#ffd93d;">🎤 正在录音...</div><div style="color:#aaa;font-size:12px;margin-top:5px;">点击按钮结束录音</div>';
+    
+    recordingTimeout = setTimeout(function(){ if(isRecording) stopSpeakImageClick(); }, 15000);
+    
+    setTimeout(function(){
+        try{
+            recognition.start();
+            isRecording = true;
+        }catch(e){
+            stopSpeakImageClick();
+            document.getElementById('speakImageResult').innerHTML='<div style="color:#ff6b6b;">启动失败</div>';
+        }
+    }, 100);
+}
+
+// 看图说话 - 点击录音结束
+function stopSpeakImageClick(){
+    if(!isRecording) return;
+    isRecording = false;
+    if(recordingTimeout){ clearTimeout(recordingTimeout); recordingTimeout = null; }
+    document.getElementById('recBtnImage').classList.remove('recording');
+    document.getElementById('recTextImage').textContent='点击录音';
+    try{ recognition.abort(); }catch(e){}
+}
+
+// 看图说话 - 按住说话开始（已废弃，保留兼容）
 function startSpeakImageHold(){
     if(isRecording) return;
     
@@ -3072,11 +3166,13 @@ function showDialogueSceneQuestion(area){
     scene.options.forEach(function(opt, idx){
         let escapedOpt = opt.replace(/'/g, "\\'");
         let btnId = 'dialogueOptBtn'+idx;
-        html+='<button class="dialogue-option" id="'+btnId+'" onclick="checkDialogueScene('+idx+','+scene.correct+',this)" style="background:rgba(255,255,255,0.05);border:2px solid rgba(255,255,255,0.2);border-radius:12px;padding:15px;padding-right:50px;cursor:pointer;text-align:left;transition:all 0.3s;position:relative;">'+
+        html+='<div style="display:flex;align-items:center;gap:10px;">';
+        html+='<button class="dialogue-option" id="'+btnId+'" onclick="checkDialogueScene('+idx+','+scene.correct+',this)" style="background:rgba(255,255,255,0.05);border:2px solid rgba(255,255,255,0.2);border-radius:12px;padding:15px;flex:1;cursor:pointer;text-align:left;transition:all 0.3s;">'+
             '<span style="color:#00d4ff;margin-right:10px;">'+String.fromCharCode(65+idx)+'.</span>'+
-            '<span style="color:white;display:inline-block;max-width:70%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+opt+'</span>'+
-            '<span class="option-speak-btn" id="dialogueSpeakBtn'+idx+'" onclick="event.stopPropagation();playDialogueOption(\''+escapedOpt+'\', '+idx+')" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:linear-gradient(135deg, #00d4ff, #9400d3);border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;flex-shrink:0;">🔊</span>'+
+            '<span style="color:white;">'+opt+'</span>'+
             '</button>';
+        html+='<span class="option-speak-btn" id="dialogueSpeakBtn'+idx+'" onclick="event.stopPropagation();playDialogueOption(\''+escapedOpt+'\', '+idx+')" style="background:linear-gradient(135deg, #00d4ff, #9400d3);border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;flex-shrink:0;">🔊</span>';
+        html+='</div>';
     });
     
     html+='</div>';
@@ -3926,7 +4022,110 @@ function toggleRecord(){
     // 已废弃，改为按住说话模式
 }
 
-// 按住说话 - 开始录音
+// 点击录音 - 切换录音状态
+function toggleRecordClick(){
+    if(isRecording){
+        // 正在录音，点击停止
+        stopRecordClick();
+    }else{
+        // 未录音，点击开始
+        startRecordClick();
+    }
+}
+
+// 点击录音 - 开始录音
+function startRecordClick(){
+    if(isRecording) return;
+    
+    console.log('点击录音 - 开始录音');
+    
+    // 检查环境
+    if(window.location.protocol !== 'https:' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1'){
+        document.getElementById('speakResult').innerHTML='<div style="color:#ff6b6b;">⚠️ 需要HTTPS环境</div><div style="color:#aaa;font-size:12px;margin-top:5px;">请使用HTTPS访问</div>';
+        return;
+    }
+    
+    if(window.location.protocol === 'file:'){
+        let isChrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
+        if(isChrome){
+            document.getElementById('speakResult').innerHTML='<div style="color:#ff6b6b;">⚠️ Chrome不支持本地文件</div><div style="color:#aaa;font-size:12px;margin-top:5px;">请用Edge或部署到服务器</div>';
+            return;
+        }
+    }
+    
+    if(!recognition){
+        preInitSpeechRecognition();
+    }
+    
+    if(!recognition){
+        document.getElementById('speakResult').innerHTML='<div style="color:#ff6b6b;">⚠️ 浏览器不支持</div><div style="color:#aaa;font-size:12px;margin-top:5px;">请用Chrome或Edge</div>';
+        return;
+    }
+    
+    document.getElementById('nextSpeakBtn').style.display='none';
+    
+    // 清除超时
+    if(recordingTimeout){
+        clearTimeout(recordingTimeout);
+        recordingTimeout = null;
+    }
+    
+    // 停止之前的识别
+    try{ recognition.abort(); }catch(e){}
+    
+    // 更新UI
+    document.getElementById('recBtn').classList.add('recording');
+    document.getElementById('recText').textContent='点击结束';
+    document.getElementById('waveContainer').style.display='flex';
+    document.querySelectorAll('.wave-bar').forEach(function(bar){ bar.classList.add('active'); });
+    document.getElementById('speakResult').innerHTML='<div style="color:#ffd93d;">🎤 正在录音...</div><div style="color:#aaa;font-size:12px;margin-top:5px;">点击按钮结束录音</div>';
+    
+    // 设置超时（最多15秒）
+    recordingTimeout = setTimeout(function(){
+        if(isRecording){
+            stopRecordClick();
+            document.getElementById('speakResult').innerHTML='<div style="color:#ffd93d;">⏱️ 录音超时</div><div style="color:#aaa;font-size:12px;margin-top:5px;">已自动结束</div>';
+        }
+    }, 15000);
+    
+    // 启动识别
+    setTimeout(function(){
+        try{
+            recognition.start();
+            isRecording = true;
+            console.log('录音已启动');
+        }catch(e){
+            console.error('启动录音失败:', e);
+            stopRecordClick();
+            document.getElementById('speakResult').innerHTML='<div style="color:#ff6b6b;">启动失败</div><div style="color:#aaa;font-size:12px;margin-top:5px;">'+escapeHtml(e.message || '未知错误')+'</div>';
+        }
+    }, 100);
+}
+
+// 点击录音 - 停止录音
+function stopRecordClick(){
+    if(!isRecording) return;
+    
+    console.log('点击停止录音');
+    isRecording = false;
+    
+    // 清除超时
+    if(recordingTimeout){
+        clearTimeout(recordingTimeout);
+        recordingTimeout = null;
+    }
+    
+    // 更新UI
+    document.getElementById('recBtn').classList.remove('recording');
+    document.getElementById('recText').textContent='点击录音';
+    document.getElementById('waveContainer').style.display='none';
+    document.querySelectorAll('.wave-bar').forEach(function(bar){ bar.classList.remove('active'); });
+    
+    // 停止识别
+    try{ recognition.abort(); }catch(e){}
+}
+
+// 按住说话 - 开始录音（已废弃，保留兼容）
 function startRecordHold(){
     if(isRecording) return;
     
