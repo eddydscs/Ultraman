@@ -27,10 +27,13 @@
         .zero-header { text-align: center; padding: 15px 0; }
         .zero-icon { font-size: 80px; animation: zeroPulse 2s infinite; display: inline-block; filter: drop-shadow(0 0 20px rgba(0,200,255,0.8)); }
         @keyframes zeroPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.08); } }
-        .title { font-size: 22px; font-weight: bold; text-align: center; background: linear-gradient(45deg, #00d4ff, #ff6b35, #ffd93d); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin: 8px 0; }
+        .title { font-size: 22px; font-weight: bold; text-align: center; background: linear-gradient(45deg, #00d4ff, #ff6b35, #ffd93d); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; margin: 8px 0; }
         .subtitle { text-align: center; font-size: 13px; color: #aaa; margin-bottom: 10px; }
         
-        .card { background: rgba(255,255,255,0.08); backdrop-filter: blur(10px); border-radius: 20px; padding: 18px; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.15); }
+        .card { background: rgba(255,255,255,0.08); backdrop-filter: blur(10px); border-radius: 20px; padding: 18px; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.15); transition: opacity 0.3s ease, transform 0.3s ease; }
+        .card.fade-out { opacity: 0; transform: scale(0.95); }
+        .card.fade-in { opacity: 1; transform: scale(1); }
+        .card.hidden { display: none !important; opacity: 0; }
         
         .score-panel { display: flex; justify-content: space-around; margin: 10px 0; padding: 12px; background: rgba(0,0,0,0.4); border-radius: 15px; border: 1px solid rgba(0,200,255,0.3); }
         .score-item { text-align: center; }
@@ -135,7 +138,42 @@
         .stat-value { font-size: 20px; font-weight: bold; color: #ffd93d; }
         .stat-label { font-size: 11px; color: #aaa; }
         .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); color: white; padding: 10px 20px; border-radius: 20px; font-size: 14px; z-index: 1000; animation: toastIn 0.3s ease; }
-        @keyframes toastIn { from { opacity: 0; transform: translateX(-50%) translateY(20px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+@keyframes toastIn { from { opacity: 0; transform: translateX(-50%) translateY(20px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+
+/* 每日任务样式 */
+.daily-task-card { background: linear-gradient(135deg, rgba(0,212,255,0.15), rgba(148,0,211,0.15)); border: 1px solid rgba(0,212,255,0.3); border-radius: 15px; padding: 15px; margin: 10px 0; }
+.daily-task-title { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.daily-task-title-text { color: #00d4ff; font-size: 16px; font-weight: bold; }
+.daily-task-refresh { color: #aaa; font-size: 12px; }
+.task-item { display: flex; align-items: center; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+.task-item:last-child { border-bottom: none; }
+.task-icon { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; margin-right: 12px; }
+.task-icon.login { background: linear-gradient(135deg, #27ae60, #2ecc71); }
+.task-icon.answer { background: linear-gradient(135deg, #3498db, #2980b9); }
+.task-icon.speak { background: linear-gradient(135deg, #f39c12, #e67e22); }
+.task-info { flex: 1; }
+.task-name { color: white; font-size: 14px; margin-bottom: 4px; }
+.task-progress-bar { height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden; }
+.task-progress-fill { height: 100%; background: linear-gradient(90deg, #00d4ff, #00ff88); border-radius: 3px; transition: width 0.3s; }
+.task-progress-fill.complete { background: linear-gradient(90deg, #27ae60, #2ecc71); }
+.task-status { width: 60px; text-align: right; }
+.task-count { color: #aaa; font-size: 12px; }
+.task-count.complete { color: #27ae60; }
+.task-reward-btn { padding: 4px 10px; border-radius: 10px; border: none; font-size: 11px; cursor: pointer; background: linear-gradient(135deg, #ffd93d, #ff6b35); color: #0a0a1a; font-weight: bold; }
+.task-reward-btn:disabled { background: #555; color: #888; cursor: not-allowed; }
+.task-complete-icon { color: #27ae60; font-size: 18px; }
+
+/* 登录奖励弹窗 */
+.login-reward-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 2000; animation: fadeIn 0.3s ease; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+.login-reward-content { background: linear-gradient(135deg, #1a1a3e, #0f2040); border: 2px solid #00d4ff; border-radius: 20px; padding: 30px; text-align: center; max-width: 320px; width: 90%; animation: scaleIn 0.3s ease; }
+@keyframes scaleIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+.login-reward-icon { font-size: 60px; margin-bottom: 15px; animation: bounce 1s infinite; }
+@keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+.login-reward-title { color: #ffd93d; font-size: 24px; font-weight: bold; margin-bottom: 10px; }
+.login-reward-desc { color: #aaa; font-size: 14px; margin-bottom: 20px; }
+.login-reward-energy { color: #00d4ff; font-size: 32px; font-weight: bold; margin-bottom: 20px; }
+.login-reward-btn { padding: 12px 40px; border-radius: 25px; border: none; background: linear-gradient(135deg, #00d4ff, #00ff88); color: #0a0a1a; font-size: 16px; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -161,17 +199,55 @@
             <div class="progress">选择单元（可多选）</div>
             <div class="stage-grid" id="homeUnitSelector" style="grid-template-columns: repeat(6, 1fr);"></div>
             
+            <!-- 复习提醒区域 -->
+            <div id="reviewReminder" style="display:none;background:rgba(255,193,7,0.15);border:2px solid #ffc107;border-radius:10px;padding:15px;margin:10px 0;cursor:pointer;" onclick="startQuickReview()">
+                <div style="display:flex;align-items:center;justify-content:space-between;">
+                    <div>
+                        <div style="color:#ffc107;font-size:16px;font-weight:bold;margin-bottom:5px;">🔔 复习提醒</div>
+                        <div style="color:#ddd;font-size:14px;">你有 <span id="reviewNeededCount" style="color:#ffc107;font-weight:bold;">0</span> 个单词需要复习</div>
+                        <div style="color:#aaa;font-size:12px;margin-top:3px;">点击开始复习，巩固记忆</div>
+                    </div>
+                    <div style="font-size:24px;">📚</div>
+                </div>
+            </div>
+            
+            <!-- 每日任务卡片 -->
+            <div id="dailyTaskCard" class="daily-task-card"></div>
+            
             <!-- 学习建议区域 -->
             <div id="studyAdvice" style="background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.3);border-radius:10px;padding:15px;margin:10px 0;">
                 <div style="color:#ffd93d;font-size:16px;font-weight:bold;margin-bottom:8px;">💡 学习建议</div>
                 <div id="adviceContent" style="color:#aaa;font-size:14px;line-height:1.6;">正在分析你的学习情况...</div>
             </div>
             
+            <!-- 语音识别状态区域 -->
+            <div id="voiceStatusPanel" style="background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.3);border-radius:10px;padding:15px;margin:10px 0;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                    <div style="color:#00d4ff;font-size:16px;font-weight:bold;">🎤 语音识别</div>
+                    <div id="voiceStatusBadge" style="padding:3px 10px;border-radius:10px;font-size:12px;background:rgba(255,255,255,0.1);color:#aaa;">检测中...</div>
+                </div>
+                <div id="voiceStatusContent" style="color:#aaa;font-size:14px;line-height:1.6;">
+                    <div style="display:flex;align-items:center;gap:10px;">
+                        <div style="flex:1;height:6px;background:rgba(255,255,255,0.1);border-radius:3px;overflow:hidden;">
+                            <div id="voiceProgressBar" style="width:0%;height:100%;background:linear-gradient(90deg,#00d4ff,#00ff88);transition:width 0.3s;"></div>
+                        </div>
+                        <span id="voiceProgressText" style="font-size:12px;min-width:40px;">0%</span>
+                    </div>
+                    <div id="voiceStatusMessage" style="margin-top:8px;font-size:13px;">正在检测浏览器支持...</div>
+                </div>
+                <div id="voiceStatusActions" style="margin-top:10px;display:none;">
+                    <button onclick="preloadVoiceModel()" style="padding:8px 15px;border-radius:8px;border:none;background:linear-gradient(135deg,#00d4ff,#00ff88);color:#0a0a1a;font-size:13px;font-weight:bold;cursor:pointer;">📥 预加载语音模型</button>
+                    <button onclick="switchVoiceEngine()" style="padding:8px 15px;border-radius:8px;border:1px solid #00d4ff;background:transparent;color:#00d4ff;font-size:13px;cursor:pointer;margin-left:10px;">🔄 切换引擎</button>
+                </div>
+            </div>
+            
             <button class="game-btn btn-battle" onclick="confirmUnitsAndBattle()">⚔️ 开始战斗</button>
+            <button class="game-btn" style="background:linear-gradient(135deg, #f39c12, #e67e22);" onclick="showLeaderboard()">🏆 排行榜</button>
             <button class="game-btn" style="background:linear-gradient(135deg, #9b59b6, #8e44ad);" onclick="showMonsterCollection()">👾 怪兽图鉴</button>
             <button class="game-btn" style="background:linear-gradient(135deg, #f39c12, #e67e22);" onclick="showAchievements()">🏆 成就</button>
             <button class="game-btn" style="background:linear-gradient(135deg, #00b894, #00cec9);" onclick="showStudyReport()">📊 学习报告</button>
             <button class="game-btn" style="background:linear-gradient(135deg, #e74c3c, #c0392b);" onclick="showWrongBook()">📖 错题本</button>
+            <button class="game-btn" style="background:linear-gradient(135deg, #6c5ce7, #a29bfe);" onclick="showGoalSettings()">🎯 学习目标</button>
             <div class="speed-control" style="text-align:center;margin:10px 0;">
                 <span style="color:#aaa;font-size:14px;">语速：</span>
                 <button class="speed-btn" id="speedSlowBtn" onclick="setSpeechRate('slow')" style="padding:5px 10px;border-radius:5px;border:1px solid #555;background:rgba(255,255,255,0.05);color:#aaa;cursor:pointer;margin:0 3px;">🐢 慢速</button>
@@ -279,47 +355,108 @@ const DIALOGUE_SCENES = [
     {scene:"打招呼",question:"Nice to meet you!",options:["Nice to meet you too!","I'm seven.","Good morning!"],correct:0},
     {scene:"自我介绍",question:"What's your name?",options:["I'm a student.","My name is Tom.","I'm fine."],correct:1},
     {scene:"自我介绍",question:"How old are you?",options:["I'm eight years old.","My name is Amy.","I have a dog."],correct:0},
+    {scene:"打招呼",question:"Good morning!",options:["Good afternoon!","Good morning!","Good evening!"],correct:1},
+    {scene:"打招呼",question:"How are you today?",options:["I'm Tom.","I'm very well, thank you.","I'm from China."],correct:1},
+    {scene:"自我介绍",question:"Where are you from?",options:["I'm fine.","I'm from England.","I'm ten."],correct:1},
+    {scene:"自我介绍",question:"What's your surname?",options:["It's Smith.","I'm a student.","I'm twelve."],correct:0},
     
     // 学校生活
     {scene:"学校",question:"Is this your pencil?",options:["Yes, it is.","It's a pen.","I like pencils."],correct:0},
     {scene:"学校",question:"Where is the teacher?",options:["She's in the classroom.","I'm a teacher.","It's a book."],correct:0},
     {scene:"学校",question:"What's this?",options:["It's red.","It's a ruler.","I have one."],correct:1},
     {scene:"学校",question:"Can I borrow your eraser?",options:["It's blue.","Sure, here you are.","I don't know."],correct:1},
+    {scene:"学校",question:"What's your favourite subject?",options:["I like English best.","It's a book.","I'm a student."],correct:0},
+    {scene:"学校",question:"Do you like your school?",options:["Yes, I do. It's great.","I'm at school.","It's a school."],correct:0},
+    {scene:"学校",question:"What time does school start?",options:["At eight o'clock.","It's Monday.","I go to school."],correct:0},
+    {scene:"学校",question:"How many students are in your class?",options:["There are thirty.","I'm a student.","It's my class."],correct:0},
     
     // 家庭与朋友
     {scene:"家庭",question:"Who's that?",options:["She's my sister.","It's a cat.","I'm happy."],correct:0},
     {scene:"家庭",question:"Do you have any brothers?",options:["Yes, I have one brother.","He's my father.","I'm six."],correct:0},
     {scene:"家庭",question:"What does your father do?",options:["He's tall.","He's a teacher.","He's sleeping."],correct:1},
     {scene:"朋友",question:"What's your friend's name?",options:["She's seven.","Her name is Lucy.","She's my sister."],correct:1},
+    {scene:"家庭",question:"How many people are in your family?",options:["There are four people.","I have a family.","They are my parents."],correct:0},
+    {scene:"家庭",question:"Do you live with your grandparents?",options:["Yes, I do.","They are old.","I love them."],correct:0},
+    {scene:"朋友",question:"What do you do with your friends?",options:["We play football together.","They are my friends.","I have many friends."],correct:0},
+    {scene:"朋友",question:"How often do you see your friends?",options:["Every weekend.","They are nice.","I like them."],correct:0},
     
     // 爱好与运动
     {scene:"爱好",question:"What's your favourite toy?",options:["It's blue.","I like cars.","My favourite toy is a doll."],correct:2},
     {scene:"爱好",question:"Do you like football?",options:["Yes, I do.","It's a ball.","I can play."],correct:0},
     {scene:"运动",question:"Can you swim?",options:["I like swimming.","Yes, I can.","It's fun."],correct:1},
     {scene:"运动",question:"What sports do you like?",options:["I like basketball.","I'm playing.","It's a sport."],correct:0},
+    {scene:"爱好",question:"What's your hobby?",options:["I like reading books.","It's interesting.","I have a hobby."],correct:0},
+    {scene:"爱好",question:"Do you play any instruments?",options:["Yes, I play the piano.","It's a guitar.","I like music."],correct:0},
+    {scene:"运动",question:"How often do you exercise?",options:["Three times a week.","I'm exercising.","It's healthy."],correct:0},
+    {scene:"运动",question:"What's your favourite sport?",options:["I like tennis best.","It's a sport.","I can play."],correct:0},
     
     // 动物
     {scene:"动物",question:"What's your favourite animal?",options:["It's big.","I like dogs.","They are cute."],correct:1},
     {scene:"动物",question:"Have you got a pet?",options:["Yes, I have a cat.","It's a dog.","I like pets."],correct:0},
     {scene:"动物",question:"What colour is the bird?",options:["It can fly.","It's yellow.","It's a bird."],correct:1},
+    {scene:"动物",question:"Do you like animals?",options:["Yes, I love them.","They are big.","It's an animal."],correct:0},
+    {scene:"动物",question:"What does a cat say?",options:["It says meow.","It's a cat.","I have a cat."],correct:0},
+    {scene:"动物",question:"Can birds fly?",options:["Yes, they can.","It's a bird.","I like birds."],correct:0},
     
     // 食物
     {scene:"食物",question:"What's your favourite food?",options:["I'm hungry.","I like pizza.","It's delicious."],correct:1},
     {scene:"食物",question:"Do you like apples?",options:["Yes, I do.","It's an apple.","I'm eating."],correct:0},
     {scene:"食物",question:"Would you like some cake?",options:["I like cake.","Yes, please.","It's sweet."],correct:1},
+    {scene:"食物",question:"What do you have for breakfast?",options:["I have eggs and milk.","I'm hungry.","It's morning."],correct:0},
+    {scene:"食物",question:"Do you like vegetables?",options:["Yes, I do. They're healthy.","It's green.","I'm eating."],correct:0},
+    {scene:"食物",question:"What would you like to drink?",options:["I'd like some water, please.","I'm thirsty.","It's water."],correct:0},
+    {scene:"食物",question:"What did you have for lunch?",options:["I had a sandwich.","I'm eating lunch.","It's delicious."],correct:0},
+    {scene:"食物",question:"Can I have some ice cream?",options:["Sure, here you are.","I like ice cream.","It's cold."],correct:0},
     
     // 日常活动
     {scene:"日常",question:"What are you doing?",options:["I'm reading.","I like reading.","It's a book."],correct:0},
     {scene:"日常",question:"What do you do on weekends?",options:["I'm playing.","I play football.","It's Sunday."],correct:1},
     {scene:"日常",question:"Where are you going?",options:["I'm going to school.","I'm a student.","It's far."],correct:0},
+    {scene:"日常",question:"What time do you get up?",options:["I get up at seven o'clock.","I'm getting up.","It's morning."],correct:0},
+    {scene:"日常",question:"What did you do yesterday?",options:["I went to the park.","I'm going to the park.","It was fun."],correct:0},
+    {scene:"日常",question:"What are you going to do tomorrow?",options:["I'm going to visit my grandmother.","I do my homework.","It's tomorrow."],correct:0},
+    {scene:"日常",question:"How do you go to school?",options:["I go by bus.","I'm at school.","It's far."],correct:0},
+    {scene:"日常",question:"What time do you go to bed?",options:["At nine o'clock.","I'm sleeping.","It's night."],correct:0},
     
     // 购物
     {scene:"购物",question:"Can I help you?",options:["I'm fine.","Yes, I'd like an ice cream.","Thank you."],correct:1},
     {scene:"购物",question:"How much is this?",options:["It's five dollars.","I have money.","I want this."],correct:0},
+    {scene:"购物",question:"Can I try this on?",options:["Yes, the fitting room is over there.","It's nice.","I like it."],correct:0},
+    {scene:"购物",question:"Do you have this in blue?",options:["Yes, we do.","It's blue.","I like blue."],correct:0},
+    {scene:"购物",question:"Where can I pay?",options:["At the counter over there.","I want to pay.","It's expensive."],correct:0},
+    {scene:"购物",question:"Is there a discount?",options:["Yes, it's 20% off.","It's cheap.","I'll take it."],correct:0},
     
     // 天气
     {scene:"天气",question:"What's the weather like today?",options:["I like sunny days.","It's sunny.","It's a day."],correct:1},
-    {scene:"天气",question:"Is it raining?",options:["I don't like rain.","Yes, take an umbrella.","It's cold."],correct:1}
+    {scene:"天气",question:"Is it raining?",options:["I don't like rain.","Yes, take an umbrella.","It's cold."],correct:1},
+    {scene:"天气",question:"What was the weather like yesterday?",options:["It was cloudy.","I like the weather.","It's nice."],correct:0},
+    {scene:"天气",question:"Do you like hot weather?",options:["No, I prefer cool weather.","It's hot today.","The sun is shining."],correct:0},
+    {scene:"天气",question:"What do you wear when it rains?",options:["I wear a raincoat.","It's raining.","I don't like rain."],correct:0},
+    {scene:"天气",question:"Is it going to snow tomorrow?",options:["Yes, the weather forecast says so.","I like snow.","It's cold."],correct:0},
+    
+    // 旅行
+    {scene:"旅行",question:"Where did you go on holiday?",options:["I went to the beach.","I'm going on holiday.","It was great."],correct:0},
+    {scene:"旅行",question:"How was your trip?",options:["It was wonderful!","I'm traveling.","I went by plane."],correct:0},
+    {scene:"旅行",question:"What did you see there?",options:["I saw many interesting places.","I'm going there.","It's beautiful."],correct:0},
+    {scene:"旅行",question:"How did you travel?",options:["I went by train.","I'm traveling.","It was long."],correct:0},
+    {scene:"旅行",question:"Where are you going for your holiday?",options:["I'm going to visit London.","I went to Paris.","I like holidays."],correct:0},
+    {scene:"旅行",question:"What do you need for your trip?",options:["I need my passport and tickets.","I'm packing.","It's exciting."],correct:0},
+    
+    // 健康与就医
+    {scene:"健康",question:"What's the matter?",options:["I have a headache.","I'm fine.","It's okay."],correct:0},
+    {scene:"健康",question:"How are you feeling?",options:["I feel tired.","I'm going to school.","It's Monday."],correct:0},
+    {scene:"健康",question:"Did you take your medicine?",options:["Yes, I took it this morning.","I'm sick.","It's medicine."],correct:0},
+    {scene:"健康",question:"Should I see a doctor?",options:["Yes, you should.","I'm a doctor.","It hurts."],correct:0},
+    {scene:"健康",question:"What should I do for a cold?",options:["You should rest and drink water.","I have a cold.","It's bad."],correct:0},
+    {scene:"健康",question:"How often do you exercise?",options:["I exercise three times a week.","I'm healthy.","It's good for you."],correct:0},
+    
+    // 时间与日期
+    {scene:"时间",question:"What time is it?",options:["It's half past three.","It's Monday.","It's sunny."],correct:0},
+    {scene:"时间",question:"What day is it today?",options:["It's Wednesday.","It's sunny.","It's morning."],correct:0},
+    {scene:"时间",question:"When is your birthday?",options:["It's in June.","I'm ten years old.","I have a party."],correct:0},
+    {scene:"时间",question:"What time do you have lunch?",options:["At twelve o'clock.","I'm eating lunch.","It's delicious."],correct:0},
+    {scene:"时间",question:"What's the date today?",options:["It's the fifteenth of April.","It's Friday.","It's spring."],correct:0},
+    {scene:"时间",question:"What do you do in the evening?",options:["I watch TV and read books.","It's evening.","I'm at home."],correct:0}
 ];
 
 // 词汇库 - Kids Box Level 1, 2, 3 (每册12个单元)
@@ -353,18 +490,18 @@ const LEVEL_DATA = {
         12:{words:[["celebration","庆祝"],["party","派对"],["birthday","生日"],["Christmas","圣诞节"],["Easter","复活节"],["Halloween","万圣节"],["gift","礼物"],["card","卡片"],["balloon","气球"],["cake","蛋糕"],["candle","蜡烛"],["happy","快乐的"],["invite","邀请"],["eat","吃"],["drink","喝"]],sentences:[["Happy birthday!","生日快乐！"],["Let's have a party!","让我们开派对吧！"],["This is a gift for you.","这是给你的礼物。"]]}
     },
     3: {
-        1:{words:[["world","世界"],["country","国家"],["China","中国"],["America","美国"],["UK","英国"],["Australia","澳大利亚"],["Japan","日本"],["France","法国"],["city","城市"],["people","人们"],["language","语言"],["English","英语"],["Chinese","中文"],["flag","国旗"],["map","地图"]],sentences:[["This is our world.","这是我们的世界。"],["I come from China.","我来自中国。"],["What's your country?","你的国家是哪里？"]]},
-        2:{words:[["body","身体"],["head","头"],["face","脸"],["eye","眼睛"],["nose","鼻子"],["mouth","嘴巴"],["ear","耳朵"],["hair","头发"],["arm","手臂"],["hand","手"],["finger","手指"],["leg","腿"],["foot","脚"],["hurt","疼"],["sick","生病的"],["ill","生病的"]],sentences:[["This is my body.","这是我的身体。"],["I have a headache.","我头疼。"],["My stomach hurts.","我胃疼。"]]},
-        3:{words:[["clothes","衣服"],["shirt","衬衫"],["trousers","裤子"],["dress","连衣裙"],["skirt","裙子"],["jacket","夹克"],["coat","外套"],["shoes","鞋子"],["socks","袜子"],["hat","帽子"],["wear","穿"],["put on","穿上"],["take off","脱下"],["size","尺寸"]],sentences:[["I like these clothes.","我喜欢这些衣服。"],["I'm wearing a new dress.","我穿着一条新裙子。"],["Put on your coat.","穿上你的外套。"]]},
-        4:{words:[["day","天"],["today","今天"],["tomorrow","明天"],["yesterday","昨天"],["week","周"],["month","月"],["year","年"],["Monday","星期一"],["Tuesday","星期二"],["Wednesday","星期三"],["Thursday","星期四"],["Friday","星期五"],["Saturday","星期六"],["Sunday","星期日"],["weekend","周末"],["birthday","生日"]],sentences:[["What day is it today?","今天是星期几？"],["Today is Monday.","今天是星期一。"],["Tomorrow is my birthday!","明天是我的生日！"]]},
-        5:{words:[["job","工作"],["doctor","医生"],["nurse","护士"],["teacher","老师"],["driver","司机"],["cook","厨师"],["farmer","农民"],["shop assistant","店员"],["police","警察"],["firefighter","消防员"],["pilot","飞行员"],["work","工作"],["help","帮助"]],sentences:[["What do you want to be?","你想成为什么？"],["I want to be a doctor.","我想成为医生。"],["My mother is a teacher.","我妈妈是老师。"]]},
-        6:{words:[["animal","动物"],["pet","宠物"],["dog","狗"],["cat","猫"],["bird","鸟"],["fish","鱼"],["rabbit","兔子"],["hamster","仓鼠"],["tortoise","乌龟"],["feed","喂"],["walk","散步"],["play with","和...玩"],["look after","照顾"],["love","爱"],["cute","可爱的"]],sentences:[["I have a pet dog.","我有一只宠物狗。"],["I feed my cat every day.","我每天喂我的猫。"],["Dogs are very friendly.","狗很友好。"]]},
-        7:{words:[["place","地方"],["home","家"],["school","学校"],["park","公园"],["shop","商店"],["restaurant","餐厅"],["library","图书馆"],["hospital","医院"],["cinema","电影院"],["zoo","动物园"],["beach","海滩"],["mountain","山"],["lake","湖"],["island","岛"]],sentences:[["This is a nice place.","这是个很好的地方。"],["I live in the city.","我住在城市里。"],["The park is near my home.","公园在我家附近。"]]},
-        8:{words:[["weather","天气"],["sunny","晴朗的"],["cloudy","多云的"],["rainy","下雨的"],["snowy","下雪的"],["windy","刮风的"],["hot","热的"],["cold","冷的"],["warm","温暖的"],["cool","凉爽的"],["rain","雨"],["snow","雪"],["wind","风"],["sun","太阳"],["rainbow","彩虹"]],sentences:[["What's the weather like today?","今天天气怎么样？"],["It's sunny today.","今天阳光明媚。"],["I like sunny days.","我喜欢晴天。"]]},
-        9:{words:[["sports","运动"],["football","足球"],["basketball","篮球"],["tennis","网球"],["baseball","棒球"],["volleyball","排球"],["swimming","游泳"],["running","跑步"],["cycling","骑自行车"],["skiing","滑雪"],["skateboarding","滑板"],["exercise","练习"],["team","队"],["win","赢"],["lose","输"]],sentences:[["I like playing sports.","我喜欢运动。"],["Can you play basketball?","你会打篮球吗？"],["We won the game!","我们赢了！"]]},
-        10:{words:[["house","房子"],["flat","公寓"],["garden","花园"],["door","门"],["window","窗户"],["kitchen","厨房"],["bedroom","卧室"],["bathroom","浴室"],["living room","客厅"],["garage","车库"],["floor","地板"],["wall","墙"],["roof","屋顶"],["swimming pool","游泳池"]],sentences:[["I live in a big house.","我住在一个大房子里。"],["There are four rooms.","有四个房间。"],["The garden is behind the house.","花园在房子后面。"]]},
-        11:{words:[["feel","感觉"],["happy","开心的"],["sad","伤心的"],["angry","生气的"],["tired","累的"],["excited","兴奋的"],["scared","害怕的"],["surprised","惊讶的"],["worried","担心的"],["love","爱"],["hate","讨厌"],["like","喜欢"],["want","想要"],["need","需要"],["think","想"],["know","知道"]],sentences:[["How do you feel?","你感觉怎么样？"],["I'm happy today.","我今天很开心。"],["I'm feeling tired.","我感觉累了。"]]},
-        12:{words:[["breakfast","早餐"],["lunch","午餐"],["dinner","晚餐"],["egg","鸡蛋"],["bread","面包"],["milk","牛奶"],["rice","米饭"],["vegetable","蔬菜"],["meat","肉"],["chicken","鸡肉"],["fish","鱼"],["fruit","水果"],["sandwich","三明治"],["soup","汤"],["salad","沙拉"],["hungry","饿的"],["thirsty","渴的"],["delicious","美味的"]],sentences:[["What do you have for breakfast?","你早餐吃什么？"],["I have eggs and bread.","我吃鸡蛋和面包。"],["Dinner is ready!","晚餐准备好了！"]]}
+        1:{words:[["world","世界"],["country","国家"],["China","中国"],["America","美国"],["UK","英国"],["Australia","澳大利亚"],["Japan","日本"],["France","法国"],["city","城市"],["people","人们"],["language","语言"],["English","英语"],["Chinese","中文"],["flag","国旗"],["map","地图"]],sentences:[["Hello! How are you today?","你好！今天怎么样？"],["I'm fine, thank you. And you?","我很好，谢谢。你呢？"],["Nice to meet you.","很高兴见到你。"],["What's your name?","你叫什么名字？"],["My name is Tom.","我的名字是Tom。"],["Where are you from?","你来自哪里？"],["I'm from China.","我来自中国。"],["This is our world.","这是我们的世界。"],["I come from China.","我来自中国。"],["What's your country?","你的国家是哪里？"]]},
+        2:{words:[["body","身体"],["head","头"],["face","脸"],["eye","眼睛"],["nose","鼻子"],["mouth","嘴巴"],["ear","耳朵"],["hair","头发"],["arm","手臂"],["hand","手"],["finger","手指"],["leg","腿"],["foot","脚"],["hurt","疼"],["sick","生病的"],["ill","生病的"]],sentences:[["What's the matter?","怎么了？"],["I have a headache.","我头疼。"],["I feel sick today.","我今天生病了。"],["My stomach hurts.","我胃疼。"],["You should see a doctor.","你应该去看医生。"],["This is my body.","这是我的身体。"],["I've got a cold.","我感冒了。"],["Take this medicine.","吃这个药。"]]},
+        3:{words:[["clothes","衣服"],["shirt","衬衫"],["trousers","裤子"],["dress","连衣裙"],["skirt","裙子"],["jacket","夹克"],["coat","外套"],["shoes","鞋子"],["socks","袜子"],["hat","帽子"],["wear","穿"],["put on","穿上"],["take off","脱下"],["size","尺寸"]],sentences:[["What are you wearing?","你穿着什么？"],["I'm wearing a blue shirt.","我穿着蓝色衬衫。"],["These trousers are too big.","这条裤子太大了。"],["Can I try this on?","我可以试穿这个吗？"],["What size do you need?","你需要什么尺寸？"],["I like these clothes.","我喜欢这些衣服。"],["I'm wearing a new dress.","我穿着一条新裙子。"],["Put on your coat.","穿上你的外套。"]]},
+        4:{words:[["day","天"],["today","今天"],["tomorrow","明天"],["yesterday","昨天"],["week","周"],["month","月"],["year","年"],["Monday","星期一"],["Tuesday","星期二"],["Wednesday","星期三"],["Thursday","星期四"],["Friday","星期五"],["Saturday","星期六"],["Sunday","星期日"],["weekend","周末"],["birthday","生日"]],sentences:[["What day is it today?","今天是星期几？"],["Today is Monday.","今天是星期一。"],["What do you do on weekends?","你周末做什么？"],["I often play football on Saturdays.","我经常在周六踢足球。"],["Tomorrow is my birthday!","明天是我的生日！"],["When is your birthday?","你的生日是什么时候？"],["My birthday is in May.","我的生日在五月。"],["What time do you get up?","你几点起床？"]]},
+        5:{words:[["job","工作"],["doctor","医生"],["nurse","护士"],["teacher","老师"],["driver","司机"],["cook","厨师"],["farmer","农民"],["shop assistant","店员"],["police","警察"],["firefighter","消防员"],["pilot","飞行员"],["work","工作"],["help","帮助"]],sentences:[["What do you want to be?","你想成为什么？"],["I want to be a doctor.","我想成为医生。"],["What does your father do?","你爸爸做什么工作？"],["He's a teacher.","他是老师。"],["Where does she work?","她在哪里工作？"],["She works in a hospital.","她在医院工作。"],["My mother is a teacher.","我妈妈是老师。"],["Do you like your job?","你喜欢你的工作吗？"]]},
+        6:{words:[["animal","动物"],["pet","宠物"],["dog","狗"],["cat","猫"],["bird","鸟"],["fish","鱼"],["rabbit","兔子"],["hamster","仓鼠"],["tortoise","乌龟"],["feed","喂"],["walk","散步"],["play with","和...玩"],["look after","照顾"],["love","爱"],["cute","可爱的"]],sentences:[["Have you got any pets?","你有宠物吗？"],["Yes, I have a dog.","是的，我有一只狗。"],["What's your favourite animal?","你最喜欢的动物是什么？"],["I like dogs best.","我最喜欢狗。"],["I feed my cat every day.","我每天喂我的猫。"],["Dogs are very friendly.","狗很友好。"],["I have a pet dog.","我有一只宠物狗。"],["My cat is very cute.","我的猫很可爱。"]]},
+        7:{words:[["place","地方"],["home","家"],["school","学校"],["park","公园"],["shop","商店"],["restaurant","餐厅"],["library","图书馆"],["hospital","医院"],["cinema","电影院"],["zoo","动物园"],["beach","海滩"],["mountain","山"],["lake","湖"],["island","岛"]],sentences:[["Where did you go last weekend?","你上周末去了哪里？"],["I went to the park.","我去了公园。"],["How do I get to the station?","我怎么去车站？"],["Go straight and turn left.","直走然后左转。"],["Is there a supermarket near here?","这附近有超市吗？"],["This is a nice place.","这是个很好的地方。"],["I live in the city.","我住在城市里。"],["The park is near my home.","公园在我家附近。"]]},
+        8:{words:[["weather","天气"],["sunny","晴朗的"],["cloudy","多云的"],["rainy","下雨的"],["snowy","下雪的"],["windy","刮风的"],["hot","热的"],["cold","冷的"],["warm","温暖的"],["cool","凉爽的"],["rain","雨"],["snow","雪"],["wind","风"],["sun","太阳"],["rainbow","彩虹"]],sentences:[["What's the weather like today?","今天天气怎么样？"],["It's sunny today.","今天阳光明媚。"],["It's going to rain tomorrow.","明天会下雨。"],["I like sunny days.","我喜欢晴天。"],["What was the weather like yesterday?","昨天天气怎么样？"],["It was cloudy.","昨天多云。"],["Do you like rainy days?","你喜欢下雨天吗？"],["It's too hot today.","今天太热了。"]]},
+        9:{words:[["sports","运动"],["football","足球"],["basketball","篮球"],["tennis","网球"],["baseball","棒球"],["volleyball","排球"],["swimming","游泳"],["running","跑步"],["cycling","骑自行车"],["skiing","滑雪"],["skateboarding","滑板"],["exercise","练习"],["team","队"],["win","赢"],["lose","输"]],sentences:[["What's your favourite sport?","你最喜欢的运动是什么？"],["I like playing basketball.","我喜欢打篮球。"],["Can you swim?","你会游泳吗？"],["Yes, I can swim well.","是的，我游泳很好。"],["Do you play any sports?","你做什么运动吗？"],["I play tennis every Sunday.","我每个周日打网球。"],["I like playing sports.","我喜欢运动。"],["We won the game!","我们赢了！"]]},
+        10:{words:[["house","房子"],["flat","公寓"],["garden","花园"],["door","门"],["window","窗户"],["kitchen","厨房"],["bedroom","卧室"],["bathroom","浴室"],["living room","客厅"],["garage","车库"],["floor","地板"],["wall","墙"],["roof","屋顶"],["swimming pool","游泳池"]],sentences:[["Where do you live?","你住在哪里？"],["I live in a big house.","我住在一个大房子里。"],["Do you live in a house or a flat?","你住在房子还是公寓里？"],["I live in a flat.","我住在公寓里。"],["There are four rooms.","有四个房间。"],["My bedroom is very nice.","我的卧室很漂亮。"],["The garden is behind the house.","花园在房子后面。"],["I have my own room.","我有自己的房间。"]]},
+        11:{words:[["feel","感觉"],["happy","开心的"],["sad","伤心的"],["angry","生气的"],["tired","累的"],["excited","兴奋的"],["scared","害怕的"],["surprised","惊讶的"],["worried","担心的"],["love","爱"],["hate","讨厌"],["like","喜欢"],["want","想要"],["need","需要"],["think","想"],["know","知道"]],sentences:[["How do you feel today?","你今天感觉怎么样？"],["I'm happy today.","我今天很开心。"],["What makes you happy?","什么让你开心？"],["I'm feeling tired.","我感觉累了。"],["Why are you sad?","你为什么难过？"],["I'm worried about the test.","我担心考试。"],["I'm excited about the trip.","我对这次旅行很兴奋。"],["I feel great!","我感觉很棒！"]]},
+        12:{words:[["breakfast","早餐"],["lunch","午餐"],["dinner","晚餐"],["egg","鸡蛋"],["bread","面包"],["milk","牛奶"],["rice","米饭"],["vegetable","蔬菜"],["meat","肉"],["chicken","鸡肉"],["fish","鱼"],["fruit","水果"],["sandwich","三明治"],["soup","汤"],["salad","沙拉"],["hungry","饿的"],["thirsty","渴的"],["delicious","美味的"]],sentences:[["What's your favourite food?","你最喜欢的食物是什么？"],["I like pizza best.","我最喜欢披萨。"],["What do you have for breakfast?","你早餐吃什么？"],["I have eggs and bread.","我吃鸡蛋和面包。"],["Do you like vegetables?","你喜欢蔬菜吗？"],["Yes, I do. They're healthy.","是的，我喜欢。它们很健康。"],["Dinner is ready!","晚餐准备好了！"],["Would you like some juice?","你想喝点果汁吗？"]]}
     }
 };
 
@@ -606,6 +743,31 @@ let battleMonsters = [];
 // 已解锁的怪兽ID列表
 let unlockedMonsterIds = [1,2,3,4,5,6,7,8,9,10];
 
+// 本地排行榜（模拟多人数据）
+let leaderboard = {
+    energy: [
+        {name: '你', score: 0, isPlayer: true},
+        {name: '小明', score: 5000},
+        {name: '小红', score: 4500},
+        {name: '小刚', score: 4000},
+        {name: '小美', score: 3500}
+    ],
+    stars: [
+        {name: '你', score: 0, isPlayer: true},
+        {name: '小明', score: 100},
+        {name: '小红', score: 85},
+        {name: '小刚', score: 70},
+        {name: '小美', score: 60}
+    ],
+    monsters: [
+        {name: '你', score: 10, isPlayer: true},
+        {name: '小明', score: 80},
+        {name: '小红', score: 65},
+        {name: '小刚', score: 50},
+        {name: '小美', score: 40}
+    ]
+};
+
 let score=0, currentStage=1, monstersDef=0;
 let selectedUnit=1, qIdx=0, correctCount=0;
 let mHp=100, zHp=100, currentMonster=null;
@@ -613,6 +775,257 @@ let currentText='';
 let currentQuestionType=''; // 当前题型
 let recognition=null, isRecording=false, isStoppingRecording=false;
 let recordingTimeout=null;
+
+// ========== Whisper.js 离线语音识别系统 ==========
+let whisperTranscriber = null;
+let whisperLoading = false;
+let whisperLoaded = false;
+let whisperProgress = 0;
+let useWhisper = true;
+let audioContextForWhisper = null;
+let mediaStreamForWhisper = null;
+let mediaRecorderForWhisper = null;
+let audioChunksForWhisper = [];
+let whisperSupported = false;
+
+async function initWhisperFunctions(){
+    whisperSupported = await checkWhisperSupport();
+    
+    if (!whisperSupported) {
+        console.log('Whisper.js 不支持当前环境');
+        useWhisper = false;
+        return;
+    }
+    
+    window.initWhisper = async function(showProgressCallback) {
+        if (whisperLoaded || whisperLoading) {
+            console.log('Whisper 已加载或正在加载中');
+            return whisperLoaded;
+        }
+        
+        whisperLoading = true;
+        whisperProgress = 0;
+        
+        try {
+            const cdnSources = [
+                'https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.1',
+                'https://unpkg.com/@xenova/transformers@2.17.1',
+                'https://cdnjs.cloudflare.com/ajax/libs/transformers.js/2.17.1/transformers.min.js'
+            ];
+            
+            let moduleLoaded = false;
+            let moduleError = null;
+            
+            for (let i = 0; i < cdnSources.length && !moduleLoaded; i++) {
+                try {
+                    if (showProgressCallback) showProgressCallback(5, `正在加载语音引擎... (${i + 1}/${cdnSources.length})`);
+                    
+                    const module = await import(cdnSources[i]);
+                    const { pipeline, env } = module;
+                    
+                    env.allowLocalModels = false;
+                    
+                    const mirrors = [
+                        'https://huggingface.co',
+                        'https://hf-mirror.com'
+                    ];
+                    
+                    let loaded = false;
+                    let lastError = null;
+                    
+                    for (let j = 0; j < mirrors.length && !loaded; j++) {
+                        const mirror = mirrors[j];
+                        console.log(`尝试镜像源: ${mirror}`);
+                        
+                        try {
+                            env.remoteHost = mirror;
+                            
+                            if (showProgressCallback) showProgressCallback(10 + j * 10, `正在从镜像源加载... (${j + 1}/${mirrors.length})`);
+                            
+                            whisperTranscriber = await pipeline(
+                                'automatic-speech-recognition',
+                                'Xenova/whisper-tiny.en',
+                                {
+                                    progress_callback: function(progress) {
+                                        if (progress.status === 'downloading') {
+                                            let percent = progress.progress || 0;
+                                            whisperProgress = 30 + Math.round(percent * 0.65);
+                                            let loadedMB = progress.loaded ? (progress.loaded / 1024 / 1024).toFixed(1) : 0;
+                                            let totalMB = progress.total ? (progress.total / 1024 / 1024).toFixed(1) : 0;
+                                            if (showProgressCallback) {
+                                                showProgressCallback(whisperProgress, `下载语音模型... ${loadedMB}/${totalMB}MB`);
+                                            }
+                                        } else if (progress.status === 'loading') {
+                                            if (showProgressCallback) showProgressCallback(95, '正在加载模型到内存...');
+                                        }
+                                    }
+                                }
+                            );
+                            
+                            loaded = true;
+                            moduleLoaded = true;
+                            console.log(`成功从 ${mirror} 加载模型`);
+                            
+                        } catch (mirrorError) {
+                            console.warn(`镜像 ${mirror} 失败:`, mirrorError.message);
+                            lastError = mirrorError;
+                        }
+                    }
+                    
+                    if (!loaded) {
+                        throw lastError || new Error('所有镜像源都失败');
+                    }
+                    
+                } catch (cdnError) {
+                    console.warn(`CDN ${cdnSources[i]} 失败:`, cdnError.message);
+                    moduleError = cdnError;
+                }
+            }
+            
+            if (!moduleLoaded) {
+                throw moduleError || new Error('所有 CDN 源都失败');
+            }
+            
+            whisperLoaded = true;
+            whisperLoading = false;
+            whisperProgress = 100;
+            
+            if (showProgressCallback) showProgressCallback(100, '语音模型加载完成！');
+            console.log('Whisper 模型加载完成');
+            
+            return true;
+        } catch (e) {
+            console.error('Whisper 加载失败:', e);
+            whisperLoading = false;
+            whisperLoaded = false;
+            useWhisper = false;
+            
+            if (showProgressCallback) showProgressCallback(-1, '离线模型加载失败，将使用在线识别');
+            
+            return false;
+        }
+    };
+
+    window.startWhisperRecording = async function(resultCallback, statusCallback) {
+        try {
+            if (!whisperLoaded) {
+                const supported = await checkWhisperSupport();
+                if (!supported) {
+                    return { success: false, error: 'browser_not_supported' };
+                }
+                
+                if (statusCallback) statusCallback('loading', '正在加载语音模型...');
+                
+                const loaded = await window.initWhisper(function(progress, message) {
+                    if (statusCallback) statusCallback('loading', message, progress);
+                });
+                
+                if (!loaded) {
+                    return { success: false, error: 'model_load_failed' };
+                }
+            }
+            
+            if (statusCallback) statusCallback('recording', '正在录音...', 0);
+            
+            const stream = await navigator.mediaDevices.getUserMedia({ 
+                audio: {
+                    echoCancellation: true,
+                    noiseSuppression: true,
+                    sampleRate: 16000
+                } 
+            });
+            
+            mediaStreamForWhisper = stream;
+            audioContextForWhisper = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 16000 });
+            
+            mediaRecorderForWhisper = new MediaRecorder(stream, { mimeType: 'audio/webm' });
+            audioChunksForWhisper = [];
+            
+            return new Promise((resolve) => {
+                mediaRecorderForWhisper.ondataavailable = function(event) {
+                    if (event.data.size > 0) {
+                        audioChunksForWhisper.push(event.data);
+                    }
+                };
+                
+                mediaRecorderForWhisper.onstop = async function() {
+                    if (statusCallback) statusCallback('processing', '正在识别...', 50);
+                    
+                    try {
+                        const audioBlob = new Blob(audioChunksForWhisper, { type: 'audio/webm' });
+                        const audioBuffer = await audioContextForWhisper.decodeAudioData(await audioBlob.arrayBuffer());
+                        
+                        const audioData = audioBuffer.getChannelData(0);
+                        
+                        if (statusCallback) statusCallback('processing', '正在识别...', 80);
+                        
+                        const result = await whisperTranscriber(audioData, {
+                            language: 'en',
+                            task: 'transcribe'
+                        });
+                        
+                        const text = result.text.trim().toLowerCase();
+                        
+                        if (statusCallback) statusCallback('done', '识别完成', 100);
+                        
+                        resolve({ 
+                            success: true, 
+                            text: text,
+                            confidence: 0.9
+                        });
+                        
+                    } catch (e) {
+                        console.error('Whisper 识别失败:', e);
+                        resolve({ success: false, error: 'recognition_failed', message: e.message });
+                    }
+                    
+                    if (mediaStreamForWhisper) {
+                        mediaStreamForWhisper.getTracks().forEach(track => track.stop());
+                    }
+                };
+                
+                mediaRecorderForWhisper.start();
+                
+                setTimeout(() => {
+                    if (mediaRecorderForWhisper && mediaRecorderForWhisper.state === 'recording') {
+                        mediaRecorderForWhisper.stop();
+                    }
+                }, 10000);
+            });
+            
+        } catch (e) {
+            console.error('Whisper 录音失败:', e);
+            return { success: false, error: 'recording_failed', message: e.message };
+        }
+    };
+
+    window.stopWhisperRecording = function() {
+        if (mediaRecorderForWhisper && mediaRecorderForWhisper.state === 'recording') {
+            mediaRecorderForWhisper.stop();
+        }
+    };
+    
+    console.log('Whisper.js 函数已初始化');
+}
+
+async function checkWhisperSupport(){
+    try {
+        if (window.location.protocol === 'file:') {
+            console.log('file:// 协议不支持 ES modules，Whisper.js 不可用');
+            return false;
+        }
+        
+        if (typeof WebAssembly !== 'object') {
+            console.log('浏览器不支持 WebAssembly');
+            return false;
+        }
+        
+        return true;
+    } catch (e) {
+        console.log('Whisper 支持检测失败:', e);
+        return false;
+    }
+}
 let currentMonsterIndex=0;
 let stageCompleted = [];
 let battleScore=0;
@@ -635,6 +1048,10 @@ let audioContext = null;
 let wrongBook = [];
 let wrongReviewCount = 0;
 let isWrongBookReview = false;
+
+// 薄弱点专项练习
+let isWeaknessPractice = false;
+let weaknessPracticeType = '';
 
 // 单元解锁系统（每个级别独立）
 let unlockedUnits = {1: [1], 2: [1], 3: [1]}; // 每个级别默认解锁第一单元
@@ -671,7 +1088,36 @@ let studyStats = {
     dictationCorrect: 0,       // 听写题正确数
     dictationTotal: 0,         // 听写题总数
     studyDays: [],             // 学习日期记录
-    dailyStats: {}             // 每日统计
+    dailyStats: {},            // 每日统计
+    // 各题型详细统计（用于薄弱点分析）
+    questionTypeStats: {
+        hearing: { correct: 0, total: 0 },      // 听力题
+        choice: { correct: 0, total: 0 },       // 选择题
+        speak: { correct: 0, total: 0 },        // 口语题
+        speakImage: { correct: 0, total: 0 },   // 看图说话
+        dialogue: { correct: 0, total: 0 },     // 对话题
+        dialogueScene: { correct: 0, total: 0 },// 情景对话
+        dictation: { correct: 0, total: 0 }     // 听写填空
+    }
+};
+
+// 每日任务系统
+let dailyTasks = {
+    lastLoginDate: '',         // 最后登录日期
+    loginReward: false,        // 今日登录奖励是否已领取
+    answerCount: 0,            // 今日答题数量
+    answerTarget: 10,          // 答题目标
+    answerReward: false,       // 答题奖励是否已领取
+    speakCount: 0,             // 今日口语练习数量
+    speakTarget: 5,            // 口语目标
+    speakReward: false         // 口语奖励是否已领取
+};
+
+// 个性化学习目标设置
+let learningGoals = {
+    dailyQuestions: 20,        // 每日答题目标
+    weeklyBattles: 5,          // 每周战斗目标
+    targetLevel: 3             // 目标等级
 };
 
 // 从已解锁怪兽中随机选择10个作为本次闯关的怪兽
@@ -765,23 +1211,105 @@ function checkSpecialUnlock(){
     return specialUnlocks;
 }
 
-// 预加载语音列表
-if('speechSynthesis' in window){
-    // Chrome 需要等待 voices loaded
+// ========== 语音预加载系统 ==========
+// 语音引擎状态
+let voiceEngineReady = false;
+let voiceEngineLoading = false;
+let voicesLoaded = [];
+
+// 预加载语音引擎
+function preloadVoices(){
+    if(!('speechSynthesis' in window)){
+        console.warn('浏览器不支持语音合成');
+        return;
+    }
+    
+    voiceEngineLoading = true;
+    
+    // 获取语音列表
+    let voices = window.speechSynthesis.getVoices();
+    
+    if(voices.length > 0){
+        voicesLoaded = voices;
+        voiceEngineReady = true;
+        voiceEngineLoading = false;
+        console.log('语音引擎预加载完成，共 ' + voices.length + ' 个语音');
+        return;
+    }
+    
+    // Chrome 需要等待 voices loaded 事件
     window.speechSynthesis.onvoiceschanged = function(){
-        let voices = window.speechSynthesis.getVoices();
-        console.log('Voices loaded:', voices.length);
+        voicesLoaded = window.speechSynthesis.getVoices();
+        if(voicesLoaded.length > 0){
+            voiceEngineReady = true;
+            voiceEngineLoading = false;
+            console.log('语音引擎预加载完成，共 ' + voicesLoaded.length + ' 个语音');
+        }
     };
     
-    let voiceCheckCount = 0;
-    function ensureVoicesLoaded(){
-        let voices = window.speechSynthesis.getVoices();
-        if(voices.length === 0 && voiceCheckCount < 10){
-            voiceCheckCount++;
-            setTimeout(ensureVoicesLoaded, 100);
+    // 备用轮询检查（某些浏览器可能不触发 onvoiceschanged）
+    let checkCount = 0;
+    let checkInterval = setInterval(function(){
+        voices = window.speechSynthesis.getVoices();
+        if(voices.length > 0){
+            voicesLoaded = voices;
+            voiceEngineReady = true;
+            voiceEngineLoading = false;
+            clearInterval(checkInterval);
+            console.log('语音引擎轮询加载完成，共 ' + voices.length + ' 个语音');
         }
+        checkCount++;
+        if(checkCount > 20){
+            clearInterval(checkInterval);
+            voiceEngineLoading = false;
+        }
+    }, 100);
+    
+    // 预热语音引擎（播放一个静音的语音）
+    warmupVoiceEngine();
+}
+
+// 预热语音引擎
+function warmupVoiceEngine(){
+    if(!('speechSynthesis' in window)) return;
+    
+    try {
+        let warmup = new SpeechSynthesisUtterance('');
+        warmup.volume = 0.01;
+        warmup.rate = 0.1;
+        warmup.lang = 'en-US';
+        window.speechSynthesis.speak(warmup);
+        console.log('语音引擎预热完成');
+    } catch(e){
+        console.warn('语音引擎预热失败:', e);
     }
-    ensureVoicesLoaded();
+}
+
+// 预加载常用单词发音缓存（不实际播放，只是准备好引擎）
+function preloadCommonWords(){
+    if(!('speechSynthesis' in window)) return;
+    
+    // 常用单词列表
+    let commonWords = ['hello', 'goodbye', 'yes', 'no', 'please', 'thank', 'sorry', 'good', 'bad', 'big'];
+    
+    // 延迟执行，避免影响页面加载速度
+    setTimeout(function(){
+        // 创建语音实例但不播放，仅用于缓存
+        commonWords.forEach(function(word, index){
+            setTimeout(function(){
+                try {
+                    let utterance = new SpeechSynthesisUtterance(word);
+                    utterance.volume = 0;
+                    utterance.rate = 2;
+                    utterance.lang = 'en-US';
+                    // 不调用 speak，仅创建实例
+                } catch(e){
+                    // 忽略错误
+                }
+            }, index * 50);
+        });
+        console.log('常用单词语音缓存准备完成');
+    }, 2000);
 }
 
 function init(){
@@ -791,22 +1319,210 @@ function init(){
     updateUI();
     initAudioContext();
     
+    initWhisperFunctions().then(function() {
+        initVoiceStatus();
+    });
+    
+    updateDailyTaskUI();
+    
+    checkLoginReward();
+    
+    setTimeout(function(){
+        preloadVoices();
+        preloadCommonWords();
+    }, 100);
+    
     document.body.addEventListener('click', function initAudio(){
-        if('speechSynthesis' in window){
-            let voices = window.speechSynthesis.getVoices();
-            if(voices.length === 0){
-                window.speechSynthesis.getVoices();
-            }
-            let u = new SpeechSynthesisUtterance('');
-            u.volume = 0.01;
-            u.rate = 0.1;
-            window.speechSynthesis.speak(u);
+        if('speechSynthesis' in window && !voiceEngineReady){
+            warmupVoiceEngine();
         }
         if(audioContext && audioContext.state === 'suspended'){
             audioContext.resume();
         }
         document.body.removeEventListener('click', initAudio);
     }, {once: true});
+}
+
+// 检查是否需要重置每日任务（新的一天）
+function checkDailyTaskReset(){
+    let today = new Date().toISOString().split('T')[0];
+    
+    // 如果是新的一天，重置任务
+    if(dailyTasks.lastLoginDate !== today){
+        dailyTasks = {
+            lastLoginDate: today,
+            loginReward: false,
+            answerCount: 0,
+            answerTarget: 10,
+            answerReward: false,
+            speakCount: 0,
+            speakTarget: 5,
+            speakReward: false
+        };
+        saveProgress();
+    }
+}
+
+// 检查每日登录奖励
+function checkLoginReward(){
+    let today = new Date().toISOString().split('T')[0];
+    
+    // 如果是新的一天且未领取登录奖励
+    if(dailyTasks.lastLoginDate === today && !dailyTasks.loginReward){
+        showLoginReward();
+    }
+}
+
+// 显示登录奖励弹窗
+function showLoginReward(){
+    let modal = document.createElement('div');
+    modal.className = 'login-reward-modal';
+    modal.id = 'loginRewardModal';
+    modal.innerHTML = `
+        <div class="login-reward-content">
+            <div class="login-reward-icon">🎁</div>
+            <div class="login-reward-title">每日签到成功！</div>
+            <div class="login-reward-desc">欢迎回来，赛罗战士！<br>今日登录奖励已准备好</div>
+            <div class="login-reward-energy">⚡ +20 能量</div>
+            <button class="login-reward-btn" onclick="claimLoginReward()">领取奖励</button>
+        </div>
+    `;
+    document.body.appendChild(modal);
+}
+
+// 领取登录奖励
+function claimLoginReward(){
+    dailyTasks.loginReward = true;
+    score += 20;
+    saveProgress();
+    updateUI();
+    
+    // 移除弹窗
+    let modal = document.getElementById('loginRewardModal');
+    if(modal){
+        modal.remove();
+    }
+    
+    showToast('🎉 获得 20 能量！');
+    playSound('correct');
+}
+
+// 更新每日任务UI
+function updateDailyTaskUI(){
+    let taskCard = document.getElementById('dailyTaskCard');
+    if(!taskCard) return;
+    
+    // 计算进度百分比
+    let answerProgress = Math.min(100, (dailyTasks.answerCount / dailyTasks.answerTarget) * 100);
+    let speakProgress = Math.min(100, (dailyTasks.speakCount / dailyTasks.speakTarget) * 100);
+    
+    // 生成任务HTML
+    let html = `
+        <div class="daily-task-title">
+            <span class="daily-task-title-text">📋 每日任务</span>
+            <span class="daily-task-refresh">今日 0:00 刷新</span>
+        </div>
+        
+        <!-- 登录任务 -->
+        <div class="task-item">
+            <div class="task-icon login">✅</div>
+            <div class="task-info">
+                <div class="task-name">每日签到</div>
+                <div class="task-progress-bar">
+                    <div class="task-progress-fill ${dailyTasks.loginReward ? 'complete' : ''}" style="width: ${dailyTasks.loginReward ? 100 : 0}%"></div>
+                </div>
+            </div>
+            <div class="task-status">
+                ${dailyTasks.loginReward ? '<span class="task-complete-icon">✓</span>' : '<span class="task-count">待领取</span>'}
+            </div>
+        </div>
+        
+        <!-- 答题任务 -->
+        <div class="task-item">
+            <div class="task-icon answer">📝</div>
+            <div class="task-info">
+                <div class="task-name">答题挑战 (${dailyTasks.answerCount}/${dailyTasks.answerTarget})</div>
+                <div class="task-progress-bar">
+                    <div class="task-progress-fill ${dailyTasks.answerCount >= dailyTasks.answerTarget ? 'complete' : ''}" style="width: ${answerProgress}%"></div>
+                </div>
+            </div>
+            <div class="task-status">
+                ${dailyTasks.answerCount >= dailyTasks.answerTarget ? 
+                    (dailyTasks.answerReward ? '<span class="task-complete-icon">✓</span>' : '<button class="task-reward-btn" onclick="claimAnswerReward()">领取</button>') : 
+                    '<span class="task-count">' + dailyTasks.answerCount + '/' + dailyTasks.answerTarget + '</span>'}
+            </div>
+        </div>
+        
+        <!-- 口语任务 -->
+        <div class="task-item">
+            <div class="task-icon speak">🎤</div>
+            <div class="task-info">
+                <div class="task-name">口语练习 (${dailyTasks.speakCount}/${dailyTasks.speakTarget})</div>
+                <div class="task-progress-bar">
+                    <div class="task-progress-fill ${dailyTasks.speakCount >= dailyTasks.speakTarget ? 'complete' : ''}" style="width: ${speakProgress}%"></div>
+                </div>
+            </div>
+            <div class="task-status">
+                ${dailyTasks.speakCount >= dailyTasks.speakTarget ? 
+                    (dailyTasks.speakReward ? '<span class="task-complete-icon">✓</span>' : '<button class="task-reward-btn" onclick="claimSpeakReward()">领取</button>') : 
+                    '<span class="task-count">' + dailyTasks.speakCount + '/' + dailyTasks.speakTarget + '</span>'}
+            </div>
+        </div>
+    `;
+    
+    taskCard.innerHTML = html;
+}
+
+// 领取答题奖励
+function claimAnswerReward(){
+    if(dailyTasks.answerCount >= dailyTasks.answerTarget && !dailyTasks.answerReward){
+        dailyTasks.answerReward = true;
+        score += 30;
+        saveProgress();
+        updateUI();
+        updateDailyTaskUI();
+        showToast('🎉 答题任务完成！获得 30 能量！');
+        playSound('victory');
+    }
+}
+
+// 领取口语奖励
+function claimSpeakReward(){
+    if(dailyTasks.speakCount >= dailyTasks.speakTarget && !dailyTasks.speakReward){
+        dailyTasks.speakReward = true;
+        score += 30;
+        saveProgress();
+        updateUI();
+        updateDailyTaskUI();
+        showToast('🎉 口语任务完成！获得 30 能量！');
+        playSound('victory');
+    }
+}
+
+// 增加答题计数
+function incrementAnswerCount(){
+    dailyTasks.answerCount++;
+    saveProgress();
+    updateDailyTaskUI();
+    
+    // 检查是否达成目标
+    if(dailyTasks.answerCount === dailyTasks.answerTarget && !dailyTasks.answerReward){
+        showToast('🎯 答题任务达成！点击领取奖励！');
+        playSound('correct');
+    }
+}
+
+// 增加口语计数
+function incrementSpeakCount(){
+    dailyTasks.speakCount++;
+    saveProgress();
+    updateDailyTaskUI();
+    
+    // 检查是否达成目标
+    if(dailyTasks.speakCount === dailyTasks.speakTarget && !dailyTasks.speakReward){
+        showToast('🎯 口语任务达成！点击领取奖励！');
+        playSound('correct');
+    }
 }
 
 function initAudioContext(){
@@ -954,25 +1670,69 @@ function getWordMeaning(word){
     return meaning;
 }
 
+// 艾宾浩斯遗忘曲线计算下次复习时间
+function calculateNextReview(lastWrong, count){
+    // 遗忘曲线间隔：1天、3天、7天、15天、30天
+    const intervals = [1, 3, 7, 15, 30];
+    const days = intervals[Math.min(count - 1, intervals.length - 1)];
+    const nextDate = new Date(lastWrong);
+    nextDate.setDate(nextDate.getDate() + days);
+    return nextDate.toISOString();
+}
+
+// 获取需要复习的错题列表
+function getReviewNeededWords(){
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return wrongBook.filter(function(item){
+        if(!item.nextReview) return true;
+        const reviewDate = new Date(item.nextReview);
+        reviewDate.setHours(0, 0, 0, 0);
+        return reviewDate <= today;
+    });
+}
+
+// 更新复习提醒显示
+function updateReviewReminder(){
+    const reviewNeeded = getReviewNeededWords();
+    const reminderCard = document.getElementById('reviewReminder');
+    const reviewCount = document.getElementById('reviewNeededCount');
+    
+    if(reminderCard && reviewCount){
+        if(reviewNeeded.length > 0){
+            reviewCount.textContent = reviewNeeded.length;
+            reminderCard.style.display = 'block';
+        }else{
+            reminderCard.style.display = 'none';
+        }
+    }
+}
+
 function addToWrongBook(word, meaning){
     if(!word || !meaning){
         console.warn('addToWrongBook: 无效的数据', word, meaning);
         return;
     }
     let found = wrongBook.find(function(item){ return item.word === word; });
+    let now = new Date().toISOString();
     if(found){
         found.count++;
-        found.lastWrong = new Date().toISOString();
+        found.lastWrong = now;
+        found.lastReview = now;
+        found.nextReview = calculateNextReview(now, found.count);
     }else{
         wrongBook.push({
             word: word,
             meaning: meaning,
             count: 1,
-            firstWrong: new Date().toISOString(),
-            lastWrong: new Date().toISOString()
+            firstWrong: now,
+            lastWrong: now,
+            lastReview: now,
+            nextReview: calculateNextReview(now, 1)
         });
     }
     saveProgress();
+    updateReviewReminder();
 }
 
 function removeFromWrongBook(word){
@@ -1037,6 +1797,248 @@ function startWrongBookReview(){
     }, 500);
 }
 
+// 一键复习功能：只复习需要复习的错题
+function startQuickReview(){
+    // 获取需要复习的错题
+    let reviewNeeded = getReviewNeededWords();
+    
+    if(reviewNeeded.length === 0){
+        showToast('暂无需要复习的错题！');
+        return;
+    }
+    
+    // 过滤无效数据
+    reviewNeeded = reviewNeeded.filter(function(item){
+        return item.word && item.meaning;
+    });
+    
+    isWrongBookReview = true;
+    battleUnits = [];
+    battleQuestionPool = [];
+    
+    reviewNeeded.forEach(function(item){
+        battleQuestionPool.push({
+            type: 'word',
+            eng: item.word,
+            chn: item.meaning,
+            unit: 0
+        });
+    });
+    
+    wrongBookTotal = battleQuestionPool.length;
+    battleQuestionPool = shuffle(battleQuestionPool);
+    usedQuestions = [];
+    battleScore = 0;
+    qIdx = 0;
+    correctCount = 0;
+    
+    currentMonsterIndex = 1;
+    currentMonster = ALL_MONSTERS[0];
+    mHp = 100;
+    zHp = 100;
+    
+    document.getElementById('monsterName').textContent = '复习怪兽';
+    document.getElementById('monsterDesc').textContent = '巩固记忆，打败遗忘！';
+    document.getElementById('monsterEmoji').textContent = '📚';
+    document.getElementById('stageNum').textContent = '1';
+    
+    updateHP();
+    show('battleGame');
+    
+    showToast('🔔 开始复习 ' + reviewNeeded.length + ' 个单词！');
+    
+    setTimeout(function(){
+        showRoundQuestion();
+    }, 500);
+}
+
+// ========== 语音识别状态管理 ==========
+function initVoiceStatus(){
+    console.log('初始化语音状态...');
+    
+    let badge = document.getElementById('voiceStatusBadge');
+    let message = document.getElementById('voiceStatusMessage');
+    let progressBar = document.getElementById('voiceProgressBar');
+    let progressText = document.getElementById('voiceProgressText');
+    let actions = document.getElementById('voiceStatusActions');
+    
+    if (!badge || !message) return;
+    
+    let hasWebSpeech = !!(window.SpeechRecognition || window.webkitSpeechRecognition);
+    let isFileProtocol = window.location.protocol === 'file:';
+    
+    console.log('Web Speech API 支持:', hasWebSpeech);
+    console.log('Whisper 支持:', whisperSupported);
+    console.log('file:// 协议:', isFileProtocol);
+    
+    if (isFileProtocol) {
+        badge.textContent = '本地文件';
+        badge.style.background = 'rgba(243,156,18,0.3)';
+        badge.style.color = '#f39c12';
+        message.textContent = '⚠️ 本地文件模式：离线语音不可用，请使用 Edge 浏览器的在线识别';
+        progressBar.style.width = '0%';
+        progressText.textContent = '不可用';
+        actions.style.display = 'block';
+        useWhisper = false;
+        
+        let actionsHtml = '<button onclick="showVoiceHelp()" style="padding:8px 15px;border-radius:8px;border:none;background:linear-gradient(135deg,#00d4ff,#00ff88);color:#0a0a1a;font-size:13px;font-weight:bold;cursor:pointer;">❓ 使用帮助</button>';
+        actions.innerHTML = actionsHtml;
+        
+        return;
+    }
+    
+    if (whisperSupported) {
+        badge.textContent = '离线可用';
+        badge.style.background = 'rgba(39,174,96,0.3)';
+        badge.style.color = '#27ae60';
+        message.textContent = '✅ 支持离线语音识别（Whisper.js），首次使用需下载模型';
+        progressBar.style.width = '0%';
+        progressText.textContent = '未加载';
+        actions.style.display = 'block';
+        
+        if (whisperLoaded) {
+            badge.textContent = '已就绪';
+            progressBar.style.width = '100%';
+            progressText.textContent = '已加载';
+            message.textContent = '✅ 离线语音模型已加载，可随时使用';
+        }
+    } else if (hasWebSpeech) {
+        badge.textContent = '仅在线';
+        badge.style.background = 'rgba(243,156,18,0.3)';
+        badge.style.color = '#f39c12';
+        message.textContent = '⚠️ 仅支持在线语音识别，需要网络连接';
+        progressBar.style.width = '100%';
+        progressText.textContent = '在线';
+        actions.style.display = 'block';
+        useWhisper = false;
+    } else {
+        badge.textContent = '不支持';
+        badge.style.background = 'rgba(231,76,60,0.3)';
+        badge.style.color = '#e74c3c';
+        message.textContent = '❌ 浏览器不支持语音识别，请使用 Chrome 或 Edge';
+        progressBar.style.width = '0%';
+        progressText.textContent = '不可用';
+        actions.style.display = 'none';
+    }
+}
+
+function showVoiceHelp(){
+    let helpHtml = `
+        <div style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);display:flex;align-items:center;justify-content:center;z-index:3000;" onclick="this.remove()">
+            <div style="background:linear-gradient(135deg,#1a1a3e,#0f2040);border:2px solid #00d4ff;border-radius:20px;padding:30px;max-width:400px;width:90%;" onclick="event.stopPropagation()">
+                <div style="color:#00d4ff;font-size:20px;font-weight:bold;margin-bottom:15px;">🎤 语音识别使用说明</div>
+                <div style="color:#aaa;font-size:14px;line-height:1.8;">
+                    <p><b style="color:#ffd93d;">本地文件模式限制：</b></p>
+                    <p>• Chrome 浏览器不支持本地文件的语音识别</p>
+                    <p>• 离线语音模型无法在本地文件模式下加载</p>
+                    <br>
+                    <p><b style="color:#27ae60;">解决方案：</b></p>
+                    <p>1. 使用 <b>Edge 浏览器</b> 打开此文件（支持在线识别）</p>
+                    <p>2. 将文件部署到本地服务器（如 Live Server）</p>
+                    <p>3. 上传到网站服务器使用 HTTPS 访问</p>
+                </div>
+                <button onclick="this.parentElement.parentElement.remove()" style="margin-top:20px;padding:10px 30px;border-radius:10px;border:none;background:linear-gradient(135deg,#00d4ff,#00ff88);color:#0a0a1a;font-size:14px;font-weight:bold;cursor:pointer;">我知道了</button>
+            </div>
+        </div>
+    `;
+    document.body.insertAdjacentHTML('beforeend', helpHtml);
+}
+
+async function preloadVoiceModel(){
+    console.log('预加载语音模型...');
+    
+    if (window.location.protocol === 'file:') {
+        showToast('⚠️ 本地文件模式不支持加载语音模型');
+        showVoiceHelp();
+        return;
+    }
+    
+    if (!whisperSupported) {
+        showToast('⚠️ 当前环境不支持离线语音识别');
+        return;
+    }
+    
+    if (!window.initWhisper) {
+        showToast('⚠️ 语音引擎未初始化，请刷新页面重试');
+        return;
+    }
+    
+    let badge = document.getElementById('voiceStatusBadge');
+    let message = document.getElementById('voiceStatusMessage');
+    let progressBar = document.getElementById('voiceProgressBar');
+    let progressText = document.getElementById('voiceProgressText');
+    let actions = document.getElementById('voiceStatusActions');
+    
+    badge.textContent = '加载中';
+    badge.style.background = 'rgba(0,212,255,0.3)';
+    badge.style.color = '#00d4ff';
+    
+    actions.style.display = 'none';
+    
+    try {
+        const loaded = await window.initWhisper(function(progress, msg) {
+            console.log('加载进度:', progress, msg);
+            progressBar.style.width = progress + '%';
+            progressText.textContent = progress + '%';
+            message.textContent = msg;
+        });
+        
+        if (loaded) {
+            badge.textContent = '已就绪';
+            badge.style.background = 'rgba(39,174,96,0.3)';
+            badge.style.color = '#27ae60';
+            message.textContent = '✅ 离线语音模型已加载，可随时使用';
+            progressBar.style.width = '100%';
+            progressText.textContent = '已加载';
+            showToast('🎉 语音模型加载完成！');
+        } else {
+            throw new Error('加载失败');
+        }
+    } catch (e) {
+        console.error('预加载失败:', e);
+        badge.textContent = '加载失败';
+        badge.style.background = 'rgba(231,76,60,0.3)';
+        badge.style.color = '#e74c3c';
+        message.textContent = '⚠️ 模型加载失败，将使用在线识别';
+        actions.style.display = 'block';
+        showToast('⚠️ 模型加载失败，将使用在线识别');
+    }
+}
+
+function switchVoiceEngine(){
+    if (window.location.protocol === 'file:') {
+        showToast('⚠️ 本地文件模式无法切换引擎');
+        showVoiceHelp();
+        return;
+    }
+    
+    useWhisper = !useWhisper;
+    
+    let badge = document.getElementById('voiceStatusBadge');
+    let message = document.getElementById('voiceStatusMessage');
+    let actions = document.getElementById('voiceStatusActions');
+    
+    if (useWhisper) {
+        badge.textContent = whisperLoaded ? '离线模式' : '离线(未加载)';
+        badge.style.background = whisperLoaded ? 'rgba(39,174,96,0.3)' : 'rgba(243,156,18,0.3)';
+        badge.style.color = whisperLoaded ? '#27ae60' : '#f39c12';
+        message.textContent = whisperLoaded ? 
+            '✅ 当前使用离线语音识别（Whisper.js）' : 
+            '⚠️ 离线模式：首次使用需下载模型';
+        actions.style.display = 'block';
+        showToast('已切换到离线语音识别模式');
+    } else {
+        badge.textContent = '在线模式';
+        badge.style.background = 'rgba(0,212,255,0.3)';
+        badge.style.color = '#00d4ff';
+        message.textContent = '🌐 当前使用在线语音识别（需联网）';
+        actions.style.display = 'block';
+        showToast('已切换到在线语音识别模式');
+    }
+    
+    console.log('切换语音引擎，useWhisper:', useWhisper);
+}
+
 function createStars(){
     for(let i=0;i<50;i++){
         let s=document.createElement('div');
@@ -1062,6 +2064,41 @@ function loadProgress(){
             unlockedAchievements = data.unlockedAchievements || [];
             unlockedMonsterIds = data.unlockedMonsterIds || [1,2,3,4,5,6,7,8,9,10];
             studyStats = data.studyStats || studyStats;
+            
+            // 兼容旧数据：确保questionTypeStats存在
+            if(!studyStats.questionTypeStats){
+                studyStats.questionTypeStats = {
+                    hearing: { correct: 0, total: 0 },
+                    choice: { correct: 0, total: 0 },
+                    speak: { correct: 0, total: 0 },
+                    speakImage: { correct: 0, total: 0 },
+                    dialogue: { correct: 0, total: 0 },
+                    dialogueScene: { correct: 0, total: 0 },
+                    dictation: { correct: 0, total: 0 }
+                };
+            }
+            
+            // 为旧数据添加复习时间戳字段
+            wrongBook.forEach(function(item){
+                if(!item.nextReview){
+                    let lastTime = item.lastWrong || item.firstWrong || new Date().toISOString();
+                    item.lastReview = lastTime;
+                    item.nextReview = calculateNextReview(lastTime, item.count || 1);
+                }
+            });
+            
+            // 加载每日任务数据
+            if(data.dailyTasks){
+                dailyTasks = data.dailyTasks;
+            }
+            
+            // 加载学习目标设置
+            if(data.learningGoals){
+                learningGoals = data.learningGoals;
+            }
+            
+            // 检查是否需要重置每日任务（新的一天）
+            checkDailyTaskReset();
         }
     }catch(e){
         console.error('加载进度失败:', e);
@@ -1083,6 +2120,8 @@ function saveProgress(){
             unlockedAchievements: unlockedAchievements,
             unlockedMonsterIds: unlockedMonsterIds,
             studyStats: studyStats,
+            dailyTasks: dailyTasks,
+            learningGoals: learningGoals,
             saveTime: new Date().toISOString()
         };
         localStorage.setItem('ultraman_progress', JSON.stringify(data));
@@ -1166,6 +2205,7 @@ function updateUI(){
     document.getElementById('levelDisplay').textContent='Lv.'+level;
     document.getElementById('totalStars').textContent=totalStars;
     updateStudyAdvice();
+    updateReviewReminder();
 }
 
 // 生成个性化学习建议
@@ -1326,6 +2366,53 @@ function showStudyReport(){
     
     html += '</div></div>';
     
+    // 薄弱点分析
+    let weaknesses = calculateWeakness();
+    let allTypeRates = getAllTypeRates();
+    
+    html += '<div style="margin:15px 0;"><div style="color:#ff6b6b;font-size:16px;margin-bottom:10px;">🔍 薄弱点分析</div>';
+    html += '<div style="background:rgba(255,107,107,0.1);border-radius:10px;padding:15px;">';
+    
+    if(allTypeRates.length === 0){
+        html += '<div style="color:#aaa;font-size:14px;text-align:center;">暂无题型统计数据，开始练习后即可查看</div>';
+    } else {
+        // 显示各题型正确率
+        html += '<div style="margin-bottom:10px;">';
+        allTypeRates.forEach(function(item){
+            let barColor = item.isWeak ? '#ff6b6b' : '#00d4ff';
+            let bgColor = item.isWeak ? 'rgba(255,107,107,0.2)' : 'rgba(0,212,255,0.1)';
+            html += '<div style="margin:8px 0;">';
+            html += '<div style="display:flex;justify-content:space-between;margin-bottom:3px;">';
+            html += '<span style="color:'+(item.isWeak ? '#ff6b6b' : '#aaa')+';font-size:13px;">'+item.name+'</span>';
+            html += '<span style="color:'+(item.isWeak ? '#ff6b6b' : '#00d4ff')+';font-size:13px;">'+item.rate+'% ('+item.correct+'/'+item.total+')</span>';
+            html += '</div>';
+            html += '<div style="height:6px;background:rgba(255,255,255,0.1);border-radius:3px;overflow:hidden;">';
+            html += '<div style="height:100%;width:'+item.rate+'%;background:'+barColor+';border-radius:3px;transition:width 0.3s;"></div>';
+            html += '</div>';
+            html += '</div>';
+        });
+        html += '</div>';
+        
+        // 显示薄弱项提示
+        if(weaknesses.length > 0){
+            html += '<div style="background:rgba(255,107,107,0.2);border-radius:8px;padding:10px;margin-top:10px;">';
+            html += '<div style="color:#ff6b6b;font-size:14px;margin-bottom:8px;">⚠️ 需要重点加强：</div>';
+            weaknesses.forEach(function(w){
+                html += '<div style="display:flex;justify-content:space-between;align-items:center;margin:5px 0;">';
+                html += '<span style="color:#ff6b6b;font-size:13px;">'+w.name+' ('+Math.round(w.rate*100)+'%)</span>';
+                html += '<button onclick="startWeaknessPractice(\''+w.type+'\')" style="padding:4px 10px;border-radius:15px;border:none;background:linear-gradient(135deg, #ff6b35, #ff3366);color:white;font-size:12px;cursor:pointer;">专项练习</button>';
+                html += '</div>';
+            });
+            html += '</div>';
+        } else {
+            html += '<div style="background:rgba(39,174,96,0.2);border-radius:8px;padding:10px;margin-top:10px;text-align:center;">';
+            html += '<span style="color:#27ae60;font-size:14px;">🎉 各题型表现良好，继续保持！</span>';
+            html += '</div>';
+        }
+    }
+    
+    html += '</div></div>';
+    
     // 学习统计
     html += '<div style="margin:15px 0;"><div style="color:#ffd93d;font-size:16px;margin-bottom:10px;">📈 学习统计</div>';
     html += '<div style="background:rgba(255,255,255,0.05);border-radius:10px;padding:15px;">';
@@ -1333,6 +2420,96 @@ function showStudyReport(){
     html += '<div style="display:flex;justify-content:space-between;margin:8px 0;"><span style="color:#aaa;">总答题数</span><span style="color:white;">'+studyStats.totalQuestions+'题</span></div>';
     html += '<div style="display:flex;justify-content:space-between;margin:8px 0;"><span style="color:#aaa;">正确率</span><span style="color:white;">'+overallScore+'%</span></div>';
     html += '<div style="display:flex;justify-content:space-between;margin:8px 0;"><span style="color:#aaa;">口语练习次数</span><span style="color:white;">'+studyStats.totalSpeakAttempts+'次</span></div>';
+    html += '</div></div>';
+    
+    // 学习路径规划
+    let learningPath = generateLearningPath();
+    html += '<div style="margin:15px 0;"><div style="color:#00d4ff;font-size:16px;margin-bottom:10px;">🛤️ 学习路径规划</div>';
+    html += '<div style="background:linear-gradient(135deg, rgba(0,212,255,0.1), rgba(148,0,211,0.1));border-radius:15px;padding:15px;">';
+    
+    // 当前进度
+    html += '<div style="margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid rgba(255,255,255,0.1);">';
+    html += '<div style="display:flex;justify-content:space-between;align-items:center;">';
+    html += '<span style="color:#aaa;font-size:14px;">📍 当前进度</span>';
+    html += '<span style="color:#00d4ff;font-size:14px;font-weight:bold;">Level ' + learningPath.currentLevel + ' / 单元 ' + (unlockedUnits[currentLevel] ? unlockedUnits[currentLevel].length : 0) + '</span>';
+    html += '</div></div>';
+    
+    // 薄弱领域
+    if(learningPath.weakAreas.length > 0){
+        html += '<div style="margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid rgba(255,255,255,0.1);">';
+        html += '<div style="color:#ff6b6b;font-size:14px;margin-bottom:8px;">⚠️ 薄弱领域</div>';
+        html += '<div style="display:flex;flex-wrap:wrap;gap:8px;">';
+        learningPath.weakAreas.forEach(function(area){
+            html += '<span style="background:rgba(255,107,107,0.2);color:#ff6b6b;padding:4px 12px;border-radius:15px;font-size:13px;">' + area + '</span>';
+        });
+        html += '</div></div>';
+    }
+    
+    // 推荐行动
+    if(learningPath.recommendations.length > 0){
+        html += '<div style="margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid rgba(255,255,255,0.1);">';
+        html += '<div style="color:#ffd93d;font-size:14px;margin-bottom:8px;">💡 推荐行动</div>';
+        learningPath.recommendations.forEach(function(rec){
+            html += '<div style="color:#aaa;font-size:13px;margin:5px 0;padding-left:15px;position:relative;">';
+            html += '<span style="position:absolute;left:0;color:#ffd93d;">•</span>' + rec + '</div>';
+        });
+        html += '</div>';
+    }
+    
+    // 下一步目标
+    html += '<div style="text-align:center;padding:10px;background:rgba(0,212,255,0.15);border-radius:10px;">';
+    html += '<div style="color:#aaa;font-size:12px;margin-bottom:5px;">🎯 下一步目标</div>';
+    html += '<div style="color:#00d4ff;font-size:16px;font-weight:bold;">' + learningPath.nextGoal + '</div>';
+    html += '</div>';
+    
+    html += '</div></div>';
+    
+    // 目标完成进度
+    let todayQuestions = getTodayQuestionCount();
+    let weeklyBattles = getWeeklyBattleCount();
+    let dailyProgress = Math.min(100, Math.round((todayQuestions / learningGoals.dailyQuestions) * 100));
+    let weeklyProgress = Math.min(100, Math.round((weeklyBattles / learningGoals.weeklyBattles) * 100));
+    
+    html += '<div style="margin:15px 0;"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">';
+    html += '<span style="color:#ffd93d;font-size:16px;">🎯 学习目标进度</span>';
+    html += '<button onclick="showGoalSettings()" style="padding:5px 12px;border-radius:15px;border:1px solid #00d4ff;background:transparent;color:#00d4ff;font-size:12px;cursor:pointer;">⚙️ 设置</button>';
+    html += '</div>';
+    html += '<div style="background:rgba(255,255,255,0.05);border-radius:10px;padding:15px;">';
+    
+    // 每日答题目标
+    html += '<div style="margin-bottom:15px;">';
+    html += '<div style="display:flex;justify-content:space-between;margin-bottom:5px;">';
+    html += '<span style="color:#aaa;font-size:13px;">📚 每日答题</span>';
+    html += '<span style="color:' + (dailyProgress >= 100 ? '#27ae60' : '#00d4ff') + ';font-size:13px;">' + todayQuestions + '/' + learningGoals.dailyQuestions + '</span>';
+    html += '</div>';
+    html += '<div style="height:8px;background:rgba(255,255,255,0.1);border-radius:4px;overflow:hidden;">';
+    html += '<div style="height:100%;width:' + dailyProgress + '%;background:' + (dailyProgress >= 100 ? 'linear-gradient(90deg, #27ae60, #2ecc71)' : 'linear-gradient(90deg, #00d4ff, #00ff88)') + ';border-radius:4px;transition:width 0.3s;"></div>';
+    html += '</div>';
+    html += '</div>';
+    
+    // 每周战斗目标
+    html += '<div style="margin-bottom:15px;">';
+    html += '<div style="display:flex;justify-content:space-between;margin-bottom:5px;">';
+    html += '<span style="color:#aaa;font-size:13px;">⚔️ 每周战斗</span>';
+    html += '<span style="color:' + (weeklyProgress >= 100 ? '#27ae60' : '#00d4ff') + ';font-size:13px;">' + weeklyBattles + '/' + learningGoals.weeklyBattles + '</span>';
+    html += '</div>';
+    html += '<div style="height:8px;background:rgba(255,255,255,0.1);border-radius:4px;overflow:hidden;">';
+    html += '<div style="height:100%;width:' + weeklyProgress + '%;background:' + (weeklyProgress >= 100 ? 'linear-gradient(90deg, #27ae60, #2ecc71)' : 'linear-gradient(90deg, #00d4ff, #00ff88)') + ';border-radius:4px;transition:width 0.3s;"></div>';
+    html += '</div>';
+    html += '</div>';
+    
+    // 目标等级
+    html += '<div style="display:flex;justify-content:space-between;align-items:center;">';
+    html += '<span style="color:#aaa;font-size:13px;">🏆 目标等级</span>';
+    html += '<span style="color:' + (currentLevel >= learningGoals.targetLevel ? '#27ae60' : '#ffd93d') + ';font-size:13px;">';
+    html += 'Level ' + learningGoals.targetLevel;
+    if(currentLevel >= learningGoals.targetLevel){
+        html += ' ✓ 已达成';
+    } else {
+        html += ' (当前 Level ' + currentLevel + ')';
+    }
+    html += '</span></div>';
+    
     html += '</div></div>';
     
     // 学习建议
@@ -1404,6 +2581,12 @@ function recordQuestionStats(type, isCorrect){
         if(isCorrect) studyStats.speakCorrectCount++;
     }
     
+    // 记录各题型详细统计（用于薄弱点分析）
+    if(studyStats.questionTypeStats && studyStats.questionTypeStats[type]){
+        studyStats.questionTypeStats[type].total++;
+        if(isCorrect) studyStats.questionTypeStats[type].correct++;
+    }
+    
     // 更新每日统计
     let today = new Date().toISOString().split('T')[0];
     if(!studyStats.dailyStats[today]){
@@ -1413,6 +2596,407 @@ function recordQuestionStats(type, isCorrect){
     if(isCorrect) studyStats.dailyStats[today].correct++;
     
     saveProgress();
+}
+
+// 题型名称映射
+const QUESTION_TYPE_NAMES = {
+    hearing: '🎧 听力题',
+    choice: '📝 选择题',
+    speak: '🎤 口语题',
+    speakImage: '🖼️ 看图说话',
+    dialogue: '💬 对话题',
+    dialogueScene: '🎭 情景对话',
+    dictation: '✍️ 听写填空'
+};
+
+// 计算薄弱点
+function calculateWeakness(){
+    let weaknesses = [];
+    
+    // 确保questionTypeStats存在
+    if(!studyStats.questionTypeStats){
+        return weaknesses;
+    }
+    
+    for(let type in studyStats.questionTypeStats){
+        let stat = studyStats.questionTypeStats[type];
+        // 至少做5题才统计
+        if(stat.total >= 5){
+            let rate = stat.correct / stat.total;
+            // 正确率低于60%为薄弱
+            if(rate < 0.6){
+                weaknesses.push({
+                    type: type,
+                    name: QUESTION_TYPE_NAMES[type] || type,
+                    rate: rate,
+                    correct: stat.correct,
+                    total: stat.total
+                });
+            }
+        }
+    }
+    
+    // 按正确率升序排序（最薄弱的排前面）
+    return weaknesses.sort(function(a, b){ return a.rate - b.rate; });
+}
+
+// 获取所有题型正确率（用于显示）
+function getAllTypeRates(){
+    let rates = [];
+    
+    // 确保questionTypeStats存在
+    if(!studyStats.questionTypeStats){
+        return rates;
+    }
+    
+    for(let type in studyStats.questionTypeStats){
+        let stat = studyStats.questionTypeStats[type];
+        if(stat.total > 0){
+            rates.push({
+                type: type,
+                name: QUESTION_TYPE_NAMES[type] || type,
+                rate: Math.round((stat.correct / stat.total) * 100),
+                correct: stat.correct,
+                total: stat.total,
+                isWeak: stat.total >= 5 && (stat.correct / stat.total) < 0.6
+            });
+        }
+    }
+    
+    return rates;
+}
+
+// 生成学习路径推荐
+function generateLearningPath(){
+    let path = {
+        currentLevel: currentLevel,
+        currentUnit: (unlockedUnits[currentLevel] ? unlockedUnits[currentLevel].length : 0) + 1,
+        weakAreas: [],           // 薄弱领域
+        recommendations: [],     // 推荐行动
+        nextGoal: ''             // 下一步目标
+    };
+    
+    // 分析薄弱领域
+    if(studyStats.listeningTotal > 0 && (studyStats.listeningCorrect / studyStats.listeningTotal) < 0.7) {
+        path.weakAreas.push('听力理解');
+        path.recommendations.push('多练习听力挑战题型');
+    }
+    if(studyStats.pronunciationCount > 0 && (studyStats.totalPronunciationScore / studyStats.pronunciationCount) < 70) {
+        path.weakAreas.push('口语发音');
+        path.recommendations.push('多进行口语跟读练习');
+    }
+    if(studyStats.dialogueTotal > 0 && (studyStats.dialogueCorrect / studyStats.dialogueTotal) < 0.7) {
+        path.weakAreas.push('情景对话');
+        path.recommendations.push('多练习情景对话题型');
+    }
+    if(studyStats.dictationTotal > 0 && (studyStats.dictationCorrect / studyStats.dictationTotal) < 0.7) {
+        path.weakAreas.push('听写填空');
+        path.recommendations.push('多练习听写填空题型');
+    }
+    
+    // 设定下一步目标
+    if(path.weakAreas.length > 0) {
+        path.nextGoal = '重点攻克：' + path.weakAreas[0];
+    } else if(unlockedUnits[currentLevel] && unlockedUnits[currentLevel].length < 12) {
+        path.nextGoal = '解锁 Level ' + currentLevel + ' 单元 ' + (unlockedUnits[currentLevel].length + 1);
+    } else if(currentLevel < 3) {
+        path.nextGoal = '挑战 Level ' + (currentLevel + 1);
+    } else {
+        path.nextGoal = '继续保持，巩固所学';
+    }
+    
+    return path;
+}
+
+// 获取本周战斗次数
+function getWeeklyBattleCount(){
+    let count = 0;
+    let today = new Date();
+    let weekStart = new Date(today);
+    weekStart.setDate(today.getDate() - today.getDay()); // 本周开始（周日）
+    weekStart.setHours(0, 0, 0, 0);
+    
+    for(let dateStr in studyStats.dailyStats){
+        let date = new Date(dateStr);
+        if(date >= weekStart){
+            count += studyStats.dailyStats[dateStr].battles || 0;
+        }
+    }
+    return count;
+}
+
+// 获取今日答题数
+function getTodayQuestionCount(){
+    let today = new Date().toISOString().split('T')[0];
+    if(studyStats.dailyStats[today]){
+        return studyStats.dailyStats[today].questions || 0;
+    }
+    return 0;
+}
+
+// 显示学习目标设置弹窗
+function showGoalSettings(){
+    let html = '<div class="login-reward-modal" id="goalModal" onclick="closeGoalModal(event)">'+
+        '<div class="login-reward-content" onclick="event.stopPropagation()">'+
+        '<div style="font-size:40px;margin-bottom:10px;">🎯</div>'+
+        '<div style="color:#ffd93d;font-size:22px;font-weight:bold;margin-bottom:20px;">学习目标设置</div>'+
+        '<div style="text-align:left;margin:15px 0;">'+
+        '<div style="margin:15px 0;">'+
+        '<label style="color:#aaa;font-size:14px;display:block;margin-bottom:8px;">📚 每日答题目标</label>'+
+        '<input type="number" id="goalDailyQuestions" value="'+learningGoals.dailyQuestions+'" min="5" max="100" style="width:100%;padding:10px;border-radius:10px;border:1px solid #00d4ff;background:rgba(0,0,0,0.3);color:white;font-size:16px;text-align:center;">'+
+        '</div>'+
+        '<div style="margin:15px 0;">'+
+        '<label style="color:#aaa;font-size:14px;display:block;margin-bottom:8px;">⚔️ 每周战斗目标</label>'+
+        '<input type="number" id="goalWeeklyBattles" value="'+learningGoals.weeklyBattles+'" min="1" max="50" style="width:100%;padding:10px;border-radius:10px;border:1px solid #00d4ff;background:rgba(0,0,0,0.3);color:white;font-size:16px;text-align:center;">'+
+        '</div>'+
+        '<div style="margin:15px 0;">'+
+        '<label style="color:#aaa;font-size:14px;display:block;margin-bottom:8px;">🏆 目标等级</label>'+
+        '<select id="goalTargetLevel" style="width:100%;padding:10px;border-radius:10px;border:1px solid #00d4ff;background:rgba(0,0,0,0.3);color:white;font-size:16px;">'+
+        '<option value="1" '+(learningGoals.targetLevel===1?'selected':'')+'>Level 1 - 基础</option>'+
+        '<option value="2" '+(learningGoals.targetLevel===2?'selected':'')+'>Level 2 - 进阶</option>'+
+        '<option value="3" '+(learningGoals.targetLevel===3?'selected':'')+'>Level 3 - 高级</option>'+
+        '</select>'+
+        '</div>'+
+        '</div>'+
+        '<button onclick="saveGoalSettings()" style="padding:12px 40px;border-radius:25px;border:none;background:linear-gradient(135deg, #00d4ff, #00ff88);color:#0a0a1a;font-size:16px;font-weight:bold;cursor:pointer;margin-top:10px;">💾 保存目标</button>'+
+        '</div></div>';
+    
+    document.body.insertAdjacentHTML('beforeend', html);
+}
+
+// 关闭目标设置弹窗
+function closeGoalModal(event){
+    if(event.target.id === 'goalModal'){
+        document.getElementById('goalModal').remove();
+    }
+}
+
+// 保存学习目标设置
+function saveGoalSettings(){
+    let dailyQuestions = parseInt(document.getElementById('goalDailyQuestions').value) || 20;
+    let weeklyBattles = parseInt(document.getElementById('goalWeeklyBattles').value) || 5;
+    let targetLevel = parseInt(document.getElementById('goalTargetLevel').value) || 3;
+    
+    // 限制范围
+    dailyQuestions = Math.max(5, Math.min(100, dailyQuestions));
+    weeklyBattles = Math.max(1, Math.min(50, weeklyBattles));
+    
+    learningGoals.dailyQuestions = dailyQuestions;
+    learningGoals.weeklyBattles = weeklyBattles;
+    learningGoals.targetLevel = targetLevel;
+    
+    saveProgress();
+    showToast('✅ 学习目标已保存');
+    document.getElementById('goalModal').remove();
+}
+function startWeaknessPractice(type){
+    if(audioContext && audioContext.state === 'suspended'){
+        audioContext.resume();
+    }
+    playSound('click');
+    
+    // 设置专项练习模式
+    isWeaknessPractice = true;
+    weaknessPracticeType = type;
+    isWrongBookReview = false;
+    
+    qIdx=0;correctCount=0;mHp=100;zHp=100;
+    battleScore=0;
+    battleQuestionPool=[];
+    usedQuestions=[];
+    currentMonsterIndex=0;
+    
+    // 选择本次闯关的怪兽
+    selectBattleMonsters();
+    
+    // 生成题目池（从当前级别所有已解锁单元获取）
+    Object.keys(LEVEL_DATA[currentLevel]).forEach(function(u){
+        if(unlockedUnits[currentLevel].includes(parseInt(u))){
+            LEVEL_DATA[currentLevel][u].words.forEach(function(w){
+                battleQuestionPool.push({type:'word', eng:w[0], chn:w[1]});
+            });
+            LEVEL_DATA[currentLevel][u].sentences.forEach(function(s){
+                battleQuestionPool.push({type:'sentence', eng:s[0], chn:s[1]});
+            });
+        }
+    });
+    
+    // 如果当前级别没有足够题目，从其他级别补充
+    if(battleQuestionPool.length < 20){
+        [1,2,3].forEach(function(lvl){
+            if(lvl !== currentLevel){
+                Object.keys(LEVEL_DATA[lvl]).forEach(function(u){
+                    LEVEL_DATA[lvl][u].words.forEach(function(w){
+                        battleQuestionPool.push({type:'word', eng:w[0], chn:w[1]});
+                    });
+                    LEVEL_DATA[lvl][u].sentences.forEach(function(s){
+                        battleQuestionPool.push({type:'sentence', eng:s[0], chn:s[1]});
+                    });
+                });
+            }
+        });
+    }
+    
+    battleQuestionPool=shuffle(battleQuestionPool);
+    
+    // 显示提示
+    showToast('🎯 开始' + (QUESTION_TYPE_NAMES[type] || type) + '专项练习！');
+    
+    startWeaknessRound(1);
+}
+
+// 专项练习回合
+function startWeaknessRound(round){
+    qIdx=0;correctCount=0;mHp=100;zHp=100;
+    currentMonster=battleMonsters[round-1];
+    
+    document.getElementById('stageNum').textContent=round;
+    document.getElementById('monsterEmoji').textContent=currentMonster.emoji;
+    document.getElementById('monsterName').textContent=currentMonster.name;
+    document.getElementById('monsterDesc').textContent='专项练习：' + (QUESTION_TYPE_NAMES[weaknessPracticeType] || weaknessPracticeType);
+    document.getElementById('monsterHpName').textContent=currentMonster.name;
+    
+    currentMonsterIndex=round;
+    updateHP();
+    showWeaknessRoundQuestion();
+    show('battleGame');
+}
+
+// 显示专项练习题目
+function showWeaknessRoundQuestion(){
+    if(battleQuestionPool.length === 0){
+        endAllBattles();
+        return;
+    }
+    
+    let type = weaknessPracticeType;
+    currentQuestionType = type;
+    
+    // 选一个题目
+    let item = battleQuestionPool.shift();
+    
+    // 检查题型是否适合当前题目类型
+    if(type === 'dialogue' && item.type !== 'sentence'){
+        // 找一个句子
+        let sentenceIndex = battleQuestionPool.findIndex(function(i){return i.type==='sentence';});
+        if(sentenceIndex >= 0){
+            item = battleQuestionPool.splice(sentenceIndex, 1)[0];
+        }else{
+            type = 'hearing';
+        }
+    }
+    
+    if(type === 'speakImage' && item.type !== 'word'){
+        let wordIndex = battleQuestionPool.findIndex(function(i){return i.type==='word';});
+        if(wordIndex >= 0){
+            item = battleQuestionPool.splice(wordIndex, 1)[0];
+        }else{
+            type = 'speak';
+        }
+    }
+    
+    if(type === 'dictation' && item.type !== 'sentence'){
+        let sentenceIndex = battleQuestionPool.findIndex(function(i){return i.type==='sentence';});
+        if(sentenceIndex >= 0){
+            item = battleQuestionPool.splice(sentenceIndex, 1)[0];
+        }else{
+            type = 'hearing';
+        }
+    }
+    
+    usedQuestions.push(item.eng+'_'+type);
+    
+    // 进度显示
+    document.getElementById('battleProgress').textContent='专项练习 · 第 '+(qIdx+1)+' 题';
+    
+    let area = document.getElementById('questionArea');
+    
+    if(type==='choice'){
+        showChoiceQuestion(area, item, battleQuestionPool.slice(0,10));
+    }else if(type==='hearing'){
+        showHearingQuestion(area, item, battleQuestionPool.slice(0,10));
+    }else if(type==='speak'){
+        showSpeakQuestion(area, item);
+    }else if(type==='speakImage'){
+        showSpeakImageQuestion(area, item);
+    }else if(type==='dialogue'){
+        showDialogueQuestion(area, item, battleQuestionPool.slice(0,10));
+    }else if(type==='dialogueScene'){
+        showDialogueSceneQuestion(area);
+    }else if(type==='dictation'){
+        showDictationQuestion(area, item);
+    }else{
+        // 默认显示听力题
+        showHearingQuestion(area, item, battleQuestionPool.slice(0,10));
+    }
+}
+
+// 更新排行榜数据
+function updateLeaderboard() {
+    // 更新玩家分数
+    leaderboard.energy.find(function(item){ return item.isPlayer; }).score = score;
+    leaderboard.stars.find(function(item){ return item.isPlayer; }).score = totalStars;
+    leaderboard.monsters.find(function(item){ return item.isPlayer; }).score = unlockedMonsterIds.length;
+    
+    // 排序（从高到低）
+    leaderboard.energy.sort(function(a, b){ return b.score - a.score; });
+    leaderboard.stars.sort(function(a, b){ return b.score - a.score; });
+    leaderboard.monsters.sort(function(a, b){ return b.score - a.score; });
+}
+
+// 显示排行榜界面
+function showLeaderboard() {
+    updateLeaderboard();
+    
+    let html = '<div style="text-align:center;margin-bottom:15px;">'+
+        '<div style="font-size:24px;color:#ffd93d;">🏆 排行榜</div>'+
+        '<div style="color:#aaa;font-size:14px;margin-top:5px;">与其他玩家一较高下</div>'+
+    '</div>';
+    
+    // 能量排行
+    html += '<div style="margin:15px 0;"><div style="color:#00d4ff;font-size:16px;margin-bottom:10px;">⚡ 能量排行</div>';
+    html += '<div style="background:rgba(0,212,255,0.1);border-radius:10px;padding:10px;">';
+    leaderboard.energy.slice(0, 5).forEach(function(item, index){
+        let medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : (index + 1);
+        let highlight = item.isPlayer ? 'background:rgba(0,212,255,0.2);border:1px solid #00d4ff;' : '';
+        html += '<div style="display:flex;justify-content:space-between;padding:8px;margin:5px 0;border-radius:8px;'+highlight+'">'+
+            '<span>'+medal+' '+item.name+'</span>'+
+            '<span style="color:#ffd93d;">'+item.score+'</span>'+
+        '</div>';
+    });
+    html += '</div></div>';
+    
+    // 星星排行
+    html += '<div style="margin:15px 0;"><div style="color:#ffd93d;font-size:16px;margin-bottom:10px;">⭐ 星星排行</div>';
+    html += '<div style="background:rgba(255,217,61,0.1);border-radius:10px;padding:10px;">';
+    leaderboard.stars.slice(0, 5).forEach(function(item, index){
+        let medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : (index + 1);
+        let highlight = item.isPlayer ? 'background:rgba(255,217,61,0.2);border:1px solid #ffd93d;' : '';
+        html += '<div style="display:flex;justify-content:space-between;padding:8px;margin:5px 0;border-radius:8px;'+highlight+'">'+
+            '<span>'+medal+' '+item.name+'</span>'+
+            '<span style="color:#ffd93d;">'+item.score+'</span>'+
+        '</div>';
+    });
+    html += '</div></div>';
+    
+    // 怪兽收集排行
+    html += '<div style="margin:15px 0;"><div style="color:#ff6b6b;font-size:16px;margin-bottom:10px;">👾 怪兽收集排行</div>';
+    html += '<div style="background:rgba(255,107,107,0.1);border-radius:10px;padding:10px;">';
+    leaderboard.monsters.slice(0, 5).forEach(function(item, index){
+        let medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : (index + 1);
+        let highlight = item.isPlayer ? 'background:rgba(255,107,107,0.2);border:1px solid #ff6b6b;' : '';
+        html += '<div style="display:flex;justify-content:space-between;padding:8px;margin:5px 0;border-radius:8px;'+highlight+'">'+
+            '<span>'+medal+' '+item.name+'</span>'+
+            '<span style="color:#ffd93d;">'+item.score+'</span>'+
+        '</div>';
+    });
+    html += '</div></div>';
+    
+    html += '<div style="text-align:center;margin-top:15px;color:#aaa;font-size:12px;">💡 继续努力，冲击榜首！</div>';
+    html += '<button class="game-btn" style="background:#555;margin-top:15px;" onclick="backToMenu()">🏠 返回</button>';
+    
+    document.getElementById('menu').innerHTML = html;
+    document.getElementById('menu').classList.remove('hidden');
 }
 
 // 怪兽图鉴
@@ -1442,13 +3026,30 @@ function showMonsterCollection(){
 }
 
 function show(id){
-    document.querySelectorAll('.card').forEach(function(c){c.classList.add('hidden');});
-    document.getElementById(id).classList.remove('hidden');
+    // 先淡出所有卡片
+    document.querySelectorAll('.card').forEach(function(c){
+        if(!c.classList.contains('hidden')){
+            c.classList.add('fade-out');
+        }
+    });
+    
+    // 延迟后显示目标卡片
+    setTimeout(function(){
+        document.querySelectorAll('.card').forEach(function(c){
+            c.classList.add('hidden');
+            c.classList.remove('fade-out');
+        });
+        let target = document.getElementById(id);
+        target.classList.remove('hidden');
+        target.classList.add('fade-in');
+    }, 200);
 }
 
 function backToMenu(){
     if(window.speechSynthesis) window.speechSynthesis.cancel();
     isWrongBookReview = false;
+    isWeaknessPractice = false;
+    weaknessPracticeType = '';
     playSound('click');
     
     // 恢复原始菜单内容
@@ -1481,12 +3082,16 @@ function restoreMenuContent(){
         <div class="progress">选择单元（可多选）</div>
         <div class="stage-grid" id="homeUnitSelector" style="grid-template-columns: repeat(6, 1fr);"></div>
         
+        <!-- 每日任务卡片 -->
+        <div id="dailyTaskCard" class="daily-task-card"></div>
+        
         <div id="studyAdvice" style="background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.3);border-radius:10px;padding:15px;margin:10px 0;">
             <div style="color:#ffd93d;font-size:16px;font-weight:bold;margin-bottom:8px;">💡 学习建议</div>
             <div id="adviceContent" style="color:#aaa;font-size:14px;line-height:1.6;">正在分析你的学习情况...</div>
         </div>
         
         <button class="game-btn btn-battle" onclick="confirmUnitsAndBattle()">⚔️ 开始战斗</button>
+        <button class="game-btn" style="background:linear-gradient(135deg, #f39c12, #e67e22);" onclick="showLeaderboard()">🏆 排行榜</button>
         <button class="game-btn" style="background:linear-gradient(135deg, #9b59b6, #8e44ad);" onclick="showMonsterCollection()">👾 怪兽图鉴</button>
         <button class="game-btn" style="background:linear-gradient(135deg, #f39c12, #e67e22);" onclick="showAchievements()">🏆 成就</button>
         <button class="game-btn" style="background:linear-gradient(135deg, #00b894, #00cec9);" onclick="showStudyReport()">📊 学习报告</button>
@@ -1498,6 +3103,9 @@ function restoreMenuContent(){
             <button class="speed-btn" id="speedFastBtn" onclick="setSpeechRate('fast')" style="padding:5px 10px;border-radius:5px;border:1px solid #555;background:rgba(255,255,255,0.05);color:#aaa;cursor:pointer;margin:0 3px;">🏃 快速</button>
         </div>
     `;
+    
+    // 更新每日任务UI
+    updateDailyTaskUI();
 }
 
 // ========== 自由练习模式 ==========
@@ -1516,6 +3124,8 @@ function startBattle(){
     playSound('click');
     
     isWrongBookReview = false;
+    isWeaknessPractice = false;
+    weaknessPracticeType = '';
     qIdx=0;correctCount=0;mHp=100;zHp=100;
     battleScore=0;
     battleQuestionPool=[];
@@ -1771,6 +3381,21 @@ function nextRound(){
         area.innerHTML='<div style="text-align:center;padding:30px;"><div style="font-size:50px;">✅</div><div style="color:#00ff88;font-size:20px;margin:10px 0;">答对了！</div><div style="color:#aaa;">继续下一题...</div></div>';
         setTimeout(function(){
             showRoundQuestion();
+        },1000);
+        return;
+    }
+    
+    // 薄弱点专项练习模式
+    if(isWeaknessPractice){
+        if(battleQuestionPool.length === 0){
+            endAllBattles();
+            return;
+        }
+        // 继续下一题
+        let area=document.getElementById('questionArea');
+        area.innerHTML='<div style="text-align:center;padding:30px;"><div style="font-size:50px;">✅</div><div style="color:#00ff88;font-size:20px;margin:10px 0;">答对了！</div><div style="color:#aaa;">继续专项练习...</div></div>';
+        setTimeout(function(){
+            showWeaknessRoundQuestion();
         },1000);
         return;
     }
@@ -2444,6 +4069,9 @@ function checkAnswer(correct, btn){
     // 记录答题统计
     recordQuestionStats(currentQuestionType, correct);
     
+    // 增加每日答题计数
+    incrementAnswerCount();
+    
     if(correct){
         correctCount++;
         battleScore+=ENERGY_PER_CORRECT;
@@ -2460,6 +4088,12 @@ function checkAnswer(correct, btn){
                 wrongItem.count = Math.max(0, wrongItem.count - 1);
                 if(wrongItem.count <= 0){
                     removeFromWrongBook(currentText);
+                }else{
+                    // 更新复习时间戳
+                    let now = new Date().toISOString();
+                    wrongItem.lastReview = now;
+                    wrongItem.nextReview = calculateNextReview(now, wrongItem.count);
+                    saveProgress();
                 }
             }
         }
@@ -2918,6 +4552,9 @@ function preInitSpeechRecognition(){
                         studyStats.pronunciationCount++;
                         
                         if(isCorrect){
+                            // 增加每日口语计数
+                            incrementSpeakCount();
+                            
                             if(isBattleMode || isSpeakImageMode){
                                 // 战斗模式或看图说话模式
                                 correctCount++;
@@ -3136,33 +4773,153 @@ function speakCurrentWord(){
 
 function toggleRecord(){
     if(isRecording){
-        // 停止录音
         isRecording=false;
         isStoppingRecording=true;
         document.getElementById('recBtn').classList.remove('recording');
         document.getElementById('recText').textContent='点击录音';
-        try{recognition.abort();}catch(e){}
+        
+        if(useWhisper && window.stopWhisperRecording){
+            window.stopWhisperRecording();
+        } else {
+            try{recognition.abort();}catch(e){}
+        }
+        
         setTimeout(function(){isStoppingRecording=false;},200);
     }else{
-        // 开始录音
         startRecording();
     }
 }
 
 function startRecording(){
     console.log('startRecording 被调用');
+    console.log('使用 Whisper:', useWhisper);
+    console.log('Whisper 已加载:', whisperLoaded);
+    
+    document.getElementById('nextSpeakBtn').style.display='none';
+    
+    if(useWhisper){
+        startWhisperRecordingSession();
+    }else{
+        startWebSpeechRecording();
+    }
+}
+
+async function startWhisperRecordingSession(){
+    console.log('使用 Whisper.js 进行语音识别');
+    
+    let resultElement = document.getElementById('speakResult');
+    let recBtn = document.getElementById('recBtn');
+    let recText = document.getElementById('recText');
+    
+    if (window.location.protocol === 'file:') {
+        resultElement.innerHTML = '<div style="color:#ffd93d;">⚠️ 本地文件模式不支持离线语音</div><div style="color:#aaa;font-size:12px;margin-top:5px;">正在切换到在线识别...</div>';
+        setTimeout(function() {
+            startWebSpeechRecording();
+        }, 500);
+        return;
+    }
+    
+    if (!window.startWhisperRecording) {
+        resultElement.innerHTML = '<div style="color:#ffd93d;">⚠️ 语音引擎未初始化</div><div style="color:#aaa;font-size:12px;margin-top:5px;">正在切换到在线识别...</div>';
+        setTimeout(function() {
+            startWebSpeechRecording();
+        }, 500);
+        return;
+    }
+    
+    if(!whisperLoaded && !whisperLoading){
+        resultElement.innerHTML = '<div style="color:#00d4ff;">🎤 正在加载语音模型...</div><div style="color:#aaa;font-size:12px;margin-top:5px;">首次使用需要下载模型（约40MB）</div><div style="margin-top:10px;"><div style="height:6px;background:rgba(255,255,255,0.1);border-radius:3px;overflow:hidden;"><div id="whisperLoadProgress" style="width:0%;height:100%;background:linear-gradient(90deg,#00d4ff,#00ff88);transition:width 0.3s;"></div></div></div>';
+    }
+    
+    isRecording = true;
+    recBtn.classList.add('recording');
+    recText.textContent = '点击停止';
+    
+    try {
+        const result = await window.startWhisperRecording(null, function(status, message, progress) {
+            console.log('Whisper 状态:', status, message, progress);
+            
+            if (status === 'loading') {
+                let progressBar = document.getElementById('whisperLoadProgress');
+                if (progressBar) progressBar.style.width = progress + '%';
+                resultElement.innerHTML = '<div style="color:#00d4ff;">🎤 ' + escapeHtml(message) + '</div><div style="margin-top:10px;"><div style="height:6px;background:rgba(255,255,255,0.1);border-radius:3px;overflow:hidden;"><div style="width:' + progress + '%;height:100%;background:linear-gradient(90deg,#00d4ff,#00ff88);"></div></div></div>';
+            } else if (status === 'recording') {
+                resultElement.innerHTML = '<div style="color:#ffd93d;">🎤 正在录音...</div><div style="color:#aaa;font-size:12px;margin-top:5px;">请说英文单词（最长10秒）</div>';
+            } else if (status === 'processing') {
+                resultElement.innerHTML = '<div style="color:#00d4ff;">🔄 ' + escapeHtml(message) + '</div>';
+            }
+        });
+        
+        isRecording = false;
+        recBtn.classList.remove('recording');
+        recText.textContent = '点击录音';
+        
+        if (result.success) {
+            let spoken = result.text;
+            let correct = currentText.toLowerCase().trim();
+            
+            console.log('Whisper 识别结果:', spoken, '正确答案:', correct);
+            
+            let isCorrect = checkSpeechAnswer(spoken, correct);
+            let pronScore = calculatePronunciationScore(spoken, correct);
+            
+            studyStats.totalPronunciationScore += pronScore.score;
+            studyStats.pronunciationCount++;
+            
+            if (isCorrect) {
+                incrementSpeakCount();
+                speakCorrect++;
+                playSound('correct');
+                showPronunciationResult(resultElement, pronScore.score, pronScore.feedback, true, spoken, correct);
+                document.getElementById('nextSpeakBtn').style.display = 'block';
+            } else {
+                playSound('wrong');
+                showPronunciationResult(resultElement, pronScore.score, pronScore.feedback, false, spoken, correct);
+                
+                if (currentText) {
+                    let meaning = getWordMeaning(currentText);
+                    if (meaning) {
+                        addToWrongBook(currentText, meaning);
+                    }
+                }
+                document.getElementById('nextSpeakBtn').style.display = 'block';
+            }
+        } else {
+            console.log('Whisper 识别失败，尝试使用 Web Speech API');
+            resultElement.innerHTML = '<div style="color:#ffd93d;">⚠️ 离线识别失败，尝试在线识别...</div>';
+            
+            setTimeout(function() {
+                startWebSpeechRecording();
+            }, 500);
+        }
+        
+    } catch (e) {
+        console.error('Whisper 录音失败:', e);
+        isRecording = false;
+        recBtn.classList.remove('recording');
+        recText.textContent = '点击录音';
+        
+        resultElement.innerHTML = '<div style="color:#ffd93d;">⚠️ 离线识别失败，尝试在线识别...</div>';
+        setTimeout(function() {
+            startWebSpeechRecording();
+        }, 500);
+    }
+}
+
+function startWebSpeechRecording(){
+    console.log('使用 Web Speech API 进行语音识别');
     console.log('当前协议:', window.location.protocol);
     console.log('当前主机名:', window.location.hostname);
     
     if(window.location.protocol !== 'https:' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1'){
-        document.getElementById('speakResult').innerHTML='<div style="color:#ff6b6b;">⚠️ 语音识别需要HTTPS环境</div><div style="color:#aaa;font-size:12px;margin-top:5px;">请使用HTTPS连接访问</div>';
+        document.getElementById('speakResult').innerHTML='<div style="color:#ff6b6b;">⚠️ 语音识别需要HTTPS环境</div><div style="color:#aaa;font-size:12px;margin-top:5px;">请使用HTTPS连接访问，或切换到离线模式</div>';
         return;
     }
     
     if(window.location.protocol === 'file:'){
         let isChrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
         if(isChrome){
-            document.getElementById('speakResult').innerHTML='<div style="color:#ff6b6b;">⚠️ Chrome本地文件不支持语音识别</div><div style="color:#aaa;font-size:12px;margin-top:5px;">请使用Edge浏览器，或将文件部署到服务器</div>';
+            document.getElementById('speakResult').innerHTML='<div style="color:#ff6b6b;">⚠️ Chrome本地文件不支持在线语音识别</div><div style="color:#aaa;font-size:12px;margin-top:5px;">请使用Edge浏览器，或将文件部署到服务器</div>';
             return;
         }
     }
@@ -3180,26 +4937,20 @@ function startRecording(){
     
     console.log('recognition 已准备好，准备启动录音');
     
-    document.getElementById('nextSpeakBtn').style.display='none';
-    
-    // 清除之前的超时
     if(recordingTimeout){
         clearTimeout(recordingTimeout);
         recordingTimeout = null;
     }
     
-    // 先停止之前的识别
     isStoppingRecording = true;
     try{
         recognition.abort();
     }catch(stopErr){}
     
-    // 更新UI
     document.getElementById('recBtn').classList.add('recording');
     document.getElementById('recText').textContent='点击停止';
     document.getElementById('speakResult').innerHTML='<div style="color:#ffd93d;">🎤 正在录音...</div><div style="color:#aaa;font-size:12px;margin-top:5px;">请说英文单词</div>';
     
-    // 设置超时检测，防止录音状态卡死
     recordingTimeout = setTimeout(function(){
         if(isRecording){
             console.warn('录音超时，自动停止');
@@ -3213,7 +4964,6 @@ function startRecording(){
         }
     }, 15000);
     
-    // 延迟后启动新识别
     setTimeout(function(){
         isStoppingRecording = true;
         
@@ -3282,10 +5032,19 @@ function speakWord(w, btnId){
     }
     
     let btn=btnId?document.getElementById(btnId):null;
+    
+    // 首次播放时显示加载状态
     if(btn){
         btn.classList.add('playing');
         let spanEl = btn.querySelector('span:last-child');
-        if(spanEl) spanEl.textContent='播放中...';
+        if(spanEl){
+            // 如果语音引擎正在加载，显示加载中
+            if(voiceEngineLoading || !voiceEngineReady){
+                spanEl.textContent='加载中...';
+            } else {
+                spanEl.textContent='播放中...';
+            }
+        }
     }
     
     if(!('speechSynthesis' in window)){
@@ -3336,13 +5095,25 @@ function speakWord(w, btnId){
         try{
             window.speechSynthesis.cancel();
             
-            let voices = window.speechSynthesis.getVoices();
+            // 优先使用预加载的语音列表
+            let voices = voicesLoaded.length > 0 ? voicesLoaded : window.speechSynthesis.getVoices();
             
             if(voices.length === 0 && retryCount < 5){
                 console.log('等待语音列表加载... 尝试 ' + (retryCount + 1));
                 window.speechSynthesis.getVoices();
+                // 更新按钮状态为加载中
+                if(btn){
+                    let spanEl = btn.querySelector('span:last-child');
+                    if(spanEl) spanEl.textContent='加载中...';
+                }
                 setTimeout(function(){ doSpeak(retryCount + 1); }, 200);
                 return;
+            }
+            
+            // 语音已准备好，更新按钮状态
+            if(btn){
+                let spanEl = btn.querySelector('span:last-child');
+                if(spanEl) spanEl.textContent='播放中...';
             }
             
             let u = new SpeechSynthesisUtterance(w);
