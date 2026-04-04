@@ -3124,7 +3124,7 @@ function showRoundQuestion(){
     if(battleQuestionPool.length===0){
         // 错题本复习模式：结束战斗
         if(isWrongBookReview){
-            endBattle();
+            endAllBattles();
             return;
         }
         // 正常模式：重新生成题目
@@ -3262,7 +3262,10 @@ function nextRound(){
             endAllBattles();
             return;
         }
-        // 继续下一题
+        // 重置怪兽血量，继续下一题
+        mHp = 100;
+        zHp = 100;
+        updateHP();
         let area=document.getElementById('questionArea');
         area.innerHTML='<div style="text-align:center;padding:30px;"><div style="font-size:50px;">✅</div><div style="color:#00ff88;font-size:20px;margin:10px 0;">答对了！</div><div style="color:#aaa;">继续下一题...</div></div>';
         setTimeout(function(){
@@ -3277,7 +3280,10 @@ function nextRound(){
             endAllBattles();
             return;
         }
-        // 继续下一题
+        // 重置怪兽血量，继续下一题
+        mHp = 100;
+        zHp = 100;
+        updateHP();
         let area=document.getElementById('questionArea');
         area.innerHTML='<div style="text-align:center;padding:30px;"><div style="font-size:50px;">✅</div><div style="color:#00ff88;font-size:20px;margin:10px 0;">答对了！</div><div style="color:#aaa;">继续专项练习...</div></div>';
         setTimeout(function(){
@@ -4502,7 +4508,29 @@ function preInitSpeechRecognition(){
                                 playSound('correct');
                                 showPronunciationResult(resultElement, pronScore.score, pronScore.feedback, true, spoken, correct);
                                 updateHP();
-                                setTimeout(function(){showRoundQuestion();},2000);
+                                
+                                if(isWrongBookReview && currentText){
+                                    let wrongItem = wrongBook.find(function(item){ return item.word === currentText; });
+                                    if(wrongItem){
+                                        wrongItem.count = Math.max(0, wrongItem.count - 1);
+                                        if(wrongItem.count <= 0){
+                                            removeFromWrongBook(currentText);
+                                        }else{
+                                            let now = new Date().toISOString();
+                                            wrongItem.lastReview = now;
+                                            wrongItem.nextReview = calculateNextReview(now, wrongItem.count);
+                                            saveProgress();
+                                        }
+                                    }
+                                }
+                                
+                                if(mHp <= 0){
+                                    mHp = 0;
+                                    updateHP();
+                                    setTimeout(function(){nextRound();},2000);
+                                }else{
+                                    setTimeout(function(){showRoundQuestion();},2000);
+                                }
                             }else{
                                 speakCorrect++;
                                 playSound('correct');
@@ -4516,11 +4544,18 @@ function preInitSpeechRecognition(){
                                 playSound('wrong');
                                 showPronunciationResult(resultElement, pronScore.score, pronScore.feedback, false, spoken, correct);
                                 updateHP();
-                                if(currentText){
+                                if(currentText && !isWrongBookReview){
                                     let meaning = getWordMeaning(currentText);
                                     if(meaning) addToWrongBook(currentText, meaning);
                                 }
-                                setTimeout(function(){showRoundQuestion();},2000);
+                                
+                                if(zHp <= 0){
+                                    zHp = 0;
+                                    updateHP();
+                                    setTimeout(function(){endBattle();},2000);
+                                }else{
+                                    setTimeout(function(){showRoundQuestion();},2000);
+                                }
                             }else{
                                 playSound('wrong');
                                 showPronunciationResult(resultElement, pronScore.score, pronScore.feedback, false, spoken, correct);
