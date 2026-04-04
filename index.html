@@ -141,6 +141,29 @@
         .wrong-item-btn { padding: 5px 10px; border: none; border-radius: 5px; font-size: 12px; cursor: pointer; }
         .wrong-item-btn.listen { background: #00d4ff; color: #0a0a1a; }
         .wrong-item-btn.remove { background: #e74c3c; color: white; }
+        
+        /* 数据管理界面样式 */
+        .tab-container { display: flex; gap: 5px; margin: 15px 0; justify-content: center; flex-wrap: wrap; }
+        .tab-btn { padding: 8px 15px; border: 2px solid rgba(255,255,255,0.3); background: rgba(255,255,255,0.05); color: #aaa; border-radius: 10px; cursor: pointer; font-size: 13px; transition: all 0.3s; }
+        .tab-btn.active { border-color: #00d4ff; background: rgba(0,212,255,0.2); color: #00d4ff; }
+        .tab-btn:hover { background: rgba(255,255,255,0.1); }
+        .tab-content { margin-top: 15px; }
+        .section-title { color: #ffd93d; font-size: 14px; margin: 15px 0 10px 0; padding-bottom: 5px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .banks-list { margin-bottom: 15px; }
+        .bank-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; margin: 8px 0; background: rgba(255,255,255,0.05); border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); }
+        .bank-item.current { border-color: #00d4ff; background: rgba(0,212,255,0.1); }
+        .bank-info { flex: 1; }
+        .bank-name { font-size: 15px; color: #fff; font-weight: bold; margin-bottom: 3px; }
+        .bank-stats { font-size: 12px; color: #aaa; }
+        .bank-actions { display: flex; gap: 8px; align-items: center; }
+        .bank-btn { padding: 5px 12px; border: none; border-radius: 5px; font-size: 12px; cursor: pointer; background: #00d4ff; color: #0a0a1a; }
+        .bank-btn.delete { background: #e74c3c; color: white; }
+        .bank-current { font-size: 12px; color: #00d4ff; background: rgba(0,212,255,0.2); padding: 5px 10px; border-radius: 5px; }
+        .import-section, .backup-section { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin: 10px 0; }
+        .progress-info { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 10px 0; }
+        .progress-item { display: flex; justify-content: space-between; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 8px; font-size: 14px; }
+        .progress-item span:first-child { color: #aaa; }
+        .progress-item span:last-child { color: #00d4ff; font-weight: bold; }
         .empty-hint { text-align: center; color: #aaa; padding: 20px; }
         .sound-toggle { display: flex; align-items: center; gap: 10px; padding: 10px; background: rgba(0,0,0,0.3); border-radius: 10px; margin: 10px 0; }
         .sound-toggle label { color: #aaa; font-size: 14px; }
@@ -193,6 +216,14 @@
     <div class="container">
         <!-- 主菜单 -->
         <div id="menu" class="card">
+            <!-- 顶部角落按钮：左上角题库，右上角数据管理 -->
+            <div style="position:absolute;top:10px;left:10px;z-index:10;background:rgba(0,0,0,0.5);padding:5px 12px;border-radius:15px;">
+                <span style="color:#aaa;font-size:12px;">📚 <span id="currentBankName">默认题库</span></span>
+            </div>
+            <div style="position:absolute;top:10px;right:10px;z-index:10;">
+                <button onclick="showDataManagement()" title="数据管理" style="background:rgba(52,73,94,0.9);border:none;border-radius:15px;padding:5px 12px;cursor:pointer;font-size:12px;color:#aaa;">💾 管理</button>
+            </div>
+            
             <div class="zero-header">
                 <div class="zero-icon">🦸</div>
                 <div class="title">⚔️ 赛罗奥特曼英语大作战 ⚔️</div>
@@ -237,12 +268,6 @@
             <button class="game-btn" style="background:linear-gradient(135deg, #f39c12, #e67e22);" onclick="showAchievements()">🏆 成就</button>
             <button class="game-btn" style="background:linear-gradient(135deg, #00b894, #00cec9);" onclick="showStudyReport()">📊 学习报告</button>
             <button class="game-btn" style="background:linear-gradient(135deg, #e74c3c, #c0392b);" onclick="showWrongBook()">📖 错题本</button>
-            <div class="speed-control" style="text-align:center;margin:10px 0;">
-                <span style="color:#aaa;font-size:14px;">语速：</span>
-                <button class="speed-btn" id="speedSlowBtn" onclick="setSpeechRate('slow')" style="padding:5px 10px;border-radius:5px;border:1px solid #555;background:rgba(255,255,255,0.05);color:#aaa;cursor:pointer;margin:0 3px;">🐢 慢速</button>
-                <button class="speed-btn" id="speedNormalBtn" onclick="setSpeechRate('normal')" style="padding:5px 10px;border-radius:5px;border:2px solid #00d4ff;background:rgba(0,212,255,0.2);color:#00d4ff;cursor:pointer;margin:0 3px;">🚶 正常</button>
-                <button class="speed-btn" id="speedFastBtn" onclick="setSpeechRate('fast')" style="padding:5px 10px;border-radius:5px;border:1px solid #555;background:rgba(255,255,255,0.05);color:#aaa;cursor:pointer;margin:0 3px;">🏃 快速</button>
-            </div>
         </div>
         
         <!-- 错题本界面 -->
@@ -256,6 +281,70 @@
             <div class="wrong-book-panel" id="wrongBookList"></div>
             <button class="game-btn btn-battle" onclick="startWrongBookReview()" id="reviewBtn">🔄 开始复习错题</button>
             <button class="game-btn" style="background:#555" onclick="backToMenu()">🏠 返回</button>
+        </div>
+        
+        <!-- 数据管理界面 -->
+        <div id="dataManagement" class="card hidden">
+            <div class="title">💾 数据管理</div>
+            <div class="subtitle">管理题库和游戏进度</div>
+            
+            <!-- 标签页切换 -->
+            <div class="tab-container">
+                <button class="tab-btn active" id="tabQuestionBank" onclick="switchDataTab('questionBank')">📚 题库管理</button>
+                <button class="tab-btn" id="tabProgress" onclick="switchDataTab('progress')">📊 进度管理</button>
+                <button class="tab-btn" id="tabSettings" onclick="switchDataTab('settings')">⚙️ 设置</button>
+            </div>
+            
+            <!-- 题库管理标签页 -->
+            <div id="questionBankTab" class="tab-content">
+                <div class="section-title">当前题库</div>
+                <div id="questionBanksList" class="banks-list"></div>
+                
+                <div class="section-title">导入题库</div>
+                <div class="import-section">
+                    <p style="color:#aaa;font-size:13px;margin-bottom:10px;">支持导入JSON格式的自定义题库</p>
+                    <button class="game-btn" style="background:linear-gradient(135deg, #9b59b6, #8e44ad);" onclick="triggerQuestionBankImport()">📥 导入题库</button>
+                    <button class="game-btn" style="background:linear-gradient(135deg, #3498db, #2980b9);" onclick="exportQuestionBank()">📤 导出当前题库</button>
+                </div>
+                <input type="file" id="questionBankInput" accept=".json" style="display:none;" onchange="importQuestionBank(event)">
+            </div>
+            
+            <!-- 进度管理标签页 -->
+            <div id="progressTab" class="tab-content hidden">
+                <div class="section-title">游戏进度</div>
+                <div class="progress-info">
+                    <div class="progress-item"><span>⚡ 能量:</span><span id="dmScore">0</span></div>
+                    <div class="progress-item"><span>🏅 等级:</span><span id="dmLevel">Lv.1</span></div>
+                    <div class="progress-item"><span>⭐ 星星:</span><span id="dmStars">0</span></div>
+                    <div class="progress-item"><span>👾 打败怪兽:</span><span id="dmMonsters">0</span></div>
+                </div>
+                
+                <div class="section-title">数据备份</div>
+                <div class="backup-section">
+                    <button class="game-btn" style="background:linear-gradient(135deg, #3498db, #2980b9);" onclick="exportProgress()">📤 导出进度</button>
+                    <button class="game-btn" style="background:linear-gradient(135deg, #27ae60, #2ecc71);" onclick="triggerImport()">📥 导入进度</button>
+                    <button class="game-btn" style="background:linear-gradient(135deg, #e74c3c, #c0392b);" onclick="clearProgress()">🗑️ 清除进度</button>
+                </div>
+                <input type="file" id="importFileInput" accept=".json" style="display:none;" onchange="importProgress(event)">
+            </div>
+            
+            <!-- 设置标签页 -->
+            <div id="settingsTab" class="tab-content hidden">
+                <div class="section-title">语速设置</div>
+                <div class="speed-control" style="text-align:center;margin:10px 0;">
+                    <span style="color:#aaa;font-size:14px;">语速：</span>
+                    <button class="speed-btn" id="dmSpeedSlowBtn" onclick="setSpeechRate('slow')" style="padding:5px 10px;border-radius:5px;border:1px solid #555;background:rgba(255,255,255,0.05);color:#aaa;cursor:pointer;margin:0 3px;">🐢 慢速</button>
+                    <button class="speed-btn" id="dmSpeedNormalBtn" onclick="setSpeechRate('normal')" style="padding:5px 10px;border-radius:5px;border:2px solid #00d4ff;background:rgba(0,212,255,0.2);color:#00d4ff;cursor:pointer;margin:0 3px;">🚶 正常</button>
+                    <button class="speed-btn" id="dmSpeedFastBtn" onclick="setSpeechRate('fast')" style="padding:5px 10px;border-radius:5px;border:1px solid #555;background:rgba(255,255,255,0.05);color:#aaa;cursor:pointer;margin:0 3px;">🏃 快速</button>
+                </div>
+                
+                <div class="section-title">音效设置</div>
+                <div class="sound-control" style="text-align:center;margin:10px 0;">
+                    <button class="game-btn" id="soundToggleBtn" style="background:linear-gradient(135deg, #00d4ff, #00ff88);" onclick="toggleSound()">🔊 音效开启</button>
+                </div>
+            </div>
+            
+            <button class="game-btn" style="background:#555;margin-top:20px;" onclick="backToMenu()">🏠 返回</button>
         </div>
         
         <!-- 战斗界面 -->
@@ -458,46 +547,46 @@ const DIALOGUE_SCENES = [
 // 词汇库 - Kids Box Level 1, 2, 3 (每册12个单元)
 const LEVEL_DATA = {
     1: {
-        1:{words:[["hello","你好"],["goodbye","再见"],["I'm","我是"],["name","名字"],["what's","是什么"],["your","你的"],["my","我的"],["one","一"],["two","二"],["three","三"],["four","四"],["five","五"],["six","六"],["seven","七"],["eight","八"],["nine","九"],["ten","十"],["red","红色"],["yellow","黄色"],["pink","粉色"],["green","绿色"],["orange","橙色"],["purple","紫色"],["blue","蓝色"],["rainbow","彩虹"]],sentences:[["Hello!","你好！"],["What's your name?","你叫什么名字？"],["I'm seven.","我七岁。"]]},
-        2:{words:[["book","书"],["chair","椅子"],["eraser","橡皮"],["pen","钢笔"],["pencil","铅笔"],["table","桌子"],["school","学校"],["classroom","教室"],["teacher","老师"]],sentences:[["Is this a pencil?","这是铅笔吗？"],["Who's that?","那是谁？"]]},
-        3:{words:[["ball","球"],["bike","自行车"],["car","汽车"],["doll","娃娃"],["train","火车"],["computer","电脑"],["black","黑色"],["white","白色"]],sentences:[["What's your favourite toy?","你最喜欢的玩具是什么？"],["My favourite toy is a train.","我最喜欢的玩具是火车。"]]},
-        4:{words:[["brother","兄弟"],["sister","姐妹"],["father","爸爸"],["mother","妈妈"],["grandfather","爷爷"],["grandmother","奶奶"],["family","家庭"],["happy","开心的"]],sentences:[["This is my family.","这是我的家庭。"],["He's young.","他很年轻。"]]},
-        5:{words:[["bird","鸟"],["cat","猫"],["dog","狗"],["fish","鱼"],["horse","马"],["mouse","老鼠"],["big","大的"],["small","小的"]],sentences:[["I have a pet cat.","我有一只宠物猫。"],["It's small.","它很小。"]]},
-        6:{words:[["ear","耳朵"],["eye","眼睛"],["face","脸"],["hair","头发"],["mouth","嘴巴"],["nose","鼻子"],["tooth","牙齿"],["head","头"]],sentences:[["Touch your nose.","摸摸你的鼻子。"],["I've got purple hair.","我有紫色的头发。"]]},
-        7:{words:[["crocodile","鳄鱼"],["elephant","大象"],["giraffe","长颈鹿"],["hippo","河马"],["monkey","猴子"],["snake","蛇"],["tiger","老虎"],["lion","狮子"]],sentences:[["They've got big mouths.","它们有大嘴巴。"],["Have they got long legs?","它们有长腿吗？"]]},
-        8:{words:[["jacket","夹克"],["shoes","鞋子"],["skirt","裙子"],["socks","袜子"],["trousers","裤子"],["T-shirt","T恤"],["dress","连衣裙"],["hat","帽子"]],sentences:[["He's got red trousers.","他穿着红裤子。"],["She hasn't got a jacket.","她没有夹克。"]]},
-        9:{words:[["basketball","篮球"],["football","足球"],["tennis","网球"],["guitar","吉他"],["piano","钢琴"],["swim","游泳"],["sing","唱歌"],["dance","跳舞"]],sentences:[["I can sing.","我会唱歌。"],["Can you swim?","你会游泳吗？"]]},
-        10:{words:[["boat","船"],["bus","公共汽车"],["helicopter","直升机"],["lorry","卡车"],["motorbike","摩托车"],["plane","飞机"],["train","火车"],["bike","自行车"]],sentences:[["What's he doing?","他在做什么？"],["I'm flying.","我在飞。"]]},
-        11:{words:[["bathroom","浴室"],["bedroom","卧室"],["dining room","餐厅"],["kitchen","厨房"],["living room","客厅"],["sofa","沙发"],["bed","床"],["door","门"]],sentences:[["What's he doing?","他在做什么？"],["She's sitting on the sofa.","她坐在沙发上。"]]},
-        12:{words:[["apple","苹果"],["banana","香蕉"],["burger","汉堡"],["cake","蛋糕"],["chocolate","巧克力"],["ice cream","冰淇淋"],["orange","橙子"],["party","派对"]],sentences:[["I like cake.","我喜欢蛋糕。"],["I don't like chocolate.","我不喜欢巧克力。"]]}
+        1:{words:[["hello","你好"],["goodbye","再见"],["I'm","我是"],["name","名字"],["what's","是什么"],["your","你的"],["my","我的"],["one","一"],["two","二"],["three","三"],["four","四"],["five","五"],["six","六"],["seven","七"],["eight","八"],["nine","九"],["ten","十"],["red","红色"],["yellow","黄色"],["pink","粉色"],["green","绿色"],["orange","橙色"],["purple","紫色"],["blue","蓝色"],["rainbow","彩虹"]],sentences:[["Hello!","你好！"],["What's your name?","你叫什么名字？"],["I'm seven.","我七岁。"],["Goodbye!","再见！"],["How old are you?","你几岁？"]]},
+        2:{words:[["book","书"],["chair","椅子"],["eraser","橡皮"],["pen","钢笔"],["pencil","铅笔"],["table","桌子"],["school","学校"],["classroom","教室"],["teacher","老师"],["bag","书包"],["ruler","尺子"],["pencil case","笔盒"]],sentences:[["Is this a pencil?","这是铅笔吗？"],["Who's that?","那是谁？"],["Open your book.","打开你的书。"],["Sit down, please.","请坐下。"]]},
+        3:{words:[["ball","球"],["bike","自行车"],["car","汽车"],["doll","娃娃"],["train","火车"],["computer","电脑"],["black","黑色"],["white","白色"],["toy","玩具"],["game","游戏"],["puzzle","拼图"],["kite","风筝"]],sentences:[["What's your favourite toy?","你最喜欢的玩具是什么？"],["My favourite toy is a train.","我最喜欢的玩具是火车。"],["I've got a ball.","我有一个球。"],["This is my bike.","这是我的自行车。"]]},
+        4:{words:[["brother","兄弟"],["sister","姐妹"],["father","爸爸"],["mother","妈妈"],["grandfather","爷爷"],["grandmother","奶奶"],["family","家庭"],["happy","开心的"],["uncle","叔叔"],["aunt","阿姨"],["cousin","表兄弟"]],sentences:[["This is my family.","这是我的家庭。"],["He's young.","他很年轻。"],["She's my sister.","她是我的姐妹。"],["I love my family.","我爱我的家庭。"]]},
+        5:{words:[["bird","鸟"],["cat","猫"],["dog","狗"],["fish","鱼"],["horse","马"],["mouse","老鼠"],["big","大的"],["small","小的"],["pet","宠物"],["rabbit","兔子"],["hamster","仓鼠"]],sentences:[["I have a pet cat.","我有一只宠物猫。"],["It's small.","它很小。"],["Have you got a pet?","你有宠物吗？"],["My dog is big.","我的狗很大。"]]},
+        6:{words:[["ear","耳朵"],["eye","眼睛"],["face","脸"],["hair","头发"],["mouth","嘴巴"],["nose","鼻子"],["tooth","牙齿"],["head","头"],["arm","手臂"],["leg","腿"],["hand","手"],["foot","脚"]],sentences:[["Touch your nose.","摸摸你的鼻子。"],["I've got purple hair.","我有紫色的头发。"],["This is my face.","这是我的脸。"],["I've got two eyes.","我有两只眼睛。"]]},
+        7:{words:[["crocodile","鳄鱼"],["elephant","大象"],["giraffe","长颈鹿"],["hippo","河马"],["monkey","猴子"],["snake","蛇"],["tiger","老虎"],["lion","狮子"],["bear","熊"],["wolf","狼"],["fox","狐狸"]],sentences:[["They've got big mouths.","它们有大嘴巴。"],["Have they got long legs?","它们有长腿吗？"],["The elephant is big.","大象很大。"],["I like monkeys.","我喜欢猴子。"]]},
+        8:{words:[["jacket","夹克"],["shoes","鞋子"],["skirt","裙子"],["socks","袜子"],["trousers","裤子"],["T-shirt","T恤"],["dress","连衣裙"],["hat","帽子"],["coat","外套"],["boots","靴子"],["scarf","围巾"]],sentences:[["He's got red trousers.","他穿着红裤子。"],["She hasn't got a jacket.","她没有夹克。"],["I'm wearing a dress.","我穿着连衣裙。"],["Put on your shoes.","穿上你的鞋子。"]]},
+        9:{words:[["basketball","篮球"],["football","足球"],["tennis","网球"],["guitar","吉他"],["piano","钢琴"],["swim","游泳"],["sing","唱歌"],["dance","跳舞"],["run","跑"],["jump","跳"],["play","玩"]],sentences:[["I can sing.","我会唱歌。"],["Can you swim?","你会游泳吗？"],["I like playing football.","我喜欢踢足球。"],["She can dance.","她会跳舞。"]]},
+        10:{words:[["boat","船"],["bus","公共汽车"],["helicopter","直升机"],["lorry","卡车"],["motorbike","摩托车"],["plane","飞机"],["train","火车"],["bike","自行车"],["car","汽车"],["taxi","出租车"],["ship","轮船"]],sentences:[["What's he doing?","他在做什么？"],["I'm flying.","我在飞。"],["The bus is red.","公交车是红色的。"],["I go to school by bike.","我骑自行车上学。"]]},
+        11:{words:[["bathroom","浴室"],["bedroom","卧室"],["dining room","餐厅"],["kitchen","厨房"],["living room","客厅"],["sofa","沙发"],["bed","床"],["door","门"],["window","窗户"],["wall","墙"],["floor","地板"]],sentences:[["What's he doing?","他在做什么？"],["She's sitting on the sofa.","她坐在沙发上。"],["Where's the kitchen?","厨房在哪里？"],["This is my bedroom.","这是我的卧室。"]]},
+        12:{words:[["apple","苹果"],["banana","香蕉"],["burger","汉堡"],["cake","蛋糕"],["chocolate","巧克力"],["ice cream","冰淇淋"],["orange","橙子"],["party","派对"],["milk","牛奶"],["juice","果汁"],["water","水"]],sentences:[["I like cake.","我喜欢蛋糕。"],["I don't like chocolate.","我不喜欢巧克力。"],["Do you like apples?","你喜欢苹果吗？"],["Happy birthday!","生日快乐！"]]}
     },
     2: {
-        1:{words:[["back to school","返校"],["alphabet","字母表"],["eleven","十一"],["twelve","十二"],["thirteen","十三"],["fourteen","十四"],["fifteen","十五"],["sixteen","十六"],["seventeen","十七"],["eighteen","十八"],["nineteen","十九"],["twenty","二十"],["board","黑板"],["new","新的"],["old","旧的"]],sentences:[["Welcome back to school!","欢迎返校！"],["How old are you?","你几岁？"],["I'm eleven.","我十一岁。"]]},
-        2:{words:[["home","家"],["house","房子"],["bedroom","卧室"],["kitchen","厨房"],["bathroom","浴室"],["living room","客厅"],["dining room","餐厅"],["table","桌子"],["chair","椅子"],["sofa","沙发"],["bed","床"],["door","门"],["window","窗户"],["in","在...里"],["on","在...上"],["under","在...下"]],sentences:[["This is my home.","这是我的家。"],["Where's the kitchen?","厨房在哪里？"],["It's next to the bathroom.","它在浴室旁边。"]]},
-        3:{words:[["thing","东西"],["mine","我的"],["yours","你的"],["his","他的"],["her","她的"],["our","我们的"],["shirt","衬衫"],["shoes","鞋子"],["trousers","裤子"],["dress","连衣裙"],["skirt","裙子"],["coat","外套"],["this","这"],["that","那"],["these","这些"],["those","那些"]],sentences:[["Whose is this?","这是谁的？"],["It's mine.","它是我的。"],["These are my shoes.","这些是我的鞋子。"]]},
-        4:{words:[["make","制作"],["paper","纸"],["glue","胶水"],["scissors","剪刀"],["paint","油漆"],["brush","刷子"],["shape","形状"],["circle","圆形"],["square","正方形"],["triangle","三角形"],["big","大的"],["small","小的"]],sentences:[["Let's make a card!","让我们做一张卡片！"],["I need paper and glue.","我需要纸和胶水。"],["It's a circle.","它是一个圆形。"]]},
-        5:{words:[["family","家庭"],["mother","妈妈"],["father","爸爸"],["sister","姐妹"],["brother","兄弟"],["grandmother","奶奶"],["grandfather","爷爷"],["baby","宝宝"],["cousin","表兄弟姐妹"],["run","跑"],["sleep","睡觉"],["eat","吃"],["drink","喝"]],sentences:[["This is my family.","这是我的家庭。"],["I have a baby sister.","我有一个小妹妹。"],["My brother can run fast.","我哥哥跑得很快。"]]},
-        6:{words:[["food","食物"],["bread","面包"],["fruit","水果"],["rice","米饭"],["meat","肉"],["chicken","鸡肉"],["vegetable","蔬菜"],["milk","牛奶"],["juice","果汁"],["water","水"],["yummy","美味的"],["sweet","甜的"],["hungry","饿的"],["thirsty","渴的"]],sentences:[["I like bread.","我喜欢面包。"],["I'm hungry!","我饿了！"],["The apple is sweet.","苹果是甜的。"]]},
-        7:{words:[["farm","农场"],["cow","奶牛"],["sheep","绵羊"],["pig","猪"],["chicken","鸡"],["duck","鸭子"],["horse","马"],["farmer","农民"],["field","田地"],["barn","谷仓"],["milk","牛奶"],["egg","鸡蛋"]],sentences:[["This is a farm.","这是一个农场。"],["The cow is in the field.","奶牛在田里。"],["I can see five sheep.","我能看到五只绵羊。"]]},
-        8:{words:[["wild","野生的"],["animal","动物"],["lion","狮子"],["tiger","老虎"],["elephant","大象"],["giraffe","长颈鹿"],["monkey","猴子"],["zebra","斑马"],["snake","蛇"],["jungle","丛林"],["forest","森林"],["desert","沙漠"]],sentences:[["Lions live in Africa.","狮子生活在非洲。"],["The tiger is a wild animal.","老虎是野生动物。"],["Monkeys live in the jungle.","猴子住在丛林里。"]]},
-        9:{words:[["fun","乐趣"],["game","游戏"],["football","足球"],["basketball","篮球"],["tennis","网球"],["swim","游泳"],["dance","跳舞"],["sing","唱歌"],["draw","画"],["read","读"],["write","写"],["ride","骑"],["like","喜欢"],["love","爱"],["hobby","爱好"]],sentences:[["I like playing football.","我喜欢踢足球。"],["She doesn't like dancing.","她不喜欢跳舞。"],["What's your hobby?","你的爱好是什么？"]]},
-        10:{words:[["town","城镇"],["city","城市"],["school","学校"],["park","公园"],["shop","商店"],["hospital","医院"],["library","图书馆"],["restaurant","餐厅"],["left","左边"],["right","右边"],["straight","直行"],["turn","转弯"],["near","附近"],["far","远"]],sentences:[["This is our town.","这是我们的城镇。"],["Where's the park?","公园在哪里？"],["Go straight and turn left.","直行然后左转。"]]},
-        11:{words:[["holiday","假期"],["travel","旅行"],["beach","海滩"],["mountain","山"],["country","国家"],["summer","夏天"],["winter","冬天"],["spring","春天"],["autumn","秋天"],["weather","天气"],["sunny","晴朗的"],["rainy","下雨的"],["hot","热的"],["cold","冷的"]],sentences:[["I love holiday!","我喜欢假期！"],["Where are you going?","你要去哪里？"],["The weather is sunny today.","今天是晴天。"]]},
-        12:{words:[["celebration","庆祝"],["party","派对"],["birthday","生日"],["Christmas","圣诞节"],["Easter","复活节"],["Halloween","万圣节"],["gift","礼物"],["card","卡片"],["balloon","气球"],["cake","蛋糕"],["candle","蜡烛"],["happy","快乐的"],["invite","邀请"],["eat","吃"],["drink","喝"]],sentences:[["Happy birthday!","生日快乐！"],["Let's have a party!","让我们开派对吧！"],["This is a gift for you.","这是给你的礼物。"]]}
+        1:{words:[["back to school","返校"],["alphabet","字母表"],["eleven","十一"],["twelve","十二"],["thirteen","十三"],["fourteen","十四"],["fifteen","十五"],["sixteen","十六"],["seventeen","十七"],["eighteen","十八"],["nineteen","十九"],["twenty","二十"],["board","黑板"],["new","新的"],["old","旧的"]],sentences:[["Welcome back to school!","欢迎返校！"],["How old are you?","你几岁？"],["I'm eleven.","我十一岁。"],["What's this?","这是什么？"]]},
+        2:{words:[["home","家"],["house","房子"],["bedroom","卧室"],["kitchen","厨房"],["bathroom","浴室"],["living room","客厅"],["dining room","餐厅"],["table","桌子"],["chair","椅子"],["sofa","沙发"],["bed","床"],["door","门"],["window","窗户"],["in","在...里"],["on","在...上"],["under","在...下"]],sentences:[["This is my home.","这是我的家。"],["Where's the kitchen?","厨房在哪里？"],["It's next to the bathroom.","它在浴室旁边。"],["Is it under the table?","它在桌子下面吗？"]]},
+        3:{words:[["computer","电脑"],["camera","相机"],["kite","风筝"],["lorry","卡车"],["robot","机器人"],["game","游戏"],["watch","手表"],["this","这"],["that","那"],["these","这些"],["those","那些"],["whose","谁的"]],sentences:[["Whose is this?","这是谁的？"],["It's mine.","它是我的。"],["These are my toys.","这些是我的玩具。"],["Is that your robot?","那是你的机器人吗？"]]},
+        4:{words:[["bookcase","书架"],["board","黑板"],["cupboard","橱柜"],["desk","书桌"],["pencil","铅笔"],["ruler","尺子"],["rubber","橡皮"],["teacher","老师"],["student","学生"],["classroom","教室"],["playground","操场"],["library","图书馆"]],sentences:[["Where's the teacher?","老师在哪里？"],["She's in the classroom.","她在教室里。"],["Is there a library?","有图书馆吗？"],["I like reading books.","我喜欢读书。"]]},
+        5:{words:[["family","家庭"],["mother","妈妈"],["father","爸爸"],["sister","姐妹"],["brother","兄弟"],["grandmother","奶奶"],["grandfather","爷爷"],["baby","宝宝"],["cousin","表兄弟姐妹"],["run","跑"],["sleep","睡觉"],["eat","吃"],["drink","喝"]],sentences:[["This is my family.","这是我的家庭。"],["I have a baby sister.","我有一个小妹妹。"],["My brother can run fast.","我哥哥跑得很快。"],["What's your mother doing?","你妈妈在做什么？"]]},
+        6:{words:[["food","食物"],["bread","面包"],["fruit","水果"],["rice","米饭"],["meat","肉"],["chicken","鸡肉"],["vegetable","蔬菜"],["milk","牛奶"],["juice","果汁"],["water","水"],["yummy","美味的"],["sweet","甜的"],["hungry","饿的"],["thirsty","渴的"]],sentences:[["I like bread.","我喜欢面包。"],["I'm hungry!","我饿了！"],["The apple is sweet.","苹果是甜的。"],["What do you want to eat?","你想吃什么？"]]},
+        7:{words:[["farm","农场"],["cow","奶牛"],["sheep","绵羊"],["pig","猪"],["chicken","鸡"],["duck","鸭子"],["horse","马"],["farmer","农民"],["field","田地"],["barn","谷仓"],["milk","牛奶"],["egg","鸡蛋"]],sentences:[["This is a farm.","这是一个农场。"],["The cow is in the field.","奶牛在田里。"],["I can see five sheep.","我能看到五只绵羊。"],["The farmer has a horse.","农民有一匹马。"]]},
+        8:{words:[["wild","野生的"],["animal","动物"],["lion","狮子"],["tiger","老虎"],["elephant","大象"],["giraffe","长颈鹿"],["monkey","猴子"],["zebra","斑马"],["snake","蛇"],["jungle","丛林"],["forest","森林"],["zoo","动物园"]],sentences:[["Lions live in Africa.","狮子生活在非洲。"],["The tiger is a wild animal.","老虎是野生动物。"],["Monkeys live in the jungle.","猴子住在丛林里。"],["Let's go to the zoo!","我们去动物园吧！"]]},
+        9:{words:[["fun","乐趣"],["game","游戏"],["football","足球"],["basketball","篮球"],["tennis","网球"],["swim","游泳"],["dance","跳舞"],["sing","唱歌"],["draw","画"],["read","读"],["write","写"],["ride","骑"],["like","喜欢"],["love","爱"],["hobby","爱好"]],sentences:[["I like playing football.","我喜欢踢足球。"],["She doesn't like dancing.","她不喜欢跳舞。"],["What's your hobby?","你的爱好是什么？"],["I love reading books.","我喜欢读书。"]]},
+        10:{words:[["town","城镇"],["city","城市"],["school","学校"],["park","公园"],["shop","商店"],["hospital","医院"],["library","图书馆"],["restaurant","餐厅"],["left","左边"],["right","右边"],["straight","直行"],["turn","转弯"],["near","附近"],["far","远"]],sentences:[["This is our town.","这是我们的城镇。"],["Where's the park?","公园在哪里？"],["Go straight and turn left.","直行然后左转。"],["Is it far from here?","离这里远吗？"]]},
+        11:{words:[["holiday","假期"],["travel","旅行"],["beach","海滩"],["mountain","山"],["country","国家"],["summer","夏天"],["winter","冬天"],["spring","春天"],["autumn","秋天"],["weather","天气"],["sunny","晴朗的"],["rainy","下雨的"],["hot","热的"],["cold","冷的"]],sentences:[["I love holiday!","我喜欢假期！"],["Where are you going?","你要去哪里？"],["The weather is sunny today.","今天是晴天。"],["I'm going to the beach.","我要去海滩。"]]},
+        12:{words:[["celebration","庆祝"],["party","派对"],["birthday","生日"],["Christmas","圣诞节"],["Easter","复活节"],["Halloween","万圣节"],["gift","礼物"],["card","卡片"],["balloon","气球"],["cake","蛋糕"],["candle","蜡烛"],["happy","快乐的"],["invite","邀请"],["eat","吃"],["drink","喝"]],sentences:[["Happy birthday!","生日快乐！"],["Let's have a party!","让我们开派对吧！"],["This is a gift for you.","这是给你的礼物。"],["Merry Christmas!","圣诞快乐！"]]}
     },
     3: {
-        1:{words:[["world","世界"],["country","国家"],["China","中国"],["America","美国"],["UK","英国"],["Australia","澳大利亚"],["Japan","日本"],["France","法国"],["city","城市"],["people","人们"],["language","语言"],["English","英语"],["Chinese","中文"],["flag","国旗"],["map","地图"]],sentences:[["Hello! How are you today?","你好！今天怎么样？"],["I'm fine, thank you. And you?","我很好，谢谢。你呢？"],["Nice to meet you.","很高兴见到你。"],["What's your name?","你叫什么名字？"],["My name is Tom.","我的名字是Tom。"],["Where are you from?","你来自哪里？"],["I'm from China.","我来自中国。"],["This is our world.","这是我们的世界。"],["I come from China.","我来自中国。"],["What's your country?","你的国家是哪里？"]]},
-        2:{words:[["body","身体"],["head","头"],["face","脸"],["eye","眼睛"],["nose","鼻子"],["mouth","嘴巴"],["ear","耳朵"],["hair","头发"],["arm","手臂"],["hand","手"],["finger","手指"],["leg","腿"],["foot","脚"],["hurt","疼"],["sick","生病的"],["ill","生病的"]],sentences:[["What's the matter?","怎么了？"],["I have a headache.","我头疼。"],["I feel sick today.","我今天生病了。"],["My stomach hurts.","我胃疼。"],["You should see a doctor.","你应该去看医生。"],["This is my body.","这是我的身体。"],["I've got a cold.","我感冒了。"],["Take this medicine.","吃这个药。"]]},
-        3:{words:[["clothes","衣服"],["shirt","衬衫"],["trousers","裤子"],["dress","连衣裙"],["skirt","裙子"],["jacket","夹克"],["coat","外套"],["shoes","鞋子"],["socks","袜子"],["hat","帽子"],["wear","穿"],["put on","穿上"],["take off","脱下"],["size","尺寸"]],sentences:[["What are you wearing?","你穿着什么？"],["I'm wearing a blue shirt.","我穿着蓝色衬衫。"],["These trousers are too big.","这条裤子太大了。"],["Can I try this on?","我可以试穿这个吗？"],["What size do you need?","你需要什么尺寸？"],["I like these clothes.","我喜欢这些衣服。"],["I'm wearing a new dress.","我穿着一条新裙子。"],["Put on your coat.","穿上你的外套。"]]},
-        4:{words:[["day","天"],["today","今天"],["tomorrow","明天"],["yesterday","昨天"],["week","周"],["month","月"],["year","年"],["Monday","星期一"],["Tuesday","星期二"],["Wednesday","星期三"],["Thursday","星期四"],["Friday","星期五"],["Saturday","星期六"],["Sunday","星期日"],["weekend","周末"],["birthday","生日"]],sentences:[["What day is it today?","今天是星期几？"],["Today is Monday.","今天是星期一。"],["What do you do on weekends?","你周末做什么？"],["I often play football on Saturdays.","我经常在周六踢足球。"],["Tomorrow is my birthday!","明天是我的生日！"],["When is your birthday?","你的生日是什么时候？"],["My birthday is in May.","我的生日在五月。"],["What time do you get up?","你几点起床？"]]},
-        5:{words:[["job","工作"],["doctor","医生"],["nurse","护士"],["teacher","老师"],["driver","司机"],["cook","厨师"],["farmer","农民"],["shop assistant","店员"],["police","警察"],["firefighter","消防员"],["pilot","飞行员"],["work","工作"],["help","帮助"]],sentences:[["What do you want to be?","你想成为什么？"],["I want to be a doctor.","我想成为医生。"],["What does your father do?","你爸爸做什么工作？"],["He's a teacher.","他是老师。"],["Where does she work?","她在哪里工作？"],["She works in a hospital.","她在医院工作。"],["My mother is a teacher.","我妈妈是老师。"],["Do you like your job?","你喜欢你的工作吗？"]]},
-        6:{words:[["animal","动物"],["pet","宠物"],["dog","狗"],["cat","猫"],["bird","鸟"],["fish","鱼"],["rabbit","兔子"],["hamster","仓鼠"],["tortoise","乌龟"],["feed","喂"],["walk","散步"],["play with","和...玩"],["look after","照顾"],["love","爱"],["cute","可爱的"]],sentences:[["Have you got any pets?","你有宠物吗？"],["Yes, I have a dog.","是的，我有一只狗。"],["What's your favourite animal?","你最喜欢的动物是什么？"],["I like dogs best.","我最喜欢狗。"],["I feed my cat every day.","我每天喂我的猫。"],["Dogs are very friendly.","狗很友好。"],["I have a pet dog.","我有一只宠物狗。"],["My cat is very cute.","我的猫很可爱。"]]},
-        7:{words:[["place","地方"],["home","家"],["school","学校"],["park","公园"],["shop","商店"],["restaurant","餐厅"],["library","图书馆"],["hospital","医院"],["cinema","电影院"],["zoo","动物园"],["beach","海滩"],["mountain","山"],["lake","湖"],["island","岛"]],sentences:[["Where did you go last weekend?","你上周末去了哪里？"],["I went to the park.","我去了公园。"],["How do I get to the station?","我怎么去车站？"],["Go straight and turn left.","直走然后左转。"],["Is there a supermarket near here?","这附近有超市吗？"],["This is a nice place.","这是个很好的地方。"],["I live in the city.","我住在城市里。"],["The park is near my home.","公园在我家附近。"]]},
-        8:{words:[["weather","天气"],["sunny","晴朗的"],["cloudy","多云的"],["rainy","下雨的"],["snowy","下雪的"],["windy","刮风的"],["hot","热的"],["cold","冷的"],["warm","温暖的"],["cool","凉爽的"],["rain","雨"],["snow","雪"],["wind","风"],["sun","太阳"],["rainbow","彩虹"]],sentences:[["What's the weather like today?","今天天气怎么样？"],["It's sunny today.","今天阳光明媚。"],["It's going to rain tomorrow.","明天会下雨。"],["I like sunny days.","我喜欢晴天。"],["What was the weather like yesterday?","昨天天气怎么样？"],["It was cloudy.","昨天多云。"],["Do you like rainy days?","你喜欢下雨天吗？"],["It's too hot today.","今天太热了。"]]},
-        9:{words:[["sports","运动"],["football","足球"],["basketball","篮球"],["tennis","网球"],["baseball","棒球"],["volleyball","排球"],["swimming","游泳"],["running","跑步"],["cycling","骑自行车"],["skiing","滑雪"],["skateboarding","滑板"],["exercise","练习"],["team","队"],["win","赢"],["lose","输"]],sentences:[["What's your favourite sport?","你最喜欢的运动是什么？"],["I like playing basketball.","我喜欢打篮球。"],["Can you swim?","你会游泳吗？"],["Yes, I can swim well.","是的，我游泳很好。"],["Do you play any sports?","你做什么运动吗？"],["I play tennis every Sunday.","我每个周日打网球。"],["I like playing sports.","我喜欢运动。"],["We won the game!","我们赢了！"]]},
-        10:{words:[["house","房子"],["flat","公寓"],["garden","花园"],["door","门"],["window","窗户"],["kitchen","厨房"],["bedroom","卧室"],["bathroom","浴室"],["living room","客厅"],["garage","车库"],["floor","地板"],["wall","墙"],["roof","屋顶"],["swimming pool","游泳池"]],sentences:[["Where do you live?","你住在哪里？"],["I live in a big house.","我住在一个大房子里。"],["Do you live in a house or a flat?","你住在房子还是公寓里？"],["I live in a flat.","我住在公寓里。"],["There are four rooms.","有四个房间。"],["My bedroom is very nice.","我的卧室很漂亮。"],["The garden is behind the house.","花园在房子后面。"],["I have my own room.","我有自己的房间。"]]},
-        11:{words:[["feel","感觉"],["happy","开心的"],["sad","伤心的"],["angry","生气的"],["tired","累的"],["excited","兴奋的"],["scared","害怕的"],["surprised","惊讶的"],["worried","担心的"],["love","爱"],["hate","讨厌"],["like","喜欢"],["want","想要"],["need","需要"],["think","想"],["know","知道"]],sentences:[["How do you feel today?","你今天感觉怎么样？"],["I'm happy today.","我今天很开心。"],["What makes you happy?","什么让你开心？"],["I'm feeling tired.","我感觉累了。"],["Why are you sad?","你为什么难过？"],["I'm worried about the test.","我担心考试。"],["I'm excited about the trip.","我对这次旅行很兴奋。"],["I feel great!","我感觉很棒！"]]},
-        12:{words:[["breakfast","早餐"],["lunch","午餐"],["dinner","晚餐"],["egg","鸡蛋"],["bread","面包"],["milk","牛奶"],["rice","米饭"],["vegetable","蔬菜"],["meat","肉"],["chicken","鸡肉"],["fish","鱼"],["fruit","水果"],["sandwich","三明治"],["soup","汤"],["salad","沙拉"],["hungry","饿的"],["thirsty","渴的"],["delicious","美味的"]],sentences:[["What's your favourite food?","你最喜欢的食物是什么？"],["I like pizza best.","我最喜欢披萨。"],["What do you have for breakfast?","你早餐吃什么？"],["I have eggs and bread.","我吃鸡蛋和面包。"],["Do you like vegetables?","你喜欢蔬菜吗？"],["Yes, I do. They're healthy.","是的，我喜欢。它们很健康。"],["Dinner is ready!","晚餐准备好了！"],["Would you like some juice?","你想喝点果汁吗？"]]}
+        1:{words:[["family","家庭"],["aunt","阿姨"],["uncle","叔叔"],["cousin","表兄弟"],["nephew","侄子"],["niece","侄女"],["relative","亲戚"],["married","结婚的"],["single","单身的"],["young","年轻的"],["old","老的"],["tall","高的"],["short","矮的"],["beautiful","美丽的"],["handsome","英俊的"]],sentences:[["Tell me about your family.","告诉我关于你的家庭。"],["My aunt lives in London.","我阿姨住在伦敦。"],["I've got two cousins.","我有两个表兄弟。"],["She's married.","她结婚了。"]]},
+        2:{words:[["body","身体"],["head","头"],["face","脸"],["eye","眼睛"],["nose","鼻子"],["mouth","嘴巴"],["ear","耳朵"],["hair","头发"],["arm","手臂"],["hand","手"],["finger","手指"],["leg","腿"],["foot","脚"],["hurt","疼"],["sick","生病的"],["healthy","健康的"]],sentences:[["What's the matter?","怎么了？"],["I have a headache.","我头疼。"],["I feel sick today.","我今天生病了。"],["You should see a doctor.","你应该去看医生。"]]},
+        3:{words:[["park","公园"],["cinema","电影院"],["museum","博物馆"],["beach","海滩"],["mountain","山"],["river","河流"],["picnic","野餐"],["sunny","晴朗的"],["cloudy","多云的"],["walk","散步"],["swim","游泳"],["play","玩"],["photo","照片"],["fun","有趣"],["holiday","假期"]],sentences:[["Let's go to the park!","我们去公园吧！"],["We went to the beach yesterday.","我们昨天去了海滩。"],["It was a sunny day.","那天是晴天。"],["I took lots of photos.","我拍了很多照片。"]]},
+        4:{words:[["yesterday","昨天"],["last week","上周"],["last year","去年"],["ago","以前"],["then","那时"],["now","现在"],["before","之前"],["after","之后"],["was","是(is/am过去式)"],["were","是(are过去式)"],["went","去(过去式)"],["saw","看见(过去式)"],["had","有(过去式)"],["did","做(过去式)"],["played","玩(过去式)"]],sentences:[["Where did you go yesterday?","你昨天去了哪里？"],["I went to the park.","我去了公园。"],["We had a great time.","我们玩得很开心。"],["It was fun!","很有趣！"]]},
+        5:{words:[["job","工作"],["doctor","医生"],["nurse","护士"],["teacher","老师"],["driver","司机"],["cook","厨师"],["farmer","农民"],["shop assistant","店员"],["police","警察"],["firefighter","消防员"],["pilot","飞行员"],["work","工作"],["help","帮助"],["office","办公室"],["hospital","医院"]],sentences:[["What do you want to be?","你想成为什么？"],["I want to be a doctor.","我想成为医生。"],["What does your father do?","你爸爸做什么工作？"],["He's a teacher.","他是老师。"]]},
+        6:{words:[["animal","动物"],["pet","宠物"],["dog","狗"],["cat","猫"],["bird","鸟"],["fish","鱼"],["rabbit","兔子"],["hamster","仓鼠"],["tortoise","乌龟"],["feed","喂"],["walk","散步"],["play with","和...玩"],["look after","照顾"],["love","爱"],["cute","可爱的"]],sentences:[["Have you got any pets?","你有宠物吗？"],["Yes, I have a dog.","是的，我有一只狗。"],["What's your favourite animal?","你最喜欢的动物是什么？"],["I like dogs best.","我最喜欢狗。"]]},
+        7:{words:[["place","地方"],["home","家"],["school","学校"],["park","公园"],["shop","商店"],["restaurant","餐厅"],["library","图书馆"],["hospital","医院"],["cinema","电影院"],["zoo","动物园"],["beach","海滩"],["mountain","山"],["lake","湖"],["island","岛"]],sentences:[["Where did you go last weekend?","你上周末去了哪里？"],["I went to the park.","我去了公园。"],["How do I get to the station?","我怎么去车站？"],["Go straight and turn left.","直走然后左转。"]]},
+        8:{words:[["weather","天气"],["sunny","晴朗的"],["cloudy","多云的"],["rainy","下雨的"],["snowy","下雪的"],["windy","刮风的"],["hot","热的"],["cold","冷的"],["warm","温暖的"],["cool","凉爽的"],["rain","雨"],["snow","雪"],["wind","风"],["sun","太阳"],["season","季节"]],sentences:[["What's the weather like today?","今天天气怎么样？"],["It's sunny today.","今天阳光明媚。"],["It's going to rain tomorrow.","明天会下雨。"],["I like sunny days.","我喜欢晴天。"]]},
+        9:{words:[["sports","运动"],["football","足球"],["basketball","篮球"],["tennis","网球"],["baseball","棒球"],["volleyball","排球"],["swimming","游泳"],["running","跑步"],["cycling","骑自行车"],["skiing","滑雪"],["skateboarding","滑板"],["exercise","练习"],["team","队"],["win","赢"],["lose","输"]],sentences:[["What's your favourite sport?","你最喜欢的运动是什么？"],["I like playing basketball.","我喜欢打篮球。"],["Can you swim?","你会游泳吗？"],["Yes, I can swim well.","是的，我游泳很好。"]]},
+        10:{words:[["world","世界"],["earth","地球"],["continent","大洲"],["ocean","海洋"],["country","国家"],["city","城市"],["village","村庄"],["nature","自然"],["environment","环境"],["protect","保护"],["recycle","回收"],["plant","植物"],["tree","树"],["flower","花"],["river","河流"]],sentences:[["We live on the Earth.","我们住在地球上。"],["There are seven continents.","有七个大洲。"],["We should protect our environment.","我们应该保护环境。"],["I love nature.","我爱大自然。"]]},
+        11:{words:[["feel","感觉"],["happy","开心的"],["sad","伤心的"],["angry","生气的"],["tired","累的"],["excited","兴奋的"],["scared","害怕的"],["surprised","惊讶的"],["worried","担心的"],["love","爱"],["hate","讨厌"],["like","喜欢"],["want","想要"],["need","需要"],["think","想"],["know","知道"]],sentences:[["How do you feel today?","你今天感觉怎么样？"],["I'm happy today.","我今天很开心。"],["What makes you happy?","什么让你开心？"],["I'm feeling tired.","我感觉累了。"]]},
+        12:{words:[["celebration","庆祝"],["festival","节日"],["party","派对"],["birthday","生日"],["Christmas","圣诞节"],["Easter","复活节"],["Halloween","万圣节"],["tradition","传统"],["decorate","装饰"],["celebrate","庆祝"],["present","礼物"],["card","卡片"],["balloon","气球"],["candle","蜡烛"],["cake","蛋糕"]],sentences:[["How do you celebrate your birthday?","你怎么庆祝你的生日？"],["We decorate the Christmas tree.","我们装饰圣诞树。"],["Happy New Year!","新年快乐！"],["It's a traditional festival.","这是一个传统节日。"]]}
     }
 };
 
@@ -540,8 +629,19 @@ function switchLevel(level) {
     updateLevelDisplay();
 }
 
+const LEVEL_INFO = {
+    1: { name: 'Kids Box 1', exam: 'Starters', ce: 'Pre-A1' },
+    2: { name: 'Kids Box 2', exam: 'Starters', ce: 'Pre-A1' },
+    3: { name: 'Kids Box 3', exam: 'Movers', ce: 'A1' }
+};
+
 function updateLevelDisplay() {
-    document.getElementById('levelTitle').textContent = 'Level ' + currentLevel;
+    const info = LEVEL_INFO[currentLevel];
+    if (info) {
+        document.getElementById('levelTitle').textContent = `${info.name} (${info.exam})`;
+    } else {
+        document.getElementById('levelTitle').textContent = 'Level ' + currentLevel;
+    }
 }
 
 // 12个单元对应的怪兽（每个单元独特）
@@ -575,19 +675,19 @@ const UNIT_MONSTERS = {
         11: {emoji:"🎪",name:"马戏团精灵",desc:"欢乐世界的创造者"},
         12: {emoji:"🎭",name:"戏剧大师",desc:"舞台世界的守护神"}
     },
-    3: { // Level 3 单元怪兽
-        1: {emoji:"🚀",name:"太空探险家",desc:"宇宙探索的先驱者"},
-        2: {emoji:"🔬",name:"科学家",desc:"实验室的守护者"},
-        3: {emoji:"💻",name:"数字精灵",desc:"网络世界的守护神"},
-        4: {emoji:"🌍",name:"地球守护者",desc:"保护地球的神秘力量"},
-        5: {emoji:"⚡",name:"闪电使者",desc:"雷电世界的统治者"},
-        6: {emoji:"🔥",name:"火焰精灵",desc:"火焰世界的守护者"},
-        7: {emoji:"❄️",name:"冰雪女王",desc:"冰雪世界的统治者"},
-        8: {emoji:"🌪️",name:"风暴使者",desc:"风暴世界的守护神"},
-        9: {emoji:"🌋",name:"火山精灵",desc:"火山世界的守护者"},
-        10: {emoji:"🏔️",name:"山峰之王",desc:"高山世界的统治者"},
-        11: {emoji:"🌲",name:"森林守护者",desc:"森林世界的守护神"},
-        12: {emoji:"🏆",name:"终极大师",desc:"所有世界的守护者"}
+    3: { // Level 3 单元怪兽 (Kids Box 3 - Movers)
+        1: {emoji:"👨‍👩‍👧‍👦",name:"家庭精灵",desc:"家族关系的守护者"},
+        2: {emoji:"🏥",name:"健康守护者",desc:"身体健康的守护神"},
+        3: {emoji:"🏖️",name:"旅行达人",desc:"外出探险的向导"},
+        4: {emoji:"⏰",name:"时光使者",desc:"过去与现在的连接者"},
+        5: {emoji:"💼",name:"职业大师",desc:"工作世界的领航员"},
+        6: {emoji:"🐾",name:"动物王国",desc:"动物世界的统治者"},
+        7: {emoji:"🏙️",name:"城镇守护者",desc:"城市街道的守护神"},
+        8: {emoji:"🌤️",name:"天气精灵",desc:"风雨雷电的掌控者"},
+        9: {emoji:"🏅",name:"运动冠军",desc:"体育竞技的王者"},
+        10: {emoji:"🌍",name:"地球守护者",desc:"自然环境的守护神"},
+        11: {emoji:"💭",name:"情感精灵",desc:"心灵世界的守护者"},
+        12: {emoji:"🎉",name:"庆典大师",desc:"节日庆祝的主持人"}
     }
 };
 
@@ -759,6 +859,26 @@ let level=1;
 let totalStars=0;
 const ENERGY_PER_CORRECT=10;
 const ENERGY_TO_LEVEL_UP=50;
+
+// 数据版本管理
+const DATA_VERSION = 3;
+
+// 题库管理系统
+let questionBanks = {
+    current: 'default',
+    banks: {
+        'default': { 
+            id: 'default',
+            name: '默认题库', 
+            source: 'builtin',
+            levels: 3,
+            units: 36,
+            words: 0,
+            sentences: 0
+        }
+    }
+};
+let customQuestionBank = null;
 
 // 音效系统
 let soundEnabled = true;
@@ -1588,6 +1708,13 @@ function loadProgress(){
         let saved = localStorage.getItem('ultraman_progress');
         if(saved){
             let data = JSON.parse(saved);
+            
+            // 数据版本迁移
+            let dataVersion = data.version || 0;
+            if(dataVersion < DATA_VERSION){
+                data = migrateData(data, dataVersion);
+            }
+            
             score = data.score || 0;
             level = data.level || 1;
             totalStars = data.stars || 0;
@@ -1613,13 +1740,21 @@ function loadProgress(){
                 };
             }
             
-            // 为旧数据添加复习时间戳字段
+            // 为旧数据添加复习时间戳字段和新字段
             wrongBook.forEach(function(item){
                 if(!item.nextReview){
                     let lastTime = item.lastWrong || item.firstWrong || new Date().toISOString();
                     item.lastReview = lastTime;
-                    item.nextReview = calculateNextReview(lastTime, item.count || 1);
+                    item.nextReview = calculateNextReview(lastTime, item.correctCount || 0);
                 }
+                // 迁移旧的count字段到wrongCount
+                if(item.count !== undefined && item.wrongCount === undefined){
+                    item.wrongCount = item.count;
+                    delete item.count;
+                }
+                // 确保新字段存在
+                if(item.wrongCount === undefined) item.wrongCount = 1;
+                if(item.correctCount === undefined) item.correctCount = 0;
             });
             
             // 加载每日任务数据
@@ -1629,6 +1764,12 @@ function loadProgress(){
             
             // 检查是否需要重置每日任务（新的一天）
             checkDailyTaskReset();
+            
+            // 如果数据被迁移，保存新版本
+            if(dataVersion < DATA_VERSION){
+                saveProgress();
+                console.log('数据已从版本 ' + dataVersion + ' 迁移到版本 ' + DATA_VERSION);
+            }
         }
     }catch(e){
         console.error('加载进度失败:', e);
@@ -1636,9 +1777,64 @@ function loadProgress(){
     }
 }
 
+// 数据迁移函数
+function migrateData(data, fromVersion){
+    console.log('开始数据迁移，从版本 ' + fromVersion + ' 到版本 ' + DATA_VERSION);
+    
+    // 版本0（无版本号）到版本1：添加基础字段
+    if(fromVersion < 1){
+        data.score = data.score || 0;
+        data.level = data.level || 1;
+        data.stars = data.stars || 0;
+        data.monstersDef = data.monstersDef || 0;
+        data.wrongBook = data.wrongBook || [];
+        data.wrongReviewCount = data.wrongReviewCount || 0;
+        data.soundEnabled = data.soundEnabled !== undefined ? data.soundEnabled : true;
+        data.unlockedUnits = data.unlockedUnits || {1: [1], 2: [1], 3: [1]};
+        data.unlockedAchievements = data.unlockedAchievements || [];
+        data.unlockedMonsterIds = data.unlockedMonsterIds || [1,2,3,4,5,6,7,8,9,10];
+    }
+    
+    // 版本1到版本2：错题本数据结构升级
+    if(fromVersion < 2){
+        if(data.wrongBook && Array.isArray(data.wrongBook)){
+            data.wrongBook.forEach(function(item){
+                if(item.count !== undefined && item.wrongCount === undefined){
+                    item.wrongCount = item.count;
+                    delete item.count;
+                }
+                if(item.wrongCount === undefined) item.wrongCount = 1;
+                if(item.correctCount === undefined) item.correctCount = 0;
+                if(!item.nextReview){
+                    let lastTime = item.lastWrong || item.firstWrong || new Date().toISOString();
+                    item.lastReview = lastTime;
+                    item.nextReview = calculateNextReview(lastTime, item.correctCount);
+                }
+            });
+        }
+    }
+    
+    // 版本2到版本3：题库管理系统
+    if(fromVersion < 3){
+        // 加载自定义题库
+        let customBank = localStorage.getItem('custom_question_bank');
+        if(customBank){
+            try{
+                customQuestionBank = JSON.parse(customBank);
+            }catch(e){
+                console.warn('加载自定义题库失败:', e);
+            }
+        }
+    }
+    
+    data.version = DATA_VERSION;
+    return data;
+}
+
 function saveProgress(){
     try{
         let data = {
+            version: DATA_VERSION,
             score: score,
             level: level,
             stars: totalStars,
@@ -1677,6 +1873,430 @@ function clearProgress(){
             showToast('清除进度失败');
         }
     }
+}
+
+// 导出游戏进度
+function exportProgress(){
+    try{
+        let saved = localStorage.getItem('ultraman_progress');
+        if(!saved){
+            showToast('没有可导出的进度');
+            return;
+        }
+        
+        let data = JSON.parse(saved);
+        data.exportTime = new Date().toISOString();
+        data.exportVersion = DATA_VERSION;
+        data.gameName = '赛罗奥特曼英语大作战';
+        
+        let blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+        let url = URL.createObjectURL(blob);
+        let a = document.createElement('a');
+        a.href = url;
+        a.download = 'ultraman_progress_' + new Date().toISOString().slice(0,10) + '.json';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        
+        showToast('进度已导出！');
+    }catch(e){
+        console.error('导出进度失败:', e);
+        showToast('导出失败');
+    }
+}
+
+// 导入游戏进度
+function importProgress(event){
+    let file = event.target.files[0];
+    if(!file) return;
+    
+    let reader = new FileReader();
+    reader.onload = function(e){
+        try{
+            let data = JSON.parse(e.target.result);
+            
+            if(!validateImportData(data)){
+                showToast('导入失败：文件格式不正确');
+                return;
+            }
+            
+            if(!confirm('确定要导入进度吗？当前进度将被覆盖！')){
+                return;
+            }
+            
+            let dataVersion = data.version || 0;
+            if(dataVersion < DATA_VERSION){
+                data = migrateData(data, dataVersion);
+            }
+            
+            localStorage.setItem('ultraman_progress', JSON.stringify(data));
+            loadProgress();
+            updateUI();
+            
+            showToast('进度导入成功！');
+        }catch(e){
+            console.error('导入进度失败:', e);
+            showToast('导入失败：文件格式错误');
+        }
+    };
+    reader.readAsText(file);
+    event.target.value = '';
+}
+
+// 验证导入数据格式
+function validateImportData(data){
+    if(typeof data !== 'object' || data === null){
+        return false;
+    }
+    
+    if(data.gameName && data.gameName !== '赛罗奥特曼英语大作战'){
+        return false;
+    }
+    
+    let requiredFields = ['score', 'level', 'stars'];
+    for(let field of requiredFields){
+        if(data[field] === undefined){
+            if(!data.wrongBook && !data.unlockedUnits && !data.studyStats){
+                return false;
+            }
+        }
+    }
+    
+    if(data.score !== undefined && typeof data.score !== 'number') return false;
+    if(data.level !== undefined && typeof data.level !== 'number') return false;
+    if(data.wrongBook !== undefined && !Array.isArray(data.wrongBook)) return false;
+    
+    return true;
+}
+
+// 触发文件选择
+function triggerImport(){
+    document.getElementById('importFileInput').click();
+}
+
+// ========== 题库管理系统 ==========
+
+// 题库缓存
+let questionBankCache = null;
+
+// 获取当前题库
+function getCurrentQuestionBank(){
+    if(customQuestionBank){
+        return customQuestionBank;
+    }
+    return {
+        id: 'default',
+        name: '默认题库',
+        source: 'builtin',
+        levels: LEVEL_DATA
+    };
+}
+
+// 获取当前题库的单元数据
+function getUnitData(level, unit){
+    let bank = getCurrentQuestionBank();
+    if(bank.levels && bank.levels[level] && bank.levels[level][unit]){
+        return bank.levels[level][unit];
+    }
+    return null;
+}
+
+// 统计题库信息
+function countQuestionBankInfo(bank){
+    let info = {
+        levels: 0,
+        units: 0,
+        words: 0,
+        sentences: 0
+    };
+    
+    if(bank.levels){
+        info.levels = Object.keys(bank.levels).length;
+        Object.values(bank.levels).forEach(function(levelData){
+            if(levelData){
+                info.units += Object.keys(levelData).length;
+                Object.values(levelData).forEach(function(unitData){
+                    if(unitData.words) info.words += unitData.words.length;
+                    if(unitData.sentences) info.sentences += unitData.sentences.length;
+                });
+            }
+        });
+    }
+    
+    return info;
+}
+
+// 验证题库格式
+function validateQuestionBank(data){
+    if(typeof data !== 'object' || data === null) return false;
+    
+    if(data.gameName && data.gameName !== '赛罗奥特曼英语大作战'){
+        return false;
+    }
+    
+    if(!data.levels || typeof data.levels !== 'object') return false;
+    
+    for(let levelKey of Object.keys(data.levels)){
+        let level = data.levels[levelKey];
+        if(!level || typeof level !== 'object') return false;
+        
+        for(let unitKey of Object.keys(level)){
+            let unit = level[unitKey];
+            if(!unit || typeof unit !== 'object') return false;
+            if(!unit.words && !unit.sentences) return false;
+            if(unit.words && !Array.isArray(unit.words)) return false;
+            if(unit.sentences && !Array.isArray(unit.sentences)) return false;
+        }
+    }
+    
+    return true;
+}
+
+// 导入题库
+function importQuestionBank(event){
+    let file = event.target.files[0];
+    if(!file) return;
+    
+    let reader = new FileReader();
+    reader.onload = function(e){
+        try{
+            let data = JSON.parse(e.target.result);
+            
+            if(!validateQuestionBank(data)){
+                showToast('导入失败：题库格式不正确');
+                return;
+            }
+            
+            let info = countQuestionBankInfo(data);
+            let bankName = data.name || data.customName || file.name.replace('.json', '');
+            
+            let msg = '题库预览\n\n' +
+                '名称: ' + bankName + '\n' +
+                '作者: ' + (data.author || '未知') + '\n' +
+                '级别数: ' + info.levels + '\n' +
+                '单元数: ' + info.units + '\n' +
+                '单词数: ' + info.words + '\n' +
+                '句子数: ' + info.sentences + '\n\n' +
+                '确定要导入此题库吗？';
+            
+            if(!confirm(msg)) return;
+            
+            data.id = 'custom_' + Date.now();
+            data.name = bankName;
+            data.importTime = new Date().toISOString();
+            
+            localStorage.setItem('custom_question_bank', JSON.stringify(data));
+            customQuestionBank = data;
+            
+            updateQuestionBanksList();
+            updateCurrentBankDisplay();
+            
+            showToast('题库导入成功！');
+        }catch(e){
+            console.error('导入题库失败:', e);
+            showToast('导入失败：文件格式错误');
+        }
+    };
+    reader.readAsText(file);
+    event.target.value = '';
+}
+
+// 导出题库
+function exportQuestionBank(){
+    let bank = getCurrentQuestionBank();
+    
+    let exportData = {
+        gameName: '赛罗奥特曼英语大作战',
+        formatVersion: '1.0',
+        name: bank.name || '我的题库',
+        author: bank.author || '用户',
+        createTime: bank.createTime || new Date().toISOString(),
+        exportTime: new Date().toISOString(),
+        levels: bank.levels
+    };
+    
+    let blob = new Blob([JSON.stringify(exportData, null, 2)], {type: 'application/json'});
+    let url = URL.createObjectURL(blob);
+    let a = document.createElement('a');
+    a.href = url;
+    a.download = 'question_bank_' + new Date().toISOString().slice(0,10) + '.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    showToast('题库已导出');
+}
+
+// 切换题库
+function switchQuestionBank(bankId){
+    if(bankId === 'default'){
+        customQuestionBank = null;
+        localStorage.removeItem('custom_question_bank');
+    }
+    questionBanks.current = bankId;
+    localStorage.setItem('question_banks', JSON.stringify(questionBanks));
+    
+    updateCurrentBankDisplay();
+    updateQuestionBanksList();
+    createHomeUnitSelector();
+    
+    showToast('已切换到: ' + (bankId === 'default' ? '默认题库' : customQuestionBank.name));
+}
+
+// 删除自定义题库
+function deleteCustomQuestionBank(){
+    if(!confirm('确定要删除自定义题库吗？将恢复使用默认题库。')) return;
+    
+    customQuestionBank = null;
+    localStorage.removeItem('custom_question_bank');
+    
+    updateCurrentBankDisplay();
+    updateQuestionBanksList();
+    createHomeUnitSelector();
+    
+    showToast('已恢复默认题库');
+}
+
+// 更新当前题库显示
+function updateCurrentBankDisplay(){
+    let display = document.getElementById('currentBankName');
+    if(display){
+        let bank = getCurrentQuestionBank();
+        display.textContent = bank.name || '默认题库';
+    }
+}
+
+// 更新题库列表
+function updateQuestionBanksList(){
+    let list = document.getElementById('questionBanksList');
+    if(!list) return;
+    
+    let html = '';
+    
+    html += '<div class="bank-item ' + (!customQuestionBank ? 'current' : '') + '">';
+    html += '<div class="bank-info">';
+    html += '<div class="bank-name">📚 默认题库</div>';
+    html += '<div class="bank-stats">3个级别 · 36个单元</div>';
+    html += '</div>';
+    html += '<div class="bank-actions">';
+    if(!customQuestionBank){
+        html += '<span class="bank-current">当前使用</span>';
+    }else{
+        html += '<button class="bank-btn" onclick="switchQuestionBank(\'default\')">使用</button>';
+    }
+    html += '</div></div>';
+    
+    if(customQuestionBank){
+        let info = countQuestionBankInfo(customQuestionBank);
+        html += '<div class="bank-item current">';
+        html += '<div class="bank-info">';
+        html += '<div class="bank-name">📖 ' + (customQuestionBank.name || '自定义题库') + '</div>';
+        html += '<div class="bank-stats">' + info.levels + '个级别 · ' + info.units + '个单元 · ' + info.words + '个单词</div>';
+        html += '</div>';
+        html += '<div class="bank-actions">';
+        html += '<span class="bank-current">当前使用</span>';
+        html += '<button class="bank-btn delete" onclick="deleteCustomQuestionBank()">删除</button>';
+        html += '</div></div>';
+    }
+    
+    list.innerHTML = html;
+}
+
+// 触发题库导入
+function triggerQuestionBankImport(){
+    document.getElementById('questionBankInput').click();
+}
+
+// 显示数据管理界面
+function showDataManagement(){
+    updateQuestionBanksList();
+    updateDataManagementProgress();
+    updateSoundToggleBtn();
+    show('dataManagement');
+}
+
+// 切换数据管理标签页
+function switchDataTab(tabName){
+    document.querySelectorAll('.tab-btn').forEach(function(btn){
+        btn.classList.remove('active');
+    });
+    document.querySelectorAll('.tab-content').forEach(function(content){
+        content.classList.add('hidden');
+    });
+    
+    document.getElementById('tab' + tabName.charAt(0).toUpperCase() + tabName.slice(1)).classList.add('active');
+    document.getElementById(tabName + 'Tab').classList.remove('hidden');
+}
+
+// 更新数据管理界面的进度信息
+function updateDataManagementProgress(){
+    document.getElementById('dmScore').textContent = score;
+    document.getElementById('dmLevel').textContent = 'Lv.' + level;
+    document.getElementById('dmStars').textContent = totalStars;
+    document.getElementById('dmMonsters').textContent = monstersDef;
+}
+
+// 更新音效按钮状态
+function updateSoundToggleBtn(){
+    let btn = document.getElementById('soundToggleBtn');
+    if(btn){
+        if(soundEnabled){
+            btn.textContent = '🔊 音效开启';
+            btn.style.background = 'linear-gradient(135deg, #00d4ff, #00ff88)';
+        }else{
+            btn.textContent = '🔇 音效关闭';
+            btn.style.background = 'linear-gradient(135deg, #e74c3c, #c0392b)';
+        }
+    }
+}
+
+// 切换音效
+function toggleSound(){
+    soundEnabled = !soundEnabled;
+    updateSoundToggleBtn();
+    saveProgress();
+    showToast(soundEnabled ? '音效已开启' : '音效已关闭');
+}
+
+// 增量更新题库
+function incrementalUpdateQuestionBank(newData){
+    if(!customQuestionBank){
+        return false;
+    }
+    
+    let oldVersion = customQuestionBank.version || '1.0';
+    let newVersion = newData.version || '1.0';
+    
+    if(newVersion <= oldVersion){
+        showToast('题库已是最新版本');
+        return false;
+    }
+    
+    // 增量合并
+    if(newData.levels){
+        Object.keys(newData.levels).forEach(function(levelKey){
+            if(!customQuestionBank.levels[levelKey]){
+                customQuestionBank.levels[levelKey] = newData.levels[levelKey];
+            }else{
+                Object.keys(newData.levels[levelKey]).forEach(function(unitKey){
+                    customQuestionBank.levels[levelKey][unitKey] = newData.levels[levelKey][unitKey];
+                });
+            }
+        });
+    }
+    
+    customQuestionBank.version = newVersion;
+    customQuestionBank.lastUpdateTime = new Date().toISOString();
+    
+    localStorage.setItem('custom_question_bank', JSON.stringify(customQuestionBank));
+    
+    updateQuestionBanksList();
+    updateCurrentBankDisplay();
+    
+    showToast('题库已更新到版本 ' + newVersion);
+    return true;
 }
 
 function createHomeUnitSelector(){
@@ -2312,7 +2932,16 @@ function backToMenu(){
 // 恢复原始菜单内容
 function restoreMenuContent(){
     let menu = document.getElementById('menu');
+    let bank = getCurrentQuestionBank();
     menu.innerHTML = `
+        <!-- 顶部角落按钮：左上角题库，右上角数据管理 -->
+        <div style="position:absolute;top:10px;left:10px;z-index:10;background:rgba(0,0,0,0.5);padding:5px 12px;border-radius:15px;">
+            <span style="color:#aaa;font-size:12px;">📚 <span id="currentBankName">${bank.name || '默认题库'}</span></span>
+        </div>
+        <div style="position:absolute;top:10px;right:10px;z-index:10;">
+            <button onclick="showDataManagement()" title="数据管理" style="background:rgba(52,73,94,0.9);border:none;border-radius:15px;padding:5px 12px;cursor:pointer;font-size:12px;color:#aaa;">💾 管理</button>
+        </div>
+        
         <div class="zero-header">
             <div class="zero-icon">🦸</div>
             <div class="title">⚔️ 赛罗奥特曼英语大作战 ⚔️</div>
@@ -2331,6 +2960,18 @@ function restoreMenuContent(){
         <div class="progress">选择单元（可多选）</div>
         <div class="stage-grid" id="homeUnitSelector" style="grid-template-columns: repeat(6, 1fr);"></div>
         
+        <!-- 复习提醒区域 -->
+        <div id="reviewReminder" style="display:none;background:rgba(255,193,7,0.15);border:2px solid #ffc107;border-radius:10px;padding:15px;margin:10px 0;cursor:pointer;" onclick="startQuickReview()">
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+                <div>
+                    <div style="color:#ffc107;font-size:16px;font-weight:bold;margin-bottom:5px;">🔔 复习提醒</div>
+                    <div style="color:#ddd;font-size:14px;">你有 <span id="reviewNeededCount" style="color:#ffc107;font-weight:bold;">0</span> 个单词需要复习</div>
+                    <div style="color:#aaa;font-size:12px;margin-top:3px;">点击开始复习，巩固记忆</div>
+                </div>
+                <div style="font-size:24px;">📚</div>
+            </div>
+        </div>
+        
         <!-- 每日任务卡片 -->
         <div id="dailyTaskCard" class="daily-task-card"></div>
         
@@ -2344,16 +2985,13 @@ function restoreMenuContent(){
         <button class="game-btn" style="background:linear-gradient(135deg, #f39c12, #e67e22);" onclick="showAchievements()">🏆 成就</button>
         <button class="game-btn" style="background:linear-gradient(135deg, #00b894, #00cec9);" onclick="showStudyReport()">📊 学习报告</button>
         <button class="game-btn" style="background:linear-gradient(135deg, #e74c3c, #c0392b);" onclick="showWrongBook()">📖 错题本</button>
-        <div class="speed-control" style="text-align:center;margin:10px 0;">
-            <span style="color:#aaa;font-size:14px;">语速：</span>
-            <button class="speed-btn" id="speedSlowBtn" onclick="setSpeechRate('slow')" style="padding:5px 10px;border-radius:5px;border:1px solid #555;background:rgba(255,255,255,0.05);color:#aaa;cursor:pointer;margin:0 3px;">🐢 慢速</button>
-            <button class="speed-btn" id="speedNormalBtn" onclick="setSpeechRate('normal')" style="padding:5px 10px;border-radius:5px;border:2px solid #00d4ff;background:rgba(0,212,255,0.2);color:#00d4ff;cursor:pointer;margin:0 3px;">🚶 正常</button>
-            <button class="speed-btn" id="speedFastBtn" onclick="setSpeechRate('fast')" style="padding:5px 10px;border-radius:5px;border:1px solid #555;background:rgba(255,255,255,0.05);color:#aaa;cursor:pointer;margin:0 3px;">🏃 快速</button>
-        </div>
     `;
     
     // 更新每日任务UI
     updateDailyTaskUI();
+    
+    // 更新复习提醒
+    updateReviewReminder();
 }
 
 // ========== 自由练习模式 ==========
