@@ -4066,7 +4066,16 @@ function checkAnswer(correct, btn){
         playSound('wrong');
         if(btn) btn.classList.add('wrong');
         
-        if(currentText && !isWrongBookReview){
+        if(isWrongBookReview && currentText){
+            let wrongItem = wrongBook.find(function(item){ return item.word === currentText; });
+            if(wrongItem){
+                wrongItem.count++;
+                let now = new Date().toISOString();
+                wrongItem.lastReview = now;
+                wrongItem.nextReview = calculateNextReview(now, wrongItem.count);
+                saveProgress();
+            }
+        }else if(currentText){
             let meaning = getWordMeaning(currentText);
             if(meaning){
                 addToWrongBook(currentText, meaning);
@@ -4544,7 +4553,17 @@ function preInitSpeechRecognition(){
                                 playSound('wrong');
                                 showPronunciationResult(resultElement, pronScore.score, pronScore.feedback, false, spoken, correct);
                                 updateHP();
-                                if(currentText && !isWrongBookReview){
+                                
+                                if(isWrongBookReview && currentText){
+                                    let wrongItem = wrongBook.find(function(item){ return item.word === currentText; });
+                                    if(wrongItem){
+                                        wrongItem.count++;
+                                        let now = new Date().toISOString();
+                                        wrongItem.lastReview = now;
+                                        wrongItem.nextReview = calculateNextReview(now, wrongItem.count);
+                                        saveProgress();
+                                    }
+                                }else if(currentText){
                                     let meaning = getWordMeaning(currentText);
                                     if(meaning) addToWrongBook(currentText, meaning);
                                 }
