@@ -893,6 +893,29 @@ let isWrongBookReview = false;
 let isWeaknessPractice = false;
 let weaknessPracticeType = '';
 
+// 闯关模式配置
+let reviewRoundCount = 0;       // 总关卡数
+let reviewCurrentRound = 0;     // 当前关卡
+let reviewQuestionsPerRound = 0; // 每关题目数
+let reviewMonsters = [];        // 闯关怪兽列表
+let reviewQuestionsInRound = 0; // 当前关卡已答题数
+
+// 根据题目数量计算关卡数
+function calculateRoundCount(questionCount) {
+    if (questionCount <= 5) return 1;
+    if (questionCount <= 10) return 2;
+    if (questionCount <= 20) return 3;
+    if (questionCount <= 30) return 4;
+    return 5;
+}
+
+// 选择闯关怪兽
+function selectReviewMonsters(count) {
+    let unlockedMonsters = ALL_MONSTERS.filter(function(m){return unlockedMonsterIds.includes(m.id);});
+    unlockedMonsters = shuffle(unlockedMonsters);
+    return unlockedMonsters.slice(0, Math.min(count, unlockedMonsters.length));
+}
+
 // 单元解锁系统（每个级别独立）
 let unlockedUnits = {1: [1], 2: [1], 3: [1]}; // 每个级别默认解锁第一单元
 
@@ -1516,7 +1539,8 @@ function getWordMeaning(word){
 function calculateNextReview(lastWrong, count){
     // 遗忘曲线间隔：1天、3天、7天、15天、30天
     const intervals = [1, 3, 7, 15, 30];
-    const days = intervals[Math.min(count - 1, intervals.length - 1)];
+    const safeCount = Math.max(1, count || 1);
+    const days = intervals[Math.min(safeCount - 1, intervals.length - 1)];
     const nextDate = new Date(lastWrong);
     nextDate.setDate(nextDate.getDate() + days);
     return nextDate.toISOString();
@@ -1621,18 +1645,28 @@ function startWrongBookReview(){
     qIdx = 0;
     correctCount = 0;
     
+    // 闯关模式：计算关卡数和选择怪兽
+    reviewRoundCount = calculateRoundCount(wrongBookTotal);
+    reviewCurrentRound = 1;
+    reviewQuestionsPerRound = Math.ceil(wrongBookTotal / reviewRoundCount);
+    reviewQuestionsInRound = 0;
+    reviewMonsters = selectReviewMonsters(reviewRoundCount);
+    
     currentMonsterIndex = 1;
-    currentMonster = ALL_MONSTERS[0]; // 使用ALL_MONSTERS
+    currentMonster = reviewMonsters[0];
     mHp = 100;
     zHp = 100;
     
-    document.getElementById('monsterName').textContent = '错题怪兽';
+    document.querySelector('#battleGame .title').innerHTML = '⚔️ 错题复习 第 <span id="stageNum">1</span>/<span id="totalRounds">'+reviewRoundCount+'</span> 关';
+    document.getElementById('monsterEmoji').textContent = currentMonster.emoji;
+    document.getElementById('monsterName').textContent = currentMonster.name;
     document.getElementById('monsterDesc').textContent = '打败它，攻克错题！';
-    document.getElementById('monsterEmoji').textContent = '👾';
-    document.getElementById('stageNum').textContent = '1';
+    document.getElementById('monsterHpName').textContent = currentMonster.name;
     
     updateHP();
     show('battleGame');
+    
+    showToast('🔔 开始错题复习！共 ' + wrongBookTotal + ' 题，' + reviewRoundCount + ' 关');
     
     setTimeout(function(){
         showRoundQuestion();
@@ -1674,20 +1708,28 @@ function startQuickReview(){
     qIdx = 0;
     correctCount = 0;
     
+    // 闯关模式：计算关卡数和选择怪兽
+    reviewRoundCount = calculateRoundCount(wrongBookTotal);
+    reviewCurrentRound = 1;
+    reviewQuestionsPerRound = Math.ceil(wrongBookTotal / reviewRoundCount);
+    reviewQuestionsInRound = 0;
+    reviewMonsters = selectReviewMonsters(reviewRoundCount);
+    
     currentMonsterIndex = 1;
-    currentMonster = ALL_MONSTERS[0];
+    currentMonster = reviewMonsters[0];
     mHp = 100;
     zHp = 100;
     
-    document.getElementById('monsterName').textContent = '复习怪兽';
+    document.querySelector('#battleGame .title').innerHTML = '⚔️ 智能复习 第 <span id="stageNum">1</span>/<span id="totalRounds">'+reviewRoundCount+'</span> 关';
+    document.getElementById('monsterEmoji').textContent = currentMonster.emoji;
+    document.getElementById('monsterName').textContent = currentMonster.name;
     document.getElementById('monsterDesc').textContent = '巩固记忆，打败遗忘！';
-    document.getElementById('monsterEmoji').textContent = '📚';
-    document.getElementById('stageNum').textContent = '1';
+    document.getElementById('monsterHpName').textContent = currentMonster.name;
     
     updateHP();
     show('battleGame');
     
-    showToast('🔔 开始复习 ' + reviewNeeded.length + ' 个单词！');
+    showToast('🔔 开始智能复习！共 ' + wrongBookTotal + ' 题，' + reviewRoundCount + ' 关');
     
     setTimeout(function(){
         showRoundQuestion();
@@ -2776,8 +2818,16 @@ function startWeaknessPractice(type){
     
     battleQuestionPool=shuffle(battleQuestionPool);
     
+    // 闯关模式：计算关卡数和选择怪兽
+    wrongBookTotal = battleQuestionPool.length;
+    reviewRoundCount = calculateRoundCount(wrongBookTotal);
+    reviewCurrentRound = 1;
+    reviewQuestionsPerRound = Math.ceil(wrongBookTotal / reviewRoundCount);
+    reviewQuestionsInRound = 0;
+    reviewMonsters = selectReviewMonsters(reviewRoundCount);
+    
     // 显示提示
-    showToast('🎯 开始' + (QUESTION_TYPE_NAMES[type] || type) + '专项练习！');
+    showToast('🎯 开始' + (QUESTION_TYPE_NAMES[type] || type) + '专项练习！共 ' + wrongBookTotal + ' 题，' + reviewRoundCount + ' 关');
     
     startWeaknessRound(1);
 }
@@ -2785,15 +2835,17 @@ function startWeaknessPractice(type){
 // 专项练习回合
 function startWeaknessRound(round){
     qIdx=0;correctCount=0;mHp=100;zHp=100;
-    currentMonster=battleMonsters[round-1];
+    currentMonster = reviewMonsters[round-1] || reviewMonsters[0];
     
-    document.getElementById('stageNum').textContent=round;
+    document.querySelector('#battleGame .title').innerHTML = '⚔️ 专项练习 第 <span id="stageNum">'+round+'</span>/<span id="totalRounds">'+reviewRoundCount+'</span> 关';
     document.getElementById('monsterEmoji').textContent=currentMonster.emoji;
     document.getElementById('monsterName').textContent=currentMonster.name;
     document.getElementById('monsterDesc').textContent='专项练习：' + (QUESTION_TYPE_NAMES[weaknessPracticeType] || weaknessPracticeType);
     document.getElementById('monsterHpName').textContent=currentMonster.name;
     
     currentMonsterIndex=round;
+    reviewCurrentRound = round;
+    reviewQuestionsInRound = 0;
     updateHP();
     showWeaknessRoundQuestion();
     show('battleGame');
@@ -2843,8 +2895,11 @@ function showWeaknessRoundQuestion(){
     
     usedQuestions.push(item.eng+'_'+type);
     
+    // 关卡内题目计数
+    reviewQuestionsInRound++;
+    
     // 进度显示
-    document.getElementById('battleProgress').textContent='专项练习 · 第 '+(qIdx+1)+' 题';
+    document.getElementById('battleProgress').textContent='专项练习 · 第 '+reviewCurrentRound+'/'+reviewRoundCount+' 关 · 第 '+(wrongBookTotal - battleQuestionPool.length)+'/'+wrongBookTotal+' 题';
     
     let area = document.getElementById('questionArea');
     
@@ -3039,7 +3094,7 @@ function startRound(round){
     qIdx=0;correctCount=0;mHp=100;zHp=100;
     currentMonster=battleMonsters[round-1];
     
-    document.getElementById('stageNum').textContent=round;
+    document.querySelector('#battleGame .title').innerHTML = '⚔️ 第 <span id="stageNum">'+round+'</span> 关';
     document.getElementById('monsterEmoji').textContent=currentMonster.emoji;
     document.getElementById('monsterName').textContent=currentMonster.name;
     document.getElementById('monsterDesc').textContent=currentMonster.desc;
@@ -3225,9 +3280,12 @@ function showRoundQuestion(){
     usedQuestions.push(item.eng+'_'+type);
     battleQuestionPool.splice(itemIndex,1);
     
+    // 关卡内题目计数
+    reviewQuestionsInRound++;
+    
     // 进度显示
     if(isWrongBookReview){
-        document.getElementById('battleProgress').textContent='错题复习 · 第 '+(wrongBookTotal - battleQuestionPool.length)+'/'+wrongBookTotal+' 题';
+        document.getElementById('battleProgress').textContent='错题复习 · 第 '+reviewCurrentRound+'/'+reviewRoundCount+' 关 · 第 '+(wrongBookTotal - battleQuestionPool.length)+'/'+wrongBookTotal+' 题';
     }else{
         document.getElementById('battleProgress').textContent='第 '+currentMonsterIndex+'/10 关 · 已答 '+qIdx+' 题';
     }
@@ -3256,13 +3314,43 @@ function showRoundQuestion(){
 }
 
 function nextRound(){
-    // 错题本复习模式：检查是否还有错题
+    // 错题本复习模式：闯关模式
     if(isWrongBookReview){
         if(battleQuestionPool.length === 0){
             endAllBattles();
             return;
         }
-        // 重置怪兽血量，继续下一题
+        
+        // 检查是否完成当前关卡
+        if(reviewQuestionsInRound >= reviewQuestionsPerRound){
+            // 进入下一关
+            reviewCurrentRound++;
+            if(reviewCurrentRound > reviewRoundCount){
+                endAllBattles();
+                return;
+            }
+            
+            // 换新怪兽
+            currentMonster = reviewMonsters[reviewCurrentRound - 1] || reviewMonsters[0];
+            mHp = 100;
+            zHp = 100;
+            reviewQuestionsInRound = 0;
+            
+            document.querySelector('#battleGame .title').innerHTML = '⚔️ 错题复习 第 <span id="stageNum">'+reviewCurrentRound+'</span>/<span id="totalRounds">'+reviewRoundCount+'</span> 关';
+            document.getElementById('monsterEmoji').textContent = currentMonster.emoji;
+            document.getElementById('monsterName').textContent = currentMonster.name;
+            document.getElementById('monsterHpName').textContent = currentMonster.name;
+            updateHP();
+            
+            let area=document.getElementById('questionArea');
+            area.innerHTML='<div style="text-align:center;padding:30px;"><div style="font-size:50px;">🎉</div><div style="color:#ffd93d;font-size:20px;margin:10px 0;">打败了 '+currentMonster.name+'！</div><div style="color:#aaa;">进入第 '+reviewCurrentRound+' 关...</div></div>';
+            setTimeout(function(){
+                showRoundQuestion();
+            },1500);
+            return;
+        }
+        
+        // 继续当前关卡
         mHp = 100;
         zHp = 100;
         updateHP();
@@ -3274,13 +3362,43 @@ function nextRound(){
         return;
     }
     
-    // 薄弱点专项练习模式
+    // 薄弱点专项练习模式：闯关模式
     if(isWeaknessPractice){
         if(battleQuestionPool.length === 0){
             endAllBattles();
             return;
         }
-        // 重置怪兽血量，继续下一题
+        
+        // 检查是否完成当前关卡
+        if(reviewQuestionsInRound >= reviewQuestionsPerRound){
+            // 进入下一关
+            reviewCurrentRound++;
+            if(reviewCurrentRound > reviewRoundCount){
+                endAllBattles();
+                return;
+            }
+            
+            // 换新怪兽
+            currentMonster = reviewMonsters[reviewCurrentRound - 1] || reviewMonsters[0];
+            mHp = 100;
+            zHp = 100;
+            reviewQuestionsInRound = 0;
+            
+            document.querySelector('#battleGame .title').innerHTML = '⚔️ 专项练习 第 <span id="stageNum">'+reviewCurrentRound+'</span>/<span id="totalRounds">'+reviewRoundCount+'</span> 关';
+            document.getElementById('monsterEmoji').textContent = currentMonster.emoji;
+            document.getElementById('monsterName').textContent = currentMonster.name;
+            document.getElementById('monsterHpName').textContent = currentMonster.name;
+            updateHP();
+            
+            let area=document.getElementById('questionArea');
+            area.innerHTML='<div style="text-align:center;padding:30px;"><div style="font-size:50px;">🎉</div><div style="color:#ffd93d;font-size:20px;margin:10px 0;">打败了 '+currentMonster.name+'！</div><div style="color:#aaa;">进入第 '+reviewCurrentRound+' 关...</div></div>';
+            setTimeout(function(){
+                showWeaknessRoundQuestion();
+            },1500);
+            return;
+        }
+        
+        // 继续当前关卡
         mHp = 100;
         zHp = 100;
         updateHP();
@@ -4069,7 +4187,7 @@ function checkAnswer(correct, btn){
         if(isWrongBookReview && currentText){
             let wrongItem = wrongBook.find(function(item){ return item.word === currentText; });
             if(wrongItem){
-                wrongItem.count++;
+                wrongItem.count = (wrongItem.count || 0) + 1;
                 let now = new Date().toISOString();
                 wrongItem.lastReview = now;
                 wrongItem.nextReview = calculateNextReview(now, wrongItem.count);
@@ -4557,7 +4675,7 @@ function preInitSpeechRecognition(){
                                 if(isWrongBookReview && currentText){
                                     let wrongItem = wrongBook.find(function(item){ return item.word === currentText; });
                                     if(wrongItem){
-                                        wrongItem.count++;
+                                        wrongItem.count = (wrongItem.count || 0) + 1;
                                         let now = new Date().toISOString();
                                         wrongItem.lastReview = now;
                                         wrongItem.nextReview = calculateNextReview(now, wrongItem.count);
