@@ -59,6 +59,9 @@
         .victory-level-up { background: linear-gradient(135deg, #f39c12, #e74c3c); padding: 15px; border-radius: 15px; margin: 15px 0; animation: bounce 0.5s ease-in-out infinite; }
         .level-up-text { font-size: 22px; font-weight: bold; color: #fff; }
         .level-up-info { font-size: 16px; color: #fff; margin-top: 5px; }
+        .victory-unlock { background: linear-gradient(135deg, #9b59b6, #8e44ad); padding: 15px; border-radius: 15px; margin: 15px 0; animation: bounce 0.5s ease-in-out infinite; }
+        .unlock-text { font-size: 22px; font-weight: bold; color: #fff; }
+        .unlock-info { font-size: 16px; color: #fff; margin-top: 5px; }
         .victory-stars { font-size: 40px; margin: 15px 0; }
         @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
         @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
@@ -209,6 +212,69 @@
 .login-reward-desc { color: #aaa; font-size: 14px; margin-bottom: 20px; }
 .login-reward-energy { color: #00d4ff; font-size: 32px; font-weight: bold; margin-bottom: 20px; }
 .login-reward-btn { padding: 12px 40px; border-radius: 25px; border: none; background: linear-gradient(135deg, #00d4ff, #00ff88); color: #0a0a1a; font-size: 16px; font-weight: bold; cursor: pointer; }
+
+/* 连击系统样式 */
+.combo-display { position: fixed; top: 80px; right: 20px; background: linear-gradient(135deg, rgba(255,215,0,0.9), rgba(255,107,0,0.9)); border-radius: 20px; padding: 10px 20px; z-index: 100; animation: comboSlideIn 0.3s ease; box-shadow: 0 4px 15px rgba(255,215,0,0.5); }
+@keyframes comboSlideIn { from { transform: translateX(100px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+.combo-count { font-size: 28px; font-weight: bold; color: #0a0a1a; text-align: center; }
+.combo-label { font-size: 12px; color: #333; text-align: center; }
+.combo-effect { font-size: 16px; text-align: center; margin-top: 5px; }
+
+.combo-bonus-popup { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: linear-gradient(135deg, #ffd93d, #ff6b35); border-radius: 25px; padding: 20px 40px; z-index: 200; animation: comboPopup 1s ease forwards; text-align: center; }
+@keyframes comboPopup { 0% { transform: translate(-50%, -50%) scale(0); opacity: 0; } 30% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; } 100% { transform: translate(-50%, -50%) scale(1); opacity: 0; } }
+.combo-bonus-text { font-size: 24px; font-weight: bold; color: #0a0a1a; }
+.combo-bonus-effect { font-size: 40px; margin-bottom: 10px; }
+
+.encourage-popup { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); border: 2px solid #00d4ff; border-radius: 20px; padding: 15px 30px; z-index: 150; animation: encourageAnim 2s ease forwards; }
+@keyframes encourageAnim { 0% { opacity: 0; transform: translateX(-50%) translateY(20px); } 20% { opacity: 1; transform: translateX(-50%) translateY(0); } 80% { opacity: 1; } 100% { opacity: 0; } }
+.encourage-text { font-size: 18px; color: #00d4ff; font-weight: bold; text-align: center; }
+
+/* 赛罗变身样式 */
+.zero-form-badge { display: inline-block; padding: 5px 15px; border-radius: 15px; background: linear-gradient(135deg, #00d4ff, #9400d3); color: white; font-size: 12px; font-weight: bold; margin: 5px 0; }
+.zero-form-active { animation: formPulse 1s infinite; }
+@keyframes formPulse { 0%, 100% { box-shadow: 0 0 10px rgba(0,212,255,0.5); } 50% { box-shadow: 0 0 25px rgba(0,212,255,0.8); } }
+
+.transform-animation { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle, rgba(0,212,255,0.8), rgba(148,0,211,0.8)); z-index: 300; display: flex; align-items: center; justify-content: center; animation: transformFlash 1s ease forwards; }
+@keyframes transformFlash { 0% { opacity: 0; } 30% { opacity: 1; } 70% { opacity: 1; } 100% { opacity: 0; } }
+.transform-text { font-size: 36px; font-weight: bold; color: white; text-align: center; animation: transformText 1s ease; }
+@keyframes transformText { 0% { transform: scale(0); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
+
+/* 怪兽养成样式 */
+.monster-card { background: rgba(255,255,255,0.08); border-radius: 15px; padding: 15px; margin: 10px 0; border: 2px solid rgba(255,255,255,0.1); transition: all 0.3s; }
+.monster-card.selected { border-color: #00d4ff; background: rgba(0,212,255,0.15); }
+.monster-card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.monster-emoji-large { font-size: 40px; }
+.monster-info { flex: 1; }
+.monster-name-large { font-size: 16px; font-weight: bold; color: #00d4ff; }
+.monster-level-badge { display: inline-block; padding: 2px 8px; border-radius: 10px; background: linear-gradient(135deg, #ffd93d, #ff6b35); color: #0a0a1a; font-size: 11px; font-weight: bold; margin-left: 5px; }
+.monster-skill-badge { display: inline-block; padding: 3px 10px; border-radius: 10px; background: rgba(255,255,255,0.1); font-size: 12px; margin-top: 5px; }
+.monster-exp-bar { height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden; margin-top: 10px; }
+.monster-exp-fill { height: 100%; background: linear-gradient(90deg, #ffd93d, #ff6b35); border-radius: 4px; transition: width 0.3s; }
+.monster-actions { display: flex; gap: 10px; margin-top: 10px; }
+.monster-action-btn { flex: 1; padding: 8px; border-radius: 10px; border: none; font-size: 12px; cursor: pointer; font-weight: bold; }
+.monster-action-btn.select { background: linear-gradient(135deg, #00d4ff, #00ff88); color: #0a0a1a; }
+.monster-action-btn.evolve { background: linear-gradient(135deg, #9b59b6, #8e44ad); color: white; }
+.monster-action-btn.evolve:disabled { background: #555; color: #888; cursor: not-allowed; }
+
+/* 关卡怪兽技能提示 */
+.enemy-skill-hint { background: linear-gradient(135deg, rgba(255,107,107,0.2), rgba(255,193,7,0.2)); border: 1px solid rgba(255,107,107,0.3); border-radius: 10px; padding: 10px; margin: 10px 0; text-align: center; }
+.enemy-skill-icon { font-size: 24px; margin-right: 8px; }
+.enemy-skill-name { color: #ff6b6b; font-weight: bold; }
+.enemy-skill-desc { color: #aaa; font-size: 12px; margin-top: 3px; }
+
+/* 快速闯关入口 */
+.quick-battle-btn { background: linear-gradient(135deg, #f39c12, #e74c3c); border: none; border-radius: 10px; padding: 10px 15px; width: 100%; cursor: pointer; margin-top: 10px; display: flex; align-items: center; justify-content: space-between; }
+.quick-battle-btn:hover { transform: scale(1.02); }
+.quick-battle-info { text-align: left; }
+.quick-battle-title { color: white; font-size: 14px; font-weight: bold; }
+.quick-battle-desc { color: rgba(255,255,255,0.7); font-size: 11px; }
+.quick-battle-icon { font-size: 24px; }
+
+/* 觉醒提示 */
+.awakening-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle, rgba(255,215,0,0.3), transparent); z-index: 250; pointer-events: none; animation: awakeningGlow 2s ease forwards; }
+@keyframes awakeningGlow { 0% { opacity: 0; } 30% { opacity: 1; } 70% { opacity: 1; } 100% { opacity: 0; } }
+.awakening-text { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 28px; font-weight: bold; color: #ffd93d; text-shadow: 0 0 20px rgba(255,215,0,0.8); z-index: 251; animation: awakeningText 2s ease forwards; }
+@keyframes awakeningText { 0% { transform: translate(-50%, -50%) scale(0); opacity: 0; } 50% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; } 100% { transform: translate(-50%, -50%) scale(1); opacity: 0; } }
     </style>
 </head>
 <body>
@@ -413,6 +479,10 @@
                     <div class="level-up-text">🌟🎉 升级了！🎉🌟</div>
                     <div class="level-up-info" id="levelUpInfo">现在是 Lv.2</div>
                 </div>
+                <div class="victory-unlock" id="monsterUnlockNotice" style="display:none;">
+                    <div class="unlock-text">👾 新怪兽解锁！👾</div>
+                    <div class="unlock-info" id="monsterUnlockInfo">+0 只怪兽</div>
+                </div>
                 <div class="victory-stars" id="victoryStars"></div>
                 <button class="game-btn btn-battle" onclick="backToMenu()">🏠 返回主页</button>
             </div>
@@ -547,18 +617,18 @@ const DIALOGUE_SCENES = [
 // 词汇库 - Kids Box Level 1, 2, 3 (每册12个单元)
 const LEVEL_DATA = {
     1: {
-        1:{words:[["hello","你好"],["goodbye","再见"],["I'm","我是"],["name","名字"],["what's","是什么"],["your","你的"],["my","我的"],["one","一"],["two","二"],["three","三"],["four","四"],["five","五"],["six","六"],["seven","七"],["eight","八"],["nine","九"],["ten","十"],["red","红色"],["yellow","黄色"],["pink","粉色"],["green","绿色"],["orange","橙色"],["purple","紫色"],["blue","蓝色"],["rainbow","彩虹"]],sentences:[["Hello!","你好！"],["What's your name?","你叫什么名字？"],["I'm seven.","我七岁。"],["Goodbye!","再见！"],["How old are you?","你几岁？"]]},
-        2:{words:[["book","书"],["chair","椅子"],["eraser","橡皮"],["pen","钢笔"],["pencil","铅笔"],["table","桌子"],["school","学校"],["classroom","教室"],["teacher","老师"],["bag","书包"],["ruler","尺子"],["pencil case","笔盒"]],sentences:[["Is this a pencil?","这是铅笔吗？"],["Who's that?","那是谁？"],["Open your book.","打开你的书。"],["Sit down, please.","请坐下。"]]},
-        3:{words:[["ball","球"],["bike","自行车"],["car","汽车"],["doll","娃娃"],["train","火车"],["computer","电脑"],["black","黑色"],["white","白色"],["toy","玩具"],["game","游戏"],["puzzle","拼图"],["kite","风筝"]],sentences:[["What's your favourite toy?","你最喜欢的玩具是什么？"],["My favourite toy is a train.","我最喜欢的玩具是火车。"],["I've got a ball.","我有一个球。"],["This is my bike.","这是我的自行车。"]]},
-        4:{words:[["brother","兄弟"],["sister","姐妹"],["father","爸爸"],["mother","妈妈"],["grandfather","爷爷"],["grandmother","奶奶"],["family","家庭"],["happy","开心的"],["uncle","叔叔"],["aunt","阿姨"],["cousin","表兄弟"]],sentences:[["This is my family.","这是我的家庭。"],["He's young.","他很年轻。"],["She's my sister.","她是我的姐妹。"],["I love my family.","我爱我的家庭。"]]},
-        5:{words:[["bird","鸟"],["cat","猫"],["dog","狗"],["fish","鱼"],["horse","马"],["mouse","老鼠"],["big","大的"],["small","小的"],["pet","宠物"],["rabbit","兔子"],["hamster","仓鼠"]],sentences:[["I have a pet cat.","我有一只宠物猫。"],["It's small.","它很小。"],["Have you got a pet?","你有宠物吗？"],["My dog is big.","我的狗很大。"]]},
-        6:{words:[["ear","耳朵"],["eye","眼睛"],["face","脸"],["hair","头发"],["mouth","嘴巴"],["nose","鼻子"],["tooth","牙齿"],["head","头"],["arm","手臂"],["leg","腿"],["hand","手"],["foot","脚"]],sentences:[["Touch your nose.","摸摸你的鼻子。"],["I've got purple hair.","我有紫色的头发。"],["This is my face.","这是我的脸。"],["I've got two eyes.","我有两只眼睛。"]]},
-        7:{words:[["crocodile","鳄鱼"],["elephant","大象"],["giraffe","长颈鹿"],["hippo","河马"],["monkey","猴子"],["snake","蛇"],["tiger","老虎"],["lion","狮子"],["bear","熊"],["wolf","狼"],["fox","狐狸"]],sentences:[["They've got big mouths.","它们有大嘴巴。"],["Have they got long legs?","它们有长腿吗？"],["The elephant is big.","大象很大。"],["I like monkeys.","我喜欢猴子。"]]},
-        8:{words:[["jacket","夹克"],["shoes","鞋子"],["skirt","裙子"],["socks","袜子"],["trousers","裤子"],["T-shirt","T恤"],["dress","连衣裙"],["hat","帽子"],["coat","外套"],["boots","靴子"],["scarf","围巾"]],sentences:[["He's got red trousers.","他穿着红裤子。"],["She hasn't got a jacket.","她没有夹克。"],["I'm wearing a dress.","我穿着连衣裙。"],["Put on your shoes.","穿上你的鞋子。"]]},
-        9:{words:[["basketball","篮球"],["football","足球"],["tennis","网球"],["guitar","吉他"],["piano","钢琴"],["swim","游泳"],["sing","唱歌"],["dance","跳舞"],["run","跑"],["jump","跳"],["play","玩"]],sentences:[["I can sing.","我会唱歌。"],["Can you swim?","你会游泳吗？"],["I like playing football.","我喜欢踢足球。"],["She can dance.","她会跳舞。"]]},
-        10:{words:[["boat","船"],["bus","公共汽车"],["helicopter","直升机"],["lorry","卡车"],["motorbike","摩托车"],["plane","飞机"],["train","火车"],["bike","自行车"],["car","汽车"],["taxi","出租车"],["ship","轮船"]],sentences:[["What's he doing?","他在做什么？"],["I'm flying.","我在飞。"],["The bus is red.","公交车是红色的。"],["I go to school by bike.","我骑自行车上学。"]]},
-        11:{words:[["bathroom","浴室"],["bedroom","卧室"],["dining room","餐厅"],["kitchen","厨房"],["living room","客厅"],["sofa","沙发"],["bed","床"],["door","门"],["window","窗户"],["wall","墙"],["floor","地板"]],sentences:[["What's he doing?","他在做什么？"],["She's sitting on the sofa.","她坐在沙发上。"],["Where's the kitchen?","厨房在哪里？"],["This is my bedroom.","这是我的卧室。"]]},
-        12:{words:[["apple","苹果"],["banana","香蕉"],["burger","汉堡"],["cake","蛋糕"],["chocolate","巧克力"],["ice cream","冰淇淋"],["orange","橙子"],["party","派对"],["milk","牛奶"],["juice","果汁"],["water","水"]],sentences:[["I like cake.","我喜欢蛋糕。"],["I don't like chocolate.","我不喜欢巧克力。"],["Do you like apples?","你喜欢苹果吗？"],["Happy birthday!","生日快乐！"]]}
+        1:{words:[["hello","你好"],["goodbye","再见"],["I'm","我是"],["name","名字"],["what's","是什么"],["your","你的"],["my","我的"],["one","一"],["two","二"],["three","三"],["four","四"],["five","五"],["six","六"],["seven","七"],["eight","八"],["nine","九"],["ten","十"],["red","红色"],["yellow","黄色"],["pink","粉色"],["green","绿色"],["orange","橙色"],["purple","紫色"],["blue","蓝色"],["rainbow","彩虹"],["good","好的"],["please","请"],["thank you","谢谢"],["yes","是"],["no","不"],["OK","好的"],["and","和"],["very","非常"],["too","也；太"],["let's","让我们"],["welcome","欢迎"],["a","一个"],["an","一个"],["the","这/那"],["be","是"],["do","做"],["say","说"],["know","知道"],["again","再，又"],["everybody","每个人"]],sentences:[["Hello!","你好！"],["What's your name?","你叫什么名字？"],["I'm seven.","我七岁。"],["Goodbye!","再见！"],["How old are you?","你几岁？"],["Thank you!","谢谢你！"],["Yes, please.","好的，请。"],["No, thank you.","不用了，谢谢。"],["Welcome!","欢迎！"],["Let's play!","让我们玩吧！"],["I have a book.","我有一本书。"],["I have an apple.","我有一个苹果。"],["The cat is big.","这只猫很大。"],["I can do it.","我能做到。"],["Say hello!","说你好！"],["I know.","我知道。"],["Say it again.","再说一遍。"],["Everybody say hello!","大家说你好！"]]},
+        2:{words:[["book","书"],["chair","椅子"],["eraser","橡皮"],["pen","钢笔"],["pencil","铅笔"],["table","桌子"],["school","学校"],["classroom","教室"],["teacher","老师"],["bag","书包"],["ruler","尺子"],["pencil case","笔盒"],["desk","书桌"],["rubber","橡皮"],["board","黑板"],["open","打开"],["close","关闭"],["clean","干净的"],["dirty","脏的"],["write","写"],["maths","数学"],["science","科学"],["geography","地理"],["add","相加"],["cross","打叉"],["cut","剪"],["dot","点"],["fold","折叠"],["match","搭配"],["tick","打勾"]],sentences:[["Is this a pencil?","这是铅笔吗？"],["Who's that?","那是谁？"],["Open your book.","打开你的书。"],["Sit down, please.","请坐下。"],["Close the door.","关门。"],["Clean the board.","擦黑板。"],["Write your name.","写你的名字。"],["I like maths.","我喜欢数学。"],["Science is fun.","科学很有趣。"],["Add the numbers.","把数字相加。"],["Cross the word.","划掉这个词。"],["Cut the paper.","剪纸。"],["Draw a dot.","画一个点。"],["Fold the paper.","折纸。"],["Match the pictures.","匹配图片。"],["Tick the answer.","在答案上打勾。"]]},
+        3:{words:[["ball","球"],["bike","自行车"],["car","汽车"],["doll","娃娃"],["train","火车"],["computer","电脑"],["black","黑色"],["white","白色"],["toy","玩具"],["game","游戏"],["puzzle","拼图"],["kite","风筝"],["lovely","可爱的"],["funny","有趣的"],["great","很棒的"],["puppet","木偶"],["sticker","贴纸"],["spinner","转盘"],["box","盒子"],["clown","小丑"],["picture","图片"],["painting","绘画"],["make","制作"],["mix","混合"]],sentences:[["What's your favourite toy?","你最喜欢的玩具是什么？"],["My favourite toy is a train.","我最喜欢的玩具是火车。"],["I've got a ball.","我有一个球。"],["This is my bike.","这是我的自行车。"],["It's lovely!","它很可爱！"],["That's funny!","那很有趣！"],["Great!","太棒了！"],["Let's make a cake.","让我们做个蛋糕。"],["Mix the colours.","混合颜色。"]]},
+        4:{words:[["brother","兄弟"],["sister","姐妹"],["father","爸爸"],["mother","妈妈"],["grandfather","爷爷"],["grandmother","奶奶"],["family","家庭"],["happy","开心的"],["uncle","叔叔"],["aunt","阿姨"],["cousin","表兄弟"],["boy","男孩"],["girl","女孩"],["friend","朋友"],["mum","妈妈"],["dad","爸爸"],["baby","宝宝"],["man","男人"],["woman","女人"],["child","孩子"],["children","孩子们"],["Mr","先生"],["Mrs","夫人"],["hero","英雄"],["kind","友善的"],["tell","告诉"]],sentences:[["This is my family.","这是我的家庭。"],["He's young.","他很年轻。"],["She's my sister.","她是我的姐妹。"],["I love my family.","我爱我的家庭。"],["He's my friend.","他是我的朋友。"],["She's a baby.","她是个宝宝。"],["The man is my dad.","那个男人是我爸爸。"],["The woman is my mum.","那个女人是我妈妈。"],["The children are happy.","孩子们很开心。"],["My dad is a hero.","我爸爸是英雄。"],["She is kind.","她很友善。"],["Tell me a story.","给我讲个故事。"]]},
+        5:{words:[["bird","鸟"],["cat","猫"],["dog","狗"],["fish","鱼"],["horse","马"],["mouse","老鼠"],["big","大的"],["small","小的"],["pet","宠物"],["rabbit","兔子"],["hamster","仓鼠"],["frog","青蛙"],["duck","鸭子"],["tail","尾巴"],["feed","喂养"],["beautiful","漂亮的"],["nice","好的"],["quiet","安静的"],["look after","照顾"],["long","长的"],["short","短的"],["alive","活的"]],sentences:[["I have a pet cat.","我有一只宠物猫。"],["It's small.","它很小。"],["Have you got a pet?","你有宠物吗？"],["My dog is big.","我的狗很大。"],["The frog can jump.","青蛙会跳。"],["The duck has a tail.","鸭子有尾巴。"],["It's beautiful!","它很漂亮！"],["Be quiet!","安静！"],["Look after your pet.","照顾好你的宠物。"],["The fish is alive.","这条鱼是活的。"]]},
+        6:{words:[["ear","耳朵"],["eye","眼睛"],["face","脸"],["hair","头发"],["mouth","嘴巴"],["nose","鼻子"],["tooth","牙齿"],["head","头"],["arm","手臂"],["leg","腿"],["hand","手"],["foot","脚"],["shoulder","肩膀"],["knee","膝盖"],["toe","脚趾"],["finger","手指"],["laugh","笑"],["smile","微笑"]],sentences:[["Touch your nose.","摸摸你的鼻子。"],["I've got purple hair.","我有紫色的头发。"],["This is my face.","这是我的脸。"],["I've got two eyes.","我有两只眼睛。"],["Touch your shoulder.","摸摸你的肩膀。"],["Touch your knee.","摸摸你的膝盖。"],["Laugh!","笑！"],["Smile!","微笑！"]]},
+        7:{words:[["crocodile","鳄鱼"],["elephant","大象"],["giraffe","长颈鹿"],["hippo","河马"],["monkey","猴子"],["snake","蛇"],["tiger","老虎"],["lion","狮子"],["bear","熊"],["wolf","狼"],["fox","狐狸"],["tree","树"],["flower","花"],["river","河流"],["forest","森林"],["nature","自然"],["wild","野生的"],["troll","怪兽"]],sentences:[["They've got big mouths.","它们有大嘴巴。"],["Have they got long legs?","它们有长腿吗？"],["The elephant is big.","大象很大。"],["I like monkeys.","我喜欢猴子。"],["They're big.","它们很大。"],["They aren't small.","它们不小。"],["They're long.","它们很长。"],["They aren't short.","它们不短。"],["The monkey is in the tree.","猴子在树上。"],["The flowers are beautiful.","花很漂亮。"],["The troll is ugly.","怪兽很丑。"]]},
+        8:{words:[["jacket","夹克"],["shoes","鞋子"],["skirt","裙子"],["socks","袜子"],["trousers","裤子"],["T-shirt","T恤"],["dress","连衣裙"],["hat","帽子"],["coat","外套"],["boots","靴子"],["scarf","围巾"],["clothes","衣服"],["sock","袜子"],["ugly","丑陋的"],["wear","穿"]],sentences:[["He's got red trousers.","他穿着红裤子。"],["She hasn't got a jacket.","她没有夹克。"],["I'm wearing a dress.","我穿着连衣裙。"],["Put on your shoes.","穿上你的鞋子。"],["I like these clothes.","我喜欢这些衣服。"],["The sock is ugly.","这只袜子很丑。"]]},
+        9:{words:[["basketball","篮球"],["football","足球"],["tennis","网球"],["guitar","吉他"],["piano","钢琴"],["swim","游泳"],["sing","唱歌"],["dance","跳舞"],["run","跑"],["jump","跳"],["play","玩"],["sport","运动"],["team","队"],["winner","获胜者"],["ride","骑"],["drive","驾驶"],["come","来"],["go","去"],["walk","走路"],["help","帮助"],["action","动作"],["song","歌曲"],["story","故事"],["music","音乐"],["pop star","流行歌星"],["stand up","起立"],["sit down","坐下"],["start","开始"],["stop","停止"]],sentences:[["I can sing.","我会唱歌。"],["Can you swim?","你会游泳吗？"],["I like playing football.","我喜欢踢足球。"],["She can dance.","她会跳舞。"],["He's the winner!","他是获胜者！"],["I can ride a bike.","我会骑自行车。"],["Come here!","过来！"],["Let's go!","我们走吧！"],["I can walk.","我会走路。"],["Can you help me?","你能帮我吗？"],["Action!","动作！"],["Sing a song.","唱首歌。"],["Tell a story.","讲个故事。"],["I like music.","我喜欢音乐。"],["She's a pop star.","她是个流行歌星。"],["Stand up, please.","请起立。"],["Sit down, please.","请坐下。"],["Start now.","现在开始。"],["Stop!","停！"]]},
+        10:{words:[["boat","船"],["bus","公共汽车"],["helicopter","直升机"],["lorry","卡车"],["motorbike","摩托车"],["plane","飞机"],["train","火车"],["bike","自行车"],["car","汽车"],["taxi","出租车"],["ship","轮船"],["here","这里"],["there","那里"],["with","和...一起"],["street","街道"],["fly","飞"],["sail","航行"],["airport","机场"],["station","车站"],["move","移动"],["follow","跟随"]],sentences:[["What's he doing?","他在做什么？"],["I'm flying.","我在飞。"],["The bus is red.","公交车是红色的。"],["I go to school by bike.","我骑自行车上学。"],["He's driving a car.","他在开汽车。"],["She's riding a bike.","她在骑自行车。"],["What are you doing?","你在做什么？"],["I'm reading a book.","我在读书。"],["Come here!","过来！"],["Go there!","去那里！"],["I'm with my friend.","我和朋友在一起。"],["Move the car.","移动汽车。"],["Follow me!","跟着我！"]]},
+        11:{words:[["bathroom","浴室"],["bedroom","卧室"],["dining room","餐厅"],["kitchen","厨房"],["living room","客厅"],["sofa","沙发"],["bed","床"],["door","门"],["window","窗户"],["wall","墙"],["floor","地板"],["listen","听"],["look","看"],["wash","洗"],["tidy up","收拾整理"],["room","房间"],["hall","门厅"],["television","电视机"],["TV","电视"],["programme","节目"],["pass","传递"],["take out","拿出"]],sentences:[["What's he doing?","他在做什么？"],["She's sitting on the sofa.","她坐在沙发上。"],["Where's the kitchen?","厨房在哪里？"],["This is my bedroom.","这是我的卧室。"],["Is your ball under the table?","你的球在桌子下面吗？"],["We're in the living room.","我们在客厅里。"],["We aren't in the kitchen.","我们不在厨房。"],["It's on the bed.","它在床上。"],["Listen to me!","听我说！"],["Look at this!","看这个！"],["Wash your hands.","洗手。"],["Tidy up your room.","整理你的房间。"],["I watch TV.","我看电视。"],["Pass the book.","传递书本。"],["Take out your pen.","拿出你的钢笔。"]]},
+        12:{words:[["apple","苹果"],["banana","香蕉"],["burger","汉堡"],["cake","蛋糕"],["chocolate","巧克力"],["ice cream","冰淇淋"],["orange","橙子"],["party","派对"],["milk","牛奶"],["juice","果汁"],["water","水"],["grape","葡萄"],["lemon","柠檬"],["pear","梨"],["fruit","水果"],["yummy","美味的"],["hot","热的"],["cold","冷的"],["sad","伤心的"],["hungry","饿的"],["thirsty","渴的"],["eat","吃"],["drink","喝"],["delicious","美味的"],["watermelon","西瓜"],["a lot of","很多"],["some","一些"],["taste","品尝"],["ready","准备好的"]],sentences:[["I like cake.","我喜欢蛋糕。"],["I don't like chocolate.","我不喜欢巧克力。"],["Do you like apples?","你喜欢苹果吗？"],["Happy birthday!","生日快乐！"],["Yes, I do.","是的，我喜欢。"],["No, I don't.","不，我不喜欢。"],["Do you like bananas?","你喜欢香蕉吗？"],["I like ice cream.","我喜欢冰淇淋。"],["The fruit is yummy.","水果很好吃。"],["I'm hungry.","我饿了。"],["I'm thirsty.","我渴了。"],["The soup is hot.","汤很热。"],["The ice cream is cold.","冰淇淋很冷。"],["I have a lot of apples.","我有很多苹果。"],["I want some cake.","我想要一些蛋糕。"],["Taste this!","尝尝这个！"],["Are you ready?","你准备好了吗？"]]}
     },
     2: {
         1:{words:[["back to school","返校"],["alphabet","字母表"],["eleven","十一"],["twelve","十二"],["thirteen","十三"],["fourteen","十四"],["fifteen","十五"],["sixteen","十六"],["seventeen","十七"],["eighteen","十八"],["nineteen","十九"],["twenty","二十"],["board","黑板"],["new","新的"],["old","旧的"]],sentences:[["Welcome back to school!","欢迎返校！"],["How old are you?","你几岁？"],["I'm eleven.","我十一岁。"],["What's this?","这是什么？"]]},
@@ -834,9 +904,18 @@ const ALL_MONSTERS = [
     {id:120,emoji:"🌍",name:"歼灭机甲兽",desc:"机械怪兽王"}
 ];
 
-// 当前闯关使用的怪兽（从已解锁中随机选择10个）
+function initMonsterSkills(){
+    let skillTypes = ['fire', 'ice', 'star'];
+    ALL_MONSTERS.forEach(function(monster, index){
+        if(!monster.skillType){
+            monster.skillType = skillTypes[index % 3];
+            monster.attack = 10 + Math.floor(Math.random() * 11);
+        }
+    });
+}
+initMonsterSkills();
+
 let battleMonsters = [];
-// 已解锁的怪兽ID列表
 let unlockedMonsterIds = [1,2,3,4,5,6,7,8,9,10];
 
 let score=0, currentStage=1, monstersDef=0;
@@ -860,8 +939,90 @@ let totalStars=0;
 const ENERGY_PER_CORRECT=10;
 const ENERGY_TO_LEVEL_UP=50;
 
+// 连击系统
+let comboData = {
+    count: 0,
+    maxCombo: 0,
+    wrongCount: 0,
+    totalCombo: 0
+};
+
+const COMBO_CONFIG = {
+    2: { name: '加油！', bonus: 5, effect: '✨' },
+    3: { name: '很棒！', bonus: 10, effect: '🌟' },
+    5: { name: '太厉害了！', bonus: 20, effect: '🎆' },
+    7: { name: '超级棒！', bonus: 30, effect: '🌈' },
+    10: { name: '乐乐最棒！', bonus: 50, effect: '🎉' }
+};
+
+const ENCOURAGE_WORDS = {
+    correct: ['太棒了！', '真厉害！', '答对了！', '继续加油！', '你真聪明！'],
+    wrong: ['没关系，再想想！', '下次一定行！', '别灰心！', '继续努力！'],
+    comboBreak: ['没关系，重新开始！', '继续加油！'],
+    continuousWrong: ['要不要听听发音？', '这道题有点难，加油！', '再试一次！']
+};
+
+// 怪兽养成系统
+const MONSTER_SKILLS = {
+    fire: { name: '火焰', effect: '伤害+20%', desc: '答对时额外造成20%伤害', icon: '🔥', damageBonus: 0.2 },
+    ice: { name: '冰霜', effect: '受伤-30%', desc: '答错时减少30%受伤', icon: '❄️', defenseBonus: 0.3 },
+    star: { name: '星星', effect: '能量+5/题', desc: '每答对一题额外获得5能量', icon: '⭐', energyBonus: 5 }
+};
+
+let playerMonsters = {};
+let selectedMonsterId = null;
+
+// 赛罗变身系统
+let zeroState = {
+    form: 'basic',
+    formBonus: 1,
+    formDuration: 0,
+    awakening: false,
+    awakeningUsed: false
+};
+
+const ZERO_FORMS = {
+    basic: { name: '基础形态', bonus: 1, icon: '🦸' },
+    strong: { name: '强力型', bonus: 1.3, icon: '🦸💪', unlockLevel: 3 },
+    speed: { name: '速攻型', bonus: 1.2, icon: '🦸⚡', unlockLevel: 5 },
+    miracle: { name: '月神奇迹', bonus: 1.4, icon: '🦸🌙', unlockLevel: 7 },
+    ultimate: { name: '终极形态', bonus: 1.5, icon: '🦸✨', unlockLevel: 10 }
+};
+
+// 关卡配置
+const STAGE_CONFIG = {
+    quick: [
+        { questions: 3, monsterHp: 60, skill: null },
+        { questions: 3, monsterHp: 70, skill: 'playful' },
+        { questions: 4, monsterHp: 80, skill: 'sleepy' }
+    ],
+    full: [
+        { questions: 3, monsterHp: 60, skill: null },
+        { questions: 3, monsterHp: 70, skill: null },
+        { questions: 3, monsterHp: 80, skill: 'playful' },
+        { questions: 4, monsterHp: 90, skill: 'slow' },
+        { questions: 4, monsterHp: 100, skill: 'playful' },
+        { questions: 4, monsterHp: 110, skill: 'helpful' },
+        { questions: 5, monsterHp: 120, skill: 'sleepy' },
+        { questions: 5, monsterHp: 130, skill: 'playful' },
+        { questions: 5, monsterHp: 140, skill: 'slow' },
+        { questions: 6, monsterHp: 150, skill: 'boss' }
+    ]
+};
+
+const MONSTER_SKILLS_ENEMY = {
+    playful: { name: '调皮', desc: '偶尔藏起一个选项', icon: '😜' },
+    slow: { name: '慢吞吞', desc: '题目显示慢一点', icon: '🐢' },
+    sleepy: { name: '爱睡觉', desc: '偶尔睡着，伤害+50%', icon: '😴' },
+    helpful: { name: '爱帮忙', desc: '偶尔提示答案', icon: '🤗' },
+    boss: { name: 'BOSS', desc: '强力BOSS', icon: '👑' }
+};
+
+// 游戏模式
+let gameMode = 'full'; // 'quick' 或 'full'
+
 // 数据版本管理
-const DATA_VERSION = 3;
+const DATA_VERSION = 4;
 
 // 题库管理系统
 let questionBanks = {
@@ -913,7 +1074,28 @@ function calculateRoundCount(questionCount) {
 function selectReviewMonsters(count) {
     let unlockedMonsters = ALL_MONSTERS.filter(function(m){return unlockedMonsterIds.includes(m.id);});
     unlockedMonsters = shuffle(unlockedMonsters);
-    return unlockedMonsters.slice(0, Math.min(count, unlockedMonsters.length));
+    
+    let result = [];
+    let monsterNames = ['小兵', '队长', '精英', '将军', '之王'];
+    let hpBonus = [1, 1.2, 1.5, 1.8, 2];
+    
+    for(let i = 0; i < count; i++){
+        let baseMonster = unlockedMonsters[i % unlockedMonsters.length];
+        let tier = Math.min(i, 4);
+        
+        let enhancedMonster = {
+            id: baseMonster.id + '_enhanced_' + tier,
+            emoji: baseMonster.emoji,
+            name: baseMonster.name + '·' + monsterNames[tier],
+            desc: '错题挑战 · 第' + (i + 1) + '关',
+            baseHp: Math.floor(80 * hpBonus[tier]),
+            tier: tier
+        };
+        
+        result.push(enhancedMonster);
+    }
+    
+    return result;
 }
 
 // 单元解锁系统（每个级别独立）
@@ -1279,6 +1461,15 @@ function updateDailyTaskUI(){
         <div class="daily-task-title">
             <span class="daily-task-title-text">📋 每日任务</span>
             <span class="daily-task-refresh">今日 0:00 刷新</span>
+        </div>
+        
+        <!-- 快速闯关 -->
+        <div class="quick-battle-btn" onclick="startQuickBattle()">
+            <div class="quick-battle-info">
+                <div class="quick-battle-title">⚡ 快速闯关</div>
+                <div class="quick-battle-desc">3关 · 约5分钟 · 快速复习</div>
+            </div>
+            <div class="quick-battle-icon">🎮</div>
         </div>
         
         <!-- 登录任务 -->
@@ -1654,7 +1845,7 @@ function startWrongBookReview(){
     
     currentMonsterIndex = 1;
     currentMonster = reviewMonsters[0];
-    mHp = 100;
+    mHp = currentMonster.baseHp || 80;
     zHp = 100;
     
     document.querySelector('#battleGame .title').innerHTML = '⚔️ 错题复习 第 <span id="stageNum">1</span>/<span id="totalRounds">'+reviewRoundCount+'</span> 关';
@@ -1804,7 +1995,22 @@ function loadProgress(){
                 dailyTasks = data.dailyTasks;
             }
             
-            // 检查是否需要重置每日任务（新的一天）
+            if(data.playerMonsters){
+                playerMonsters = data.playerMonsters;
+            }
+            
+            if(data.selectedMonsterId){
+                selectedMonsterId = data.selectedMonsterId;
+            }
+            
+            if(data.maxCombo){
+                comboData.maxCombo = data.maxCombo;
+            }
+            
+            if(data.totalCombo){
+                comboData.totalCombo = data.totalCombo;
+            }
+            
             checkDailyTaskReset();
             
             // 如果数据被迁移，保存新版本
@@ -1869,6 +2075,14 @@ function migrateData(data, fromVersion){
         }
     }
     
+    // 版本3到版本4：怪兽养成和连击系统
+    if(fromVersion < 4){
+        data.playerMonsters = data.playerMonsters || {};
+        data.selectedMonsterId = data.selectedMonsterId || null;
+        data.maxCombo = data.maxCombo || 0;
+        data.totalCombo = data.totalCombo || 0;
+    }
+    
     data.version = DATA_VERSION;
     return data;
 }
@@ -1889,6 +2103,10 @@ function saveProgress(){
             unlockedMonsterIds: unlockedMonsterIds,
             studyStats: studyStats,
             dailyTasks: dailyTasks,
+            playerMonsters: playerMonsters,
+            selectedMonsterId: selectedMonsterId,
+            maxCombo: comboData.maxCombo,
+            totalCombo: comboData.totalCombo,
             saveTime: new Date().toISOString()
         };
         localStorage.setItem('ultraman_progress', JSON.stringify(data));
@@ -2923,30 +3141,150 @@ function showWeaknessRoundQuestion(){
     }
 }
 
-// 怪兽图鉴
 function showMonsterCollection(){
     let html = '<div style="text-align:center;margin-bottom:15px;"><div style="font-size:24px;color:#ffd93d;">👾 怪兽图鉴</div><div style="color:#aaa;font-size:14px;margin-top:5px;">已解锁 ' + unlockedMonsterIds.length + '/' + ALL_MONSTERS.length + '</div></div>';
-    html += '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;max-height:400px;overflow-y:auto;">';
+    
+    if(selectedMonsterId && playerMonsters[selectedMonsterId]){
+        let selectedMonster = ALL_MONSTERS.find(function(m){ return m.id === selectedMonsterId; });
+        let skill = getMonsterSkill(selectedMonsterId);
+        let pm = playerMonsters[selectedMonsterId];
+        html += '<div class="monster-card selected" style="margin-bottom:15px;">';
+        html += '<div style="display:flex;align-items:center;gap:10px;">';
+        html += '<div style="font-size:40px;">' + (selectedMonster ? selectedMonster.emoji : '❓') + '</div>';
+        html += '<div style="flex:1;">';
+        html += '<div style="font-size:16px;color:#00d4ff;font-weight:bold;">' + (selectedMonster ? selectedMonster.name : '未知') + (pm.evolved ? ' ✨' : '') + '</div>';
+        html += '<div style="font-size:12px;color:#aaa;margin-top:3px;">当前出战 · Lv.' + pm.level + '</div>';
+        if(skill){
+            html += '<div class="monster-skill-badge">' + skill.icon + ' ' + skill.name + '：' + skill.effect + '</div>';
+        }
+        html += '</div></div>';
+        html += '<div class="monster-exp-bar"><div class="monster-exp-fill" style="width:' + Math.min(100, (pm.stars / (pm.level * 100)) * 100) + '%;"></div></div>';
+        html += '<div style="font-size:11px;color:#888;margin-top:5px;text-align:right;">⭐ ' + pm.stars + '/' + (pm.level * 100) + '</div>';
+        html += '</div>';
+    }
+    
+    html += '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;max-height:350px;overflow-y:auto;">';
     
     ALL_MONSTERS.forEach(function(monster){
         let unlocked = unlockedMonsterIds.includes(monster.id);
-        html += '<div style="background:'+(unlocked?'rgba(0,212,255,0.1)':'rgba(255,255,255,0.02)')+';padding:10px;border-radius:10px;border:1px solid '+(unlocked?'rgba(0,212,255,0.3)':'rgba(255,255,255,0.05)')+';text-align:center;">';
-        html += '<div style="font-size:28px;">'+(unlocked?monster.emoji:'❓')+'</div>';
-        if(unlocked){
-            html += '<div style="font-size:12px;color:#00d4ff;margin-top:5px;">'+monster.name+'</div>';
-            html += '<div style="font-size:10px;color:#aaa;margin-top:2px;">'+monster.desc+'</div>';
-        }else{
-            html += '<div style="font-size:12px;color:#666;margin-top:5px;">未解锁</div>';
+        let pm = playerMonsters[monster.id] || { level: 1, stars: 0, evolved: false };
+        let skill = MONSTER_SKILLS[monster.skillType];
+        let isSelected = selectedMonsterId === monster.id;
+        
+        html += '<div class="monster-card' + (isSelected ? ' selected' : '') + '" onclick="' + (unlocked ? 'showMonsterDetail(' + monster.id + ')' : '') + '" style="cursor:' + (unlocked ? 'pointer' : 'default') + ';">';
+        html += '<div class="monster-card-header">';
+        html += '<div class="monster-emoji-large">' + (unlocked ? monster.emoji : '❓') + '</div>';
+        html += '<div class="monster-info">';
+        html += '<div class="monster-name-large">' + (unlocked ? monster.name : '未解锁') + (pm.evolved ? ' ✨' : '') + '<span class="monster-level-badge">Lv.' + pm.level + '</span></div>';
+        if(unlocked && skill){
+            html += '<div class="monster-skill-badge">' + skill.icon + ' ' + skill.name + '</div>';
         }
+        html += '</div></div>';
+        
+        if(unlocked){
+            html += '<div class="monster-exp-bar"><div class="monster-exp-fill" style="width:' + Math.min(100, (pm.stars / (pm.level * 100)) * 100) + '%;"></div></div>';
+            html += '<div style="font-size:10px;color:#888;margin-top:3px;">⭐ ' + pm.stars + '/' + (pm.level * 100) + '</div>';
+        }else{
+            html += '<div style="font-size:11px;color:#666;margin-top:5px;">通关可解锁</div>';
+        }
+        
         html += '</div>';
     });
     
     html += '</div>';
-    html += '<div style="text-align:center;margin-top:15px;color:#aaa;font-size:12px;">💡 通关战斗可解锁新怪兽</div>';
+    html += '<div style="text-align:center;margin-top:15px;color:#aaa;font-size:12px;">💡 点击怪兽查看详情，选择出战怪兽</div>';
     html += '<button class="game-btn" style="background:#555;margin-top:10px;" onclick="backToMenu()">🏠 返回</button>';
     
     document.getElementById('menu').innerHTML = html;
     document.getElementById('menu').classList.remove('hidden');
+}
+
+function showMonsterDetail(monsterId){
+    let monster = ALL_MONSTERS.find(function(m){ return m.id === monsterId; });
+    if(!monster) return;
+    
+    let pm = playerMonsters[monsterId] || { level: 1, stars: 0, evolved: false };
+    let skill = MONSTER_SKILLS[monster.skillType];
+    let isSelected = selectedMonsterId === monsterId;
+    let canEvolve = pm.level >= 5 && !pm.evolved;
+    
+    let html = '<div style="text-align:center;padding:20px;">';
+    html += '<div style="font-size:60px;margin-bottom:10px;">' + monster.emoji + (pm.evolved ? ' ✨' : '') + '</div>';
+    html += '<div style="font-size:24px;color:#00d4ff;font-weight:bold;margin-bottom:5px;">' + monster.name + '</div>';
+    html += '<div style="font-size:14px;color:#aaa;margin-bottom:15px;">' + monster.desc + '</div>';
+    
+    html += '<div style="background:rgba(255,255,255,0.05);border-radius:15px;padding:15px;margin-bottom:15px;">';
+    html += '<div style="display:flex;justify-content:space-between;margin-bottom:10px;">';
+    html += '<div><span style="color:#aaa;">等级</span> <span style="color:#ffd93d;font-weight:bold;">Lv.' + pm.level + '</span></div>';
+    html += '<div><span style="color:#aaa;">攻击力</span> <span style="color:#ff6b6b;font-weight:bold;">' + monster.attack + '</span></div>';
+    html += '</div>';
+    
+    if(skill){
+        html += '<div style="background:rgba(255,255,255,0.05);border-radius:10px;padding:10px;margin-bottom:10px;">';
+        html += '<div style="font-size:20px;margin-bottom:5px;">' + skill.icon + '</div>';
+        html += '<div style="color:#00d4ff;font-weight:bold;">' + skill.name + '</div>';
+        html += '<div style="color:#aaa;font-size:12px;">' + skill.desc + '</div>';
+        html += '<div style="color:#ffd93d;font-size:14px;margin-top:5px;">效果：' + skill.effect + '</div>';
+        html += '</div>';
+    }
+    
+    html += '<div style="margin-top:10px;">';
+    html += '<div style="color:#aaa;font-size:12px;margin-bottom:5px;">经验值</div>';
+    html += '<div class="monster-exp-bar" style="height:12px;"><div class="monster-exp-fill" style="width:' + Math.min(100, (pm.stars / (pm.level * 100)) * 100) + '%;"></div></div>';
+    html += '<div style="color:#888;font-size:11px;margin-top:3px;">⭐ ' + pm.stars + ' / ' + (pm.level * 100) + '</div>';
+    html += '</div>';
+    html += '</div>';
+    
+    html += '<div class="monster-actions">';
+    if(isSelected){
+        html += '<button class="monster-action-btn select" disabled>✓ 已出战</button>';
+    }else{
+        html += '<button class="monster-action-btn select" onclick="selectMonster(' + monsterId + ')">⚔️ 设为出战</button>';
+    }
+    
+    if(canEvolve){
+        html += '<button class="monster-action-btn evolve" onclick="evolveMonster(' + monsterId + ')">✨ 进化</button>';
+    }else if(pm.evolved){
+        html += '<button class="monster-action-btn evolve" disabled>已进化</button>';
+    }else{
+        html += '<button class="monster-action-btn evolve" disabled>Lv.5可进化</button>';
+    }
+    html += '</div>';
+    
+    html += '<button class="game-btn" style="background:#555;margin-top:15px;" onclick="showMonsterCollection()">🔙 返回图鉴</button>';
+    html += '</div>';
+    
+    document.getElementById('menu').innerHTML = html;
+}
+
+function selectMonster(monsterId){
+    selectedMonsterId = monsterId;
+    saveProgress();
+    let monster = ALL_MONSTERS.find(function(m){ return m.id === monsterId; });
+    showToast('✅ ' + (monster ? monster.name : '怪兽') + ' 已设为出战！');
+    showMonsterDetail(monsterId);
+}
+
+function evolveMonster(monsterId){
+    let pm = playerMonsters[monsterId];
+    if(!pm || pm.level < 5 || pm.evolved){
+        showToast('无法进化');
+        return;
+    }
+    
+    pm.evolved = true;
+    
+    let monster = ALL_MONSTERS.find(function(m){ return m.id === monsterId; });
+    if(monster){
+        monster.attack = Math.floor(monster.attack * 2);
+    }
+    
+    saveProgress();
+    
+    let monsterName = monster ? monster.name : '怪兽';
+    showToast('🎉 ' + monsterName + ' 进化成功！');
+    
+    showMonsterDetail(monsterId);
 }
 
 function show(id){
@@ -3058,6 +3396,73 @@ function startFreeBattle(){
     startBattle();
 }
 
+function startQuickBattle(){
+    if(audioContext && audioContext.state === 'suspended'){
+        audioContext.resume();
+    }
+    playSound('click');
+    
+    isWrongBookReview = false;
+    isWeaknessPractice = false;
+    weaknessPracticeType = '';
+    qIdx=0;correctCount=0;mHp=100;zHp=100;
+    battleScore=0;
+    battleQuestionPool=[];
+    usedQuestions=[];
+    currentMonsterIndex=0;
+    
+    gameMode = 'quick';
+    
+    comboData.count = 0;
+    comboData.wrongCount = 0;
+    
+    zeroState.form = 'basic';
+    zeroState.formBonus = 1;
+    zeroState.formDuration = 0;
+    zeroState.awakening = false;
+    zeroState.awakeningUsed = false;
+    
+    selectBattleMonsters();
+    battleMonsters = battleMonsters.slice(0, 3);
+    
+    battleUnits.forEach(function(u){
+        if(ALL_WORDS[u]){
+            ALL_WORDS[u].words.forEach(function(w){
+                battleQuestionPool.push({type:'word', eng:w[0], chn:w[1]});
+            });
+            ALL_WORDS[u].sentences.forEach(function(s){
+                battleQuestionPool.push({type:'sentence', eng:s[0], chn:s[1]});
+            });
+        }
+    });
+    battleQuestionPool=shuffle(battleQuestionPool);
+    
+    startQuickRound(1);
+}
+
+function startQuickRound(round){
+    qIdx=0;correctCount=0;mHp=80;zHp=100;
+    currentMonster=battleMonsters[round-1];
+    
+    zeroState.awakeningUsed = false;
+    zeroState.formDuration = 0;
+    
+    currentMonster.enemySkill = null;
+    currentMonster.sleepy = false;
+    currentMonster.helpful = false;
+    
+    document.querySelector('#battleGame .title').innerHTML = '⚡ 快速闯关 第 <span id="stageNum">'+round+'</span>/3 关';
+    document.getElementById('monsterEmoji').textContent=currentMonster.emoji;
+    document.getElementById('monsterName').textContent=currentMonster.name;
+    document.getElementById('monsterDesc').textContent=currentMonster.desc;
+    document.getElementById('monsterHpName').textContent=currentMonster.name;
+    
+    currentMonsterIndex=round;
+    updateHP();
+    showRoundQuestion();
+    show('battleGame');
+}
+
 function startBattle(){
     if(audioContext && audioContext.state === 'suspended'){
         audioContext.resume();
@@ -3073,10 +3478,19 @@ function startBattle(){
     usedQuestions=[];
     currentMonsterIndex=0;
     
-    // 选择本次闯关的怪兽
+    gameMode = 'full';
+    
+    comboData.count = 0;
+    comboData.wrongCount = 0;
+    
+    zeroState.form = 'basic';
+    zeroState.formBonus = 1;
+    zeroState.formDuration = 0;
+    zeroState.awakening = false;
+    zeroState.awakeningUsed = false;
+    
     selectBattleMonsters();
     
-    // 生成题目池
     battleUnits.forEach(function(u){
         ALL_WORDS[u].words.forEach(function(w){
             battleQuestionPool.push({type:'word', eng:w[0], chn:w[1]});
@@ -3094,6 +3508,23 @@ function startRound(round){
     qIdx=0;correctCount=0;mHp=100;zHp=100;
     currentMonster=battleMonsters[round-1];
     
+    zeroState.awakeningUsed = false;
+    zeroState.formDuration = 0;
+    
+    let stageConfig = STAGE_CONFIG.full[round - 1] || STAGE_CONFIG.full[0];
+    if(round >= 4 && round <= 6){
+        let skills = ['playful', 'slow', 'sleepy', 'helpful'];
+        currentMonster.enemySkill = skills[Math.floor(Math.random() * skills.length)];
+    }else if(round >= 7){
+        let skills = ['playful', 'slow', 'sleepy', 'helpful'];
+        currentMonster.enemySkill = skills[Math.floor(Math.random() * skills.length)];
+    }else{
+        currentMonster.enemySkill = null;
+    }
+    
+    currentMonster.sleepy = false;
+    currentMonster.helpful = false;
+    
     document.querySelector('#battleGame .title').innerHTML = '⚔️ 第 <span id="stageNum">'+round+'</span> 关';
     document.getElementById('monsterEmoji').textContent=currentMonster.emoji;
     document.getElementById('monsterName').textContent=currentMonster.name;
@@ -3102,8 +3533,33 @@ function startRound(round){
     
     currentMonsterIndex=round;
     updateHP();
+    showEnemySkillHint();
     showRoundQuestion();
     show('battleGame');
+}
+
+function showEnemySkillHint(){
+    if(!currentMonster.enemySkill) return;
+    
+    let skillInfo = MONSTER_SKILLS_ENEMY[currentMonster.enemySkill];
+    if(!skillInfo) return;
+    
+    let existing = document.getElementById('enemySkillHint');
+    if(existing) existing.remove();
+    
+    let div = document.createElement('div');
+    div.id = 'enemySkillHint';
+    div.className = 'enemy-skill-hint';
+    div.innerHTML = '<span class="enemy-skill-icon">' + skillInfo.icon + '</span><span class="enemy-skill-name">' + skillInfo.name + '</span><div class="enemy-skill-desc">' + skillInfo.desc + '</div>';
+    
+    let battleGame = document.getElementById('battleGame');
+    if(battleGame){
+        battleGame.insertBefore(div, battleGame.firstChild.nextSibling);
+    }
+    
+    setTimeout(function(){
+        if(div.parentNode) div.remove();
+    }, 3000);
 }
 
 function getDifficulty(round){
@@ -3332,7 +3788,7 @@ function nextRound(){
             
             // 换新怪兽
             currentMonster = reviewMonsters[reviewCurrentRound - 1] || reviewMonsters[0];
-            mHp = 100;
+            mHp = currentMonster.baseHp || 80;
             zHp = 100;
             reviewQuestionsInRound = 0;
             
@@ -3351,7 +3807,7 @@ function nextRound(){
         }
         
         // 继续当前关卡
-        mHp = 100;
+        mHp = currentMonster.baseHp || 80;
         zHp = 100;
         updateHP();
         let area=document.getElementById('questionArea');
@@ -3380,7 +3836,7 @@ function nextRound(){
             
             // 换新怪兽
             currentMonster = reviewMonsters[reviewCurrentRound - 1] || reviewMonsters[0];
-            mHp = 100;
+            mHp = currentMonster.baseHp || 80;
             zHp = 100;
             reviewQuestionsInRound = 0;
             
@@ -3399,7 +3855,7 @@ function nextRound(){
         }
         
         // 继续当前关卡
-        mHp = 100;
+        mHp = currentMonster.baseHp || 80;
         zHp = 100;
         updateHP();
         let area=document.getElementById('questionArea');
@@ -3409,16 +3865,21 @@ function nextRound(){
         },1000);
         return;
     }
-    
-    if(currentMonsterIndex>=10){
+
+    let maxRounds = gameMode === 'quick' ? 3 : 10;
+    if(currentMonsterIndex >= maxRounds){
         endAllBattles();
         return;
     }
-    // 显示过关动画后进入下一关
+    
     let area=document.getElementById('questionArea');
     area.innerHTML='<div style="text-align:center;padding:30px;"><div style="font-size:50px;">🎉</div><div style="color:#ffd93d;font-size:20px;margin:10px 0;">打败了 '+currentMonster.name+'！</div><div style="color:#aaa;">准备下一关...</div></div>';
     setTimeout(function(){
-        startRound(currentMonsterIndex+1);
+        if(gameMode === 'quick'){
+            startQuickRound(currentMonsterIndex+1);
+        }else{
+            startRound(currentMonsterIndex+1);
+        }
     },1500);
 }
 
@@ -4008,10 +4469,15 @@ function showDictationQuestion(area, word){
     let sentence = word.eng;
     let words = sentence.split(' ');
     let blankIndex = Math.floor(Math.random() * words.length);
-    let blankWord = words[blankIndex].replace(/[.,!?]/g, ''); // 移除标点
+    let blankWord = words[blankIndex].replace(/[.,!?'"\\]/g, ''); // 移除标点和特殊字符
+    
+    // 确保blankWord不为空
+    if(!blankWord || blankWord.length === 0){
+        blankWord = words[0].replace(/[.,!?'"\\]/g, '') || 'word';
+    }
+    
     let displaySentence = sentence.replace(words[blankIndex], '______');
-    let escapedSentence = sentence.replace(/'/g, "\\'");
-    let escapedBlankWord = blankWord.replace(/'/g, "\\'");
+    let escapedSentence = sentence.replace(/'/g, "\\'").replace(/"/g, '\\"');
     
     // 生成打乱的字母
     let letters = blankWord.toUpperCase().split('');
@@ -4020,6 +4486,7 @@ function showDictationQuestion(area, word){
     // 存储正确答案
     window.dictationCorrect = blankWord;
     window.dictationCorrectLength = blankWord.length;
+    window.dictationBlankWord = blankWord; // 存储用于提示
     
     let html='<div class="question-type hearing">✍️ 听写填空</div>'+
         '<div class="hint-text" style="text-align:center;color:#aaa;margin:10px 0;">听句子，选择字母拼出缺失的单词</div>'+
@@ -4030,7 +4497,7 @@ function showDictationQuestion(area, word){
         '<div class="input-display" id="dictationInputDisplay" style="min-height:40px;"></div>'+
         '<div class="letters-grid" id="dictationLettersGrid"></div>'+
         '<div style="text-align:center;margin-top:10px;">'+
-            '<button class="hint-btn" onclick="showDictationHint(\''+escapedBlankWord+'\')" style="padding:10px 20px;border-radius:20px;border:1px solid #555;background:rgba(255,255,255,0.05);color:#aaa;cursor:pointer;">💡 提示</button>'+
+            '<button class="hint-btn" onclick="showDictationHintFromStorage()" style="padding:10px 20px;border-radius:20px;border:1px solid #555;background:rgba(255,255,255,0.05);color:#aaa;cursor:pointer;">💡 提示</button>'+
         '</div>';
     
     area.innerHTML=html;
@@ -4120,6 +4587,15 @@ function showDictationHint(word){
     showToast('💡 提示：' + hint + ' (' + word.length + '个字母)');
 }
 
+function showDictationHintFromStorage(){
+    let word = window.dictationBlankWord || window.dictationCorrect || '';
+    if(word){
+        showDictationHint(word);
+    }else{
+        showToast('💡 提示不可用');
+    }
+}
+
 function toggleLetter(letter, idx, btn){
     // 如果已经使用，点击取消
     if(window.puzzleButtons[idx].used){
@@ -4147,21 +4623,81 @@ function toggleLetter(letter, idx, btn){
 }
 
 function checkAnswer(correct, btn){
-    // 记录答题统计
     recordQuestionStats(currentQuestionType, correct);
-    
-    // 增加每日答题计数
     incrementAnswerCount();
     
     if(correct){
         correctCount++;
-        battleScore+=ENERGY_PER_CORRECT;
+        
+        comboData.count++;
+        comboData.wrongCount = 0;
+        if(comboData.count > comboData.maxCombo){
+            comboData.maxCombo = comboData.count;
+        }
+        comboData.totalCombo++;
+        
+        let comboBonus = getComboBonus(comboData.count);
+        let baseEnergy = ENERGY_PER_CORRECT;
+        let bonusEnergy = comboBonus.bonus;
+        let totalEnergy = baseEnergy + bonusEnergy;
+        
+        if(selectedMonsterId && playerMonsters[selectedMonsterId]){
+            let skill = getMonsterSkill(selectedMonsterId);
+            if(skill && skill.energyBonus){
+                totalEnergy += skill.energyBonus;
+            }
+        }
+        
+        battleScore += totalEnergy;
+        
         let difficulty = getDifficulty(currentMonsterIndex);
-        let damage = Math.ceil(100 / difficulty.questionCount);
-        mHp -= damage;
+        let baseDamage = 15;
+        let comboDamageBonus = 1 + (comboData.count * 0.05);
+        let monsterDamageBonus = 1;
+        
+        if(selectedMonsterId && playerMonsters[selectedMonsterId]){
+            let skill = getMonsterSkill(selectedMonsterId);
+            if(skill && skill.damageBonus){
+                monsterDamageBonus = 1 + skill.damageBonus;
+            }
+        }
+        
+        let formBonus = zeroState.formBonus || 1;
+        let totalDamage = Math.floor(baseDamage * comboDamageBonus * monsterDamageBonus * formBonus);
+        
+        if(currentMonster && currentMonster.enemySkill === 'sleepy' && Math.random() < 0.2){
+            currentMonster.sleepy = true;
+            totalDamage = Math.floor(totalDamage * 1.5);
+            showToast('😴 怪兽睡着了！伤害+50%！');
+        }
+        
+        if(currentMonster && currentMonster.enemySkill === 'helpful' && Math.random() < 0.15){
+            currentMonster.helpful = true;
+        }
+        
+        mHp -= totalDamage;
         showEff('💥');
         playSound('correct');
         if(btn) btn.classList.add('correct');
+        
+        showComboDisplay();
+        showEncourage('correct');
+        
+        if(COMBO_CONFIG[comboData.count]){
+            showComboBonusPopup(comboData.count);
+        }
+        
+        if(comboData.count === 3 && !zeroState.awakeningUsed && zHp <= 30){
+            triggerAwakening();
+        }
+        
+        if(comboData.count >= 3 && comboData.count % 3 === 0){
+            checkAutoTransform();
+        }
+        
+        if(selectedMonsterId && playerMonsters[selectedMonsterId]){
+            addMonsterExp(selectedMonsterId, 10);
+        }
         
         if(isWrongBookReview && currentText){
             let wrongItem = wrongBook.find(function(item){ return item.word === currentText; });
@@ -4170,7 +4706,6 @@ function checkAnswer(correct, btn){
                 if(wrongItem.count <= 0){
                     removeFromWrongBook(currentText);
                 }else{
-                    // 更新复习时间戳
                     let now = new Date().toISOString();
                     wrongItem.lastReview = now;
                     wrongItem.nextReview = calculateNextReview(now, wrongItem.count);
@@ -4179,10 +4714,52 @@ function checkAnswer(correct, btn){
             }
         }
     }else{
-        zHp -= 15;
+        comboData.wrongCount++;
+        
+        let prevCombo = comboData.count;
+        if(comboData.count > 0){
+            comboData.count = Math.max(0, comboData.count - 1);
+        }
+        
+        let baseDamage = 12;
+        let defenseBonus = 0;
+        
+        if(selectedMonsterId && playerMonsters[selectedMonsterId]){
+            let skill = getMonsterSkill(selectedMonsterId);
+            if(skill && skill.defenseBonus){
+                defenseBonus = skill.defenseBonus;
+            }
+        }
+        
+        if(zeroState.awakening){
+            zeroState.awakening = false;
+            showEncourage('awakening_protect');
+            showToast('🌟 觉醒保护！本次不扣血');
+        }else{
+            let actualDamage = Math.floor(baseDamage * (1 - defenseBonus));
+            actualDamage = Math.max(5, actualDamage);
+            zHp -= actualDamage;
+        }
+        
         showEff('💢');
         playSound('wrong');
         if(btn) btn.classList.add('wrong');
+        
+        showComboDisplay();
+        
+        if(prevCombo >= 3){
+            showEncourage('comboBreak');
+        }else{
+            showEncourage('wrong');
+        }
+        
+        if(comboData.wrongCount >= 3){
+            showEncourage('continuousWrong');
+        }
+        
+        if(comboData.wrongCount >= 3 && !zeroState.awakeningUsed && zHp > 0){
+            triggerAwakening();
+        }
         
         if(isWrongBookReview && currentText){
             let wrongItem = wrongBook.find(function(item){ return item.word === currentText; });
@@ -4195,9 +4772,7 @@ function checkAnswer(correct, btn){
             }
         }else if(currentText){
             let meaning = getWordMeaning(currentText);
-            if(meaning){
-                addToWrongBook(currentText, meaning);
-            }
+            if(meaning) addToWrongBook(currentText, meaning);
         }
     }
     updateHP();
@@ -4214,6 +4789,172 @@ function checkAnswer(correct, btn){
     }else{
         setTimeout(function(){showRoundQuestion();},800);
     }
+}
+
+function getComboBonus(count){
+    let bonus = { bonus: 0, name: '', effect: '' };
+    let thresholds = [10, 7, 5, 3, 2];
+    for(let i = 0; i < thresholds.length; i++){
+        let t = thresholds[i];
+        if(count >= t && COMBO_CONFIG[t]){
+            bonus = { bonus: COMBO_CONFIG[t].bonus, name: COMBO_CONFIG[t].name, effect: COMBO_CONFIG[t].effect };
+            break;
+        }
+    }
+    return bonus;
+}
+
+function getMonsterSkill(monsterId){
+    let monster = ALL_MONSTERS.find(function(m){ return m.id === monsterId; });
+    if(!monster || !monster.skillType) return null;
+    return MONSTER_SKILLS[monster.skillType];
+}
+
+function addMonsterExp(monsterId, exp){
+    if(!playerMonsters[monsterId]){
+        playerMonsters[monsterId] = { level: 1, stars: 0, evolved: false };
+    }
+    playerMonsters[monsterId].stars += exp;
+    
+    let lvl = playerMonsters[monsterId].level;
+    let expNeeded = lvl * 100;
+    
+    while(playerMonsters[monsterId].stars >= expNeeded && lvl < 5){
+        playerMonsters[monsterId].stars -= expNeeded;
+        playerMonsters[monsterId].level++;
+        lvl = playerMonsters[monsterId].level;
+        expNeeded = lvl * 100;
+        let monsterName = '';
+        let monster = ALL_MONSTERS.find(function(m){ return m.id === monsterId; });
+        if(monster) monsterName = monster.name;
+        showToast('🎉 ' + monsterName + ' 升级到 Lv.' + lvl + '！');
+    }
+    
+    saveProgress();
+}
+
+function showComboDisplay(){
+    let existing = document.getElementById('comboDisplay');
+    if(existing) existing.remove();
+    
+    if(comboData.count < 2) return;
+    
+    let comboBonus = getComboBonus(comboData.count);
+    let div = document.createElement('div');
+    div.id = 'comboDisplay';
+    div.className = 'combo-display';
+    div.innerHTML = '<div class="combo-count">' + comboData.count + '连击</div>' +
+        '<div class="combo-label">' + (comboBonus.name || '继续加油') + '</div>' +
+        (comboBonus.effect ? '<div class="combo-effect">' + comboBonus.effect + '</div>' : '');
+    document.body.appendChild(div);
+    
+    setTimeout(function(){
+        if(div.parentNode) div.remove();
+    }, 2000);
+}
+
+function showComboBonusPopup(count){
+    let config = COMBO_CONFIG[count];
+    if(!config) return;
+    
+    let div = document.createElement('div');
+    div.className = 'combo-bonus-popup';
+    div.innerHTML = '<div class="combo-bonus-effect">' + config.effect + '</div>' +
+        '<div class="combo-bonus-text">' + config.name + '</div>' +
+        '<div style="color:#333;font-size:14px;">+' + config.bonus + '能量</div>';
+    document.body.appendChild(div);
+    
+    setTimeout(function(){ div.remove(); }, 1000);
+}
+
+function showEncourage(type){
+    let words;
+    switch(type){
+        case 'correct':
+            words = ENCOURAGE_WORDS.correct;
+            break;
+        case 'wrong':
+            words = ENCOURAGE_WORDS.wrong;
+            break;
+        case 'comboBreak':
+            words = ENCOURAGE_WORDS.comboBreak;
+            break;
+        case 'continuousWrong':
+            words = ENCOURAGE_WORDS.continuousWrong;
+            break;
+        case 'awakening_protect':
+            words = ['觉醒保护！', '赛罗加油！'];
+            break;
+        default:
+            words = ENCOURAGE_WORDS.correct;
+    }
+    
+    let text = words[Math.floor(Math.random() * words.length)];
+    
+    let div = document.createElement('div');
+    div.className = 'encourage-popup';
+    div.innerHTML = '<div class="encourage-text">' + text + '</div>';
+    document.body.appendChild(div);
+    
+    setTimeout(function(){ div.remove(); }, 2000);
+}
+
+function triggerAwakening(){
+    if(zeroState.awakeningUsed) return;
+    
+    zeroState.awakening = true;
+    zeroState.awakeningUsed = true;
+    
+    let overlay = document.createElement('div');
+    overlay.className = 'awakening-overlay';
+    document.body.appendChild(overlay);
+    
+    let text = document.createElement('div');
+    text.className = 'awakening-text';
+    text.textContent = '🌟 赛罗觉醒！下次答错不扣血 🌟';
+    document.body.appendChild(text);
+    
+    setTimeout(function(){
+        overlay.remove();
+        text.remove();
+    }, 2000);
+    
+    playSound('victory');
+}
+
+function checkAutoTransform(){
+    let unlockedForms = [];
+    for(let key in ZERO_FORMS){
+        let form = ZERO_FORMS[key];
+        if(form.unlockLevel && level >= form.unlockLevel && zeroState.form === 'basic'){
+            unlockedForms.push({ key: key, form: form });
+        }
+    }
+    
+    if(unlockedForms.length > 0 && zeroState.form === 'basic'){
+        let randomIdx = Math.floor(Math.random() * unlockedForms.length);
+        let randomForm = unlockedForms[randomIdx];
+        autoTransform(randomForm.key);
+    }
+}
+
+function autoTransform(formKey){
+    let form = ZERO_FORMS[formKey];
+    if(!form) return;
+    
+    zeroState.form = formKey;
+    zeroState.formBonus = form.bonus;
+    zeroState.formDuration = 3;
+    
+    let overlay = document.createElement('div');
+    overlay.className = 'transform-animation';
+    overlay.innerHTML = '<div class="transform-text">' + form.icon + '<br>' + form.name + '<br>全属性+' + Math.round((form.bonus - 1) * 100) + '%</div>';
+    document.body.appendChild(overlay);
+    
+    setTimeout(function(){ overlay.remove(); }, 1000);
+    
+    playSound('victory');
+    showToast('🌟 赛罗变身为 ' + form.name + '！');
 }
 
 function showEff(e){
@@ -4259,7 +5000,8 @@ function endAllBattles(){
     score+=energyGained;
     totalStars+=starGained;
     
-    // 更新学习统计
+    let unlockedMonsters = [];
+    
     studyStats.totalBattles++;
     updateDailyStats();
     
@@ -4270,7 +5012,6 @@ function endAllBattles(){
     }else{
         playSound('victory');
         
-        // 解锁下一单元（针对当前级别）
         let maxUnit = Math.max.apply(null, battleUnits);
         let nextUnit = maxUnit + 1;
         if(nextUnit <= 12){
@@ -4282,11 +5023,9 @@ function endAllBattles(){
             }
         }
         
-        // 根据表现解锁怪兽
         let unlockCount = calculateUnlockCount();
-        unlockNewMonster(unlockCount);
+        unlockedMonsters = unlockNewMonster(unlockCount);
         
-        // 检查特殊解锁条件
         checkSpecialUnlock();
     }
     
@@ -4309,6 +5048,14 @@ function endAllBattles(){
         document.getElementById('levelUpInfo').textContent='现在是 Lv.'+level+'！赛罗可以变身了！';
     }else{
         document.getElementById('levelUpNotice').style.display='none';
+    }
+    
+    // 显示解锁怪兽数量
+    if(!isWrongBookReview && unlockedMonsters && unlockedMonsters.length > 0){
+        document.getElementById('monsterUnlockNotice').style.display='block';
+        document.getElementById('monsterUnlockInfo').textContent='+'+unlockedMonsters.length+' 只怪兽';
+    }else{
+        document.getElementById('monsterUnlockNotice').style.display='none';
     }
     
     monstersDef+=10;
