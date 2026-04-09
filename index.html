@@ -275,6 +275,19 @@
 @keyframes awakeningGlow { 0% { opacity: 0; } 30% { opacity: 1; } 70% { opacity: 1; } 100% { opacity: 0; } }
 .awakening-text { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 28px; font-weight: bold; color: #ffd93d; text-shadow: 0 0 20px rgba(255,215,0,0.8); z-index: 251; animation: awakeningText 2s ease forwards; }
 @keyframes awakeningText { 0% { transform: translate(-50%, -50%) scale(0); opacity: 0; } 50% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; } 100% { transform: translate(-50%, -50%) scale(1); opacity: 0; } }
+
+/* 教程样式 */
+.tutorial-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 5000; display: flex; align-items: center; justify-content: center; animation: fadeIn 0.3s ease; }
+.tutorial-content { background: linear-gradient(135deg, #1a1a3e, #0f2040); border: 3px solid #00d4ff; border-radius: 25px; padding: 30px; text-align: center; max-width: 350px; width: 90%; animation: scaleIn 0.3s ease; }
+.tutorial-emoji { font-size: 60px; margin-bottom: 15px; animation: bounce 1s infinite; }
+.tutorial-title { font-size: 20px; font-weight: bold; color: #ffd93d; margin-bottom: 10px; }
+.tutorial-text { font-size: 14px; color: #fff; line-height: 1.6; margin-bottom: 20px; }
+.tutorial-progress { display: flex; justify-content: center; gap: 8px; margin-bottom: 20px; }
+.tutorial-dot { width: 10px; height: 10px; border-radius: 50%; background: #555; }
+.tutorial-dot.active { background: #00d4ff; }
+.tutorial-buttons { display: flex; gap: 10px; justify-content: center; margin-bottom: 15px; }
+.tutorial-skip { background: none; border: none; color: #aaa; cursor: pointer; font-size: 12px; }
+.tutorial-highlight { position: relative; z-index: 5001; box-shadow: 0 0 30px 10px rgba(0,212,255,0.6); animation: pulse 1s infinite; }
     </style>
 </head>
 <body>
@@ -334,6 +347,62 @@
             <button class="game-btn" style="background:linear-gradient(135deg, #f39c12, #e67e22);" onclick="showAchievements()">🏆 成就</button>
             <button class="game-btn" style="background:linear-gradient(135deg, #00b894, #00cec9);" onclick="showStudyReport()">📊 学习报告</button>
             <button class="game-btn" style="background:linear-gradient(135deg, #e74c3c, #c0392b);" onclick="showWrongBook()">📖 错题本</button>
+            <button class="game-btn" style="background:linear-gradient(135deg, #667eea, #764ba2);" onclick="showParentControl()">👨‍👩‍👧 家长中心</button>
+        </div>
+        
+        <!-- 家长控制面板 -->
+        <div id="parentControl" class="card hidden">
+            <div class="title">👨‍👩‍👧 家长中心</div>
+            <div class="subtitle">帮助孩子更好地学习英语</div>
+            
+            <!-- 学习统计 -->
+            <div class="section-title">📊 学习统计</div>
+            <div class="stats-panel">
+                <div class="stat-item">
+                    <div class="stat-value" id="parentStudyTime">0分钟</div>
+                    <div class="stat-label">今日学习</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="parentCorrectRate">0%</div>
+                    <div class="stat-label">正确率</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="parentQuestions">0</div>
+                    <div class="stat-label">今日答题</div>
+                </div>
+            </div>
+            
+            <!-- 学习设置 -->
+            <div class="section-title">⚙️ 学习设置</div>
+            <div style="margin: 15px 0;">
+                <div style="margin-bottom: 15px;">
+                    <label style="color: #aaa; font-size: 14px; display: block; margin-bottom: 8px;">每日学习时间限制：</label>
+                    <select id="timeLimitSelect" style="width: 100%; padding: 12px; border-radius: 10px; background: rgba(255,255,255,0.08); border: 2px solid rgba(255,255,255,0.2); color: white; font-size: 14px;">
+                        <option value="15">15分钟</option>
+                        <option value="30" selected>30分钟</option>
+                        <option value="45">45分钟</option>
+                        <option value="60">60分钟</option>
+                    </select>
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label style="color: #aaa; font-size: 14px; display: block; margin-bottom: 8px;">语速设置：</label>
+                    <select id="parentSpeechRate" style="width: 100%; padding: 12px; border-radius: 10px; background: rgba(255,255,255,0.08); border: 2px solid rgba(255,255,255,0.2); color: white; font-size: 14px;">
+                        <option value="0.5">超慢速</option>
+                        <option value="0.6">慢速</option>
+                        <option value="0.85" selected>正常</option>
+                        <option value="1.0">快速</option>
+                    </select>
+                </div>
+            </div>
+            
+            <!-- 学习建议 -->
+            <div class="section-title">💡 学习建议</div>
+            <div id="parentAdvice" style="background: rgba(255,215,0,0.1); border: 1px solid rgba(255,215,0,0.3); border-radius: 10px; padding: 15px; margin: 10px 0;">
+                <div style="color:#ffd93d;font-size:14px;line-height:1.6;">根据孩子的学习情况，建议每天学习15-30分钟，坚持练习效果更好！</div>
+            </div>
+            
+            <button class="game-btn btn-battle" onclick="saveParentSettings()">💾 保存设置</button>
+            <button class="game-btn" style="background:#555" onclick="backToMenu()">🏠 返回</button>
         </div>
         
         <!-- 错题本界面 -->
@@ -1152,6 +1221,54 @@ let studyStats = {
     }
 };
 
+// 家长模式数据结构
+let parentSettings = {
+    timeLimit: 30, // 分钟
+    speechRate: 0.85,
+    lockedUnits: [],
+    studyStartTime: null
+};
+
+// 学习时长统计
+let parentStudyStats = {
+    todayStudyTime: 0, // 秒
+    weeklyStudyTime: 0,
+    correctAnswers: 0,
+    totalAnswers: 0
+};
+
+// 教程步骤定义
+const TUTORIAL_STEPS = [
+    {
+        id: 'welcome',
+        title: '欢迎来到赛罗奥特曼英语大作战！',
+        content: '我是赛罗奥特曼，让我们一起学习英语，打败怪兽吧！',
+        emoji: '🦸',
+        highlight: null
+    },
+    {
+        id: 'menu',
+        title: '选择学习单元',
+        content: '点击这些数字选择你想学习的单元，可以多选哦！',
+        emoji: '📚',
+        highlight: '#homeUnitSelector'
+    },
+    {
+        id: 'battle',
+        title: '开始战斗',
+        content: '准备好了吗？点击"开始战斗"，让我们去打败怪兽！',
+        emoji: '⚔️',
+        highlight: '.btn-battle'
+    }
+];
+
+// 教程状态
+let tutorialState = {
+    completed: false,
+    currentStep: 0,
+    showing: false
+};
+
 // 每日任务系统
 let dailyTasks = {
     lastLoginDate: '',         // 最后登录日期
@@ -1367,6 +1484,13 @@ function init(){
     
     // 检查每日登录奖励
     checkLoginReward();
+    
+    // 启动教程（延迟一点，确保UI加载完成）
+    setTimeout(function(){
+        if (!tutorialState.completed) {
+            showTutorial();
+        }
+    }, 500);
     
     // 预加载语音引擎（异步执行，不阻塞页面加载）
     setTimeout(function(){
@@ -2011,6 +2135,17 @@ function loadProgress(){
                 comboData.totalCombo = data.totalCombo;
             }
             
+            // 加载家长设置
+            if(data.parentSettings){
+                parentSettings = data.parentSettings;
+                speechRate = parentSettings.speechRate;
+            }
+            
+            // 加载教程状态
+            if(data.tutorialCompleted !== undefined){
+                tutorialState.completed = data.tutorialCompleted;
+            }
+            
             checkDailyTaskReset();
             
             // 如果数据被迁移，保存新版本
@@ -2107,6 +2242,8 @@ function saveProgress(){
             selectedMonsterId: selectedMonsterId,
             maxCombo: comboData.maxCombo,
             totalCombo: comboData.totalCombo,
+            parentSettings: parentSettings,
+            tutorialCompleted: tutorialState.completed,
             saveTime: new Date().toISOString()
         };
         localStorage.setItem('ultraman_progress', JSON.stringify(data));
@@ -2132,6 +2269,218 @@ function clearProgress(){
             console.error('清除进度失败:', e);
             showToast('清除进度失败');
         }
+    }
+}
+
+// ========== 家长控制功能 ==========
+
+// 显示家长控制面板
+function showParentControl() {
+    updateParentControlUI();
+    show('parentControl');
+    startStudyTimer();
+}
+
+// 启动学习计时
+function startStudyTimer() {
+    if (!parentSettings.studyStartTime) {
+        parentSettings.studyStartTime = new Date();
+    }
+    // 定期更新学习时间
+    setInterval(updateStudyTime, 1000);
+}
+
+// 更新学习时间
+function updateStudyTime() {
+    if (parentSettings.studyStartTime) {
+        const elapsed = Math.floor((new Date() - parentSettings.studyStartTime) / 1000);
+        parentStudyStats.todayStudyTime = Math.floor(elapsed);
+        updateParentControlUI();
+    }
+}
+
+// 检查学习时间限制
+function checkTimeLimit() {
+    if (parentSettings.studyStartTime) {
+        const elapsed = Math.floor((new Date() - parentSettings.studyStartTime) / 1000);
+        const limitSeconds = parentSettings.timeLimit * 60;
+        
+        if (elapsed >= limitSeconds) {
+            showTimeLimitWarning();
+            return true;
+        }
+        
+        // 提前5分钟提醒
+        if (elapsed >= limitSeconds - 300 && elapsed < limitSeconds - 295) {
+            showToast('⏰ 还剩5分钟学习时间！');
+        }
+    }
+    return false;
+}
+
+// 显示时间限制警告
+function showTimeLimitWarning() {
+    showModal('学习时间到啦！', 
+        '今天的学习时间已经用完了，明天继续加油哦！', 
+        [{text: '好的', action: 'backToMenu()'}]);
+}
+
+// 保存家长设置
+function saveParentSettings() {
+    parentSettings.timeLimit = parseInt(document.getElementById('timeLimitSelect').value);
+    parentSettings.speechRate = parseFloat(document.getElementById('parentSpeechRate').value);
+    speechRate = parentSettings.speechRate;
+    saveProgress();
+    showToast('设置已保存！');
+    playSound('correct');
+}
+
+// 更新家长控制面板UI
+function updateParentControlUI() {
+    const today = new Date().toISOString().split('T')[0];
+    const dailyData = studyStats.dailyStats[today] || {
+        studyTime: 0,
+        questions: 0,
+        correct: 0
+    };
+    
+    // 更新今日学习时间
+    const minutes = Math.floor(parentStudyStats.todayStudyTime / 60);
+    document.getElementById('parentStudyTime').textContent = minutes + '分钟';
+    
+    // 更新正确率
+    const correctRate = dailyData.questions > 0 ? 
+        Math.round((dailyData.correct / dailyData.questions) * 100) : 0;
+    document.getElementById('parentCorrectRate').textContent = correctRate + '%';
+    
+    // 更新今日答题数
+    document.getElementById('parentQuestions').textContent = dailyData.questions;
+}
+
+// 格式化学习时间
+function formatStudyTime(seconds) {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    if (hours > 0) {
+        return hours + '小时' + minutes + '分钟';
+    }
+    return minutes + '分钟';
+}
+
+// 显示模态对话框
+function showModal(title, message, buttons) {
+    const modalDiv = document.createElement('div');
+    modalDiv.id = 'customModal';
+    modalDiv.className = 'login-reward-modal';
+    modalDiv.innerHTML = `
+        <div class="login-reward-content">
+            <div class="login-reward-title">${title}</div>
+            <div class="login-reward-desc">${message}</div>
+            <div style="margin-top: 20px;">
+                ${buttons.map((btn, i) => 
+                    `<button class="game-btn ${i === buttons.length - 1 ? 'btn-battle' : ''}" 
+                        onclick="${btn.action}; document.getElementById('customModal').remove()">${btn.text}</button>`
+                ).join('')}
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modalDiv);
+}
+
+// ========== 教程功能 ==========
+
+// 显示教程
+function showTutorial() {
+    if (tutorialState.completed) return;
+    
+    tutorialState.showing = true;
+    showTutorialStep(0);
+}
+
+// 显示单个教程步骤
+function showTutorialStep(stepIndex) {
+    if (stepIndex >= TUTORIAL_STEPS.length) {
+        completeTutorial();
+        return;
+    }
+    
+    const step = TUTORIAL_STEPS[stepIndex];
+    
+    // 移除旧的教程
+    const oldTutorial = document.getElementById('tutorialOverlay');
+    if (oldTutorial) oldTutorial.remove();
+    document.querySelectorAll('.tutorial-highlight').forEach(el => el.classList.remove('tutorial-highlight'));
+    
+    // 创建教程弹窗
+    const tutorialDiv = document.createElement('div');
+    tutorialDiv.id = 'tutorialOverlay';
+    tutorialDiv.className = 'tutorial-overlay';
+    tutorialDiv.innerHTML = `
+        <div class="tutorial-content">
+            <div class="tutorial-emoji">${step.emoji}</div>
+            <div class="tutorial-title">${step.title}</div>
+            <div class="tutorial-text">${step.content}</div>
+            <div class="tutorial-progress">
+                ${Array(TUTORIAL_STEPS.length).fill(0).map((_, i) => 
+                    `<div class="tutorial-dot ${i <= stepIndex ? 'active' : ''}"></div>`
+                ).join('')}
+            </div>
+            <div class="tutorial-buttons">
+                ${stepIndex > 0 ? '<button class="game-btn" style="background:#555" onclick="prevTutorialStep()">上一步</button>' : ''}
+                ${stepIndex < TUTORIAL_STEPS.length - 1 ? 
+                    '<button class="game-btn btn-battle" onclick="nextTutorialStep()">下一步</button>' :
+                    '<button class="game-btn btn-battle" onclick="completeTutorial()">开始学习！</button>'
+                }
+            </div>
+            <button class="tutorial-skip" onclick="skipTutorial()">跳过教程</button>
+        </div>
+    `;
+    
+    document.body.appendChild(tutorialDiv);
+    
+    // 高亮元素
+    if (step.highlight) {
+        const element = document.querySelector(step.highlight);
+        if (element) {
+            element.classList.add('tutorial-highlight');
+            // 滚动到高亮元素
+            element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }
+    
+    tutorialState.currentStep = stepIndex;
+}
+
+// 下一步
+function nextTutorialStep() {
+    if (tutorialState.currentStep < TUTORIAL_STEPS.length - 1) {
+        showTutorialStep(tutorialState.currentStep + 1);
+    }
+}
+
+// 上一步
+function prevTutorialStep() {
+    if (tutorialState.currentStep > 0) {
+        showTutorialStep(tutorialState.currentStep - 1);
+    }
+}
+
+// 完成教程
+function completeTutorial() {
+    tutorialState.completed = true;
+    tutorialState.showing = false;
+    const overlay = document.getElementById('tutorialOverlay');
+    if (overlay) overlay.remove();
+    document.querySelectorAll('.tutorial-highlight').forEach(el => el.classList.remove('tutorial-highlight'));
+    saveProgress();
+    showToast('教程完成！开始你的英语学习之旅吧！');
+    playSound('victory');
+}
+
+// 跳过教程
+function skipTutorial() {
+    if (confirm('确定要跳过教程吗？')) {
+        completeTutorial();
     }
 }
 
