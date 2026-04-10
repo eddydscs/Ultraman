@@ -13,9 +13,9 @@
             color: white;
             overflow-x: hidden;
         }
-        .stars { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; overflow: hidden; z-index: 0; }
-        .star { position: absolute; background: white; border-radius: 50%; animation: twinkle 2s infinite; }
-        @keyframes twinkle { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
+        .stars { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; overflow: hidden; z-index: 0; animation: twinkleAll 4s ease-in-out infinite; }
+        .star { position: absolute; background: white; border-radius: 50%; opacity: 0.6; }
+        @keyframes twinkleAll { 0%, 100% { opacity: 0.4; } 50% { opacity: 0.9; } }
         
         .container { max-width: 500px; margin: 0 auto; padding: 15px; position: relative; z-index: 1; }
         
@@ -23,9 +23,15 @@
             .container { max-width: 100%; width: 100%; padding: 20px; display: flex; flex-direction: column; align-items: center; }
             .card { width: 90%; max-width: 550px; }
         }
+        @media (max-width: 380px) {
+            .stage-grid { grid-template-columns: repeat(4, 1fr) !important; gap: 5px !important; }
+            .stage-btn { font-size: 18px !important; }
+            .combo-display { top: 60px; right: 10px; padding: 8px 12px; }
+            .combo-count { font-size: 22px; }
+        }
         
         .zero-header { text-align: center; padding: 15px 0; }
-        .zero-icon { font-size: 80px; animation: zeroPulse 2s infinite; display: inline-block; filter: drop-shadow(0 0 20px rgba(0,200,255,0.8)); }
+        .zero-icon { font-size: 80px; animation: zeroPulse 2s infinite; display: inline-block; text-shadow: 0 0 20px rgba(0,200,255,0.8), 0 0 40px rgba(0,200,255,0.4); will-change: transform; }
         @keyframes zeroPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.08); } }
         .title { font-size: 22px; font-weight: bold; text-align: center; background: linear-gradient(45deg, #00d4ff, #ff6b35, #ffd93d); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin: 8px 0; }
         .subtitle { text-align: center; font-size: 13px; color: #aaa; margin-bottom: 10px; }
@@ -41,7 +47,10 @@
         .score-label { font-size: 11px; color: #aaa; }
         
         .stage-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin: 15px 0; }
-        .stage-btn { aspect-ratio: 1; border: 2px solid rgba(255,255,255,0.2); border-radius: 12px; background: rgba(255,255,255,0.05); color: white; font-size: 24px; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: all 0.3s; }        .stage-btn.unlocked { border-color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.1); color: #ccc; }        .stage-btn.current { border-color: #00d4ff; background: linear-gradient(135deg, rgba(0,200,255,0.4), rgba(0,150,255,0.2)); color: #00d4ff; animation: pulse 1.5s infinite; transform: scale(1.05); }        .stage-btn.locked { opacity: 0.4; }        .stage-btn.completed { border-color: #27ae60; background: rgba(39,174,96,0.2); }        .stage-btn:hover { transform: scale(1.1); border-color: rgba(255,255,255,0.6); }        .stage-btn.current:hover { transform: scale(1.15); }        .stage-num { font-size: 11px; margin-top: 2px; }        @keyframes pulse { 0%, 100% { transform: scale(1.05); box-shadow: 0 0 0 0 rgba(0,212,255,0.4); } 50% { transform: scale(1.1); box-shadow: 0 0 20px 5px rgba(0,212,255,0.6); } }
+        .stage-btn { aspect-ratio: 1; border: 2px solid rgba(255,255,255,0.2); border-radius: 12px; background: rgba(255,255,255,0.05); color: white; font-size: 24px; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: all 0.3s; }        .stage-btn.unlocked { border-color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.1); color: #ccc; }        .stage-btn.current { border-color: #00d4ff; background: linear-gradient(135deg, rgba(0,200,255,0.4), rgba(0,150,255,0.2)); color: #00d4ff; animation: stagePulse 1.5s infinite; transform: scale(1.05); }        .stage-btn.locked { opacity: 0.4; }        .stage-btn.completed { border-color: #27ae60; background: rgba(39,174,96,0.2); }        .stage-btn:hover { transform: scale(1.1); border-color: rgba(255,255,255,0.6); }        .stage-btn.current:hover { transform: scale(1.15); }        .stage-num { font-size: 11px; margin-top: 2px; }        @keyframes stagePulse { 0%, 100% { transform: scale(1.05); box-shadow: 0 0 0 0 rgba(0,212,255,0.4); } 50% { transform: scale(1.1); box-shadow: 0 0 20px 5px rgba(0,212,255,0.6); } }
+        
+        #monsterSkillEffect { position: fixed; top: 40%; left: 50%; transform: translateX(-50%); font-size: 18px; font-weight: bold; z-index: 200; pointer-events: none; text-shadow: 0 0 10px currentColor; white-space: nowrap; }
+        @keyframes skillFloat { 0% { opacity: 1; transform: translateX(-50%) translateY(0); } 100% { opacity: 0; transform: translateX(-50%) translateY(-60px); } }
         
         .game-btn { display: block; width: 100%; padding: 14px; margin: 8px 0; border: none; border-radius: 15px; font-size: 16px; font-weight: bold; color: white; cursor: pointer; }
         .game-btn:active { transform: scale(0.95); }
@@ -62,7 +71,7 @@
         .victory-unlock { background: linear-gradient(135deg, #9b59b6, #8e44ad); padding: 15px; border-radius: 15px; margin: 15px 0; animation: bounce 0.5s ease-in-out infinite; }
         .unlock-text { font-size: 22px; font-weight: bold; color: #fff; }
         .unlock-info { font-size: 16px; color: #fff; margin-top: 5px; }
-        .victory-stars { font-size: 40px; margin: 15px 0; }
+        .victory-stars { font-size: 32px; margin: 15px 0; word-wrap: break-word; overflow-wrap: break-word; line-height: 1.5; }
         @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
         @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
         
@@ -80,6 +89,12 @@
         .monster-info { text-align: center; padding: 8px; background: rgba(255,0,0,0.1); border-radius: 10px; margin: 8px 0; border: 1px solid rgba(255,0,0,0.3); }
         .monster-name { font-size: 15px; color: #ff6b6b; font-weight: bold; }
         .monster-desc { font-size: 11px; color: #aaa; margin-top: 3px; }
+        
+        .selected-monster-bar { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 8px 15px; background: linear-gradient(135deg, rgba(0,212,255,0.15), rgba(0,255,136,0.15)); border-radius: 12px; margin: 5px 0; border: 1px solid rgba(0,212,255,0.3); }
+        .selected-monster-emoji { font-size: 28px; }
+        .selected-monster-info { text-align: left; }
+        .selected-monster-name { font-size: 14px; color: #00d4ff; font-weight: bold; }
+        .selected-monster-detail { font-size: 11px; color: #aaa; }
         
         .question-type { display: inline-block; padding: 4px 12px; background: linear-gradient(135deg, #9b59b6, #8e44ad); border-radius: 15px; font-size: 12px; margin: 5px 0; }
         .question-type.match { background: linear-gradient(135deg, #00d4ff, #0099ff); }
@@ -207,14 +222,13 @@
 .login-reward-content { background: linear-gradient(135deg, #1a1a3e, #0f2040); border: 2px solid #00d4ff; border-radius: 20px; padding: 30px; text-align: center; max-width: 320px; width: 90%; animation: scaleIn 0.3s ease; }
 @keyframes scaleIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 .login-reward-icon { font-size: 60px; margin-bottom: 15px; animation: bounce 1s infinite; }
-@keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
 .login-reward-title { color: #ffd93d; font-size: 24px; font-weight: bold; margin-bottom: 10px; }
 .login-reward-desc { color: #aaa; font-size: 14px; margin-bottom: 20px; }
 .login-reward-energy { color: #00d4ff; font-size: 32px; font-weight: bold; margin-bottom: 20px; }
 .login-reward-btn { padding: 12px 40px; border-radius: 25px; border: none; background: linear-gradient(135deg, #00d4ff, #00ff88); color: #0a0a1a; font-size: 16px; font-weight: bold; cursor: pointer; }
 
 /* 连击系统样式 */
-.combo-display { position: fixed; top: 80px; right: 20px; background: linear-gradient(135deg, rgba(255,215,0,0.9), rgba(255,107,0,0.9)); border-radius: 20px; padding: 10px 20px; z-index: 100; animation: comboSlideIn 0.3s ease; box-shadow: 0 4px 15px rgba(255,215,0,0.5); }
+.combo-display { position: fixed; top: 80px; right: 20px; background: linear-gradient(135deg, rgba(255,215,0,0.9), rgba(255,107,0,0.9)); border-radius: 20px; padding: 10px 20px; z-index: 100; animation: comboSlideIn 0.3s ease; box-shadow: 0 4px 15px rgba(255,215,0,0.5); max-width: 120px; text-align: center; }
 @keyframes comboSlideIn { from { transform: translateX(100px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 .combo-count { font-size: 28px; font-weight: bold; color: #0a0a1a; text-align: center; }
 .combo-label { font-size: 12px; color: #333; text-align: center; }
@@ -244,7 +258,7 @@
 .monster-card.selected { border-color: #00d4ff; background: rgba(0,212,255,0.15); }
 .monster-card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
 .monster-emoji-large { font-size: 40px; }
-.monster-info { flex: 1; }
+.monster-detail-info { flex: 1; }
 .monster-name-large { font-size: 16px; font-weight: bold; color: #00d4ff; }
 .monster-level-badge { display: inline-block; padding: 2px 8px; border-radius: 10px; background: linear-gradient(135deg, #ffd93d, #ff6b35); color: #0a0a1a; font-size: 11px; font-weight: bold; margin-left: 5px; }
 .monster-skill-badge { display: inline-block; padding: 3px 10px; border-radius: 10px; background: rgba(255,255,255,0.1); font-size: 12px; margin-top: 5px; }
@@ -255,6 +269,10 @@
 .monster-action-btn.select { background: linear-gradient(135deg, #00d4ff, #00ff88); color: #0a0a1a; }
 .monster-action-btn.evolve { background: linear-gradient(135deg, #9b59b6, #8e44ad); color: white; }
 .monster-action-btn.evolve:disabled { background: #555; color: #888; cursor: not-allowed; }
+
+.filter-btn { padding: 5px 12px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.05); color: #aaa; font-size: 12px; cursor: pointer; transition: all 0.2s; }
+.filter-btn:hover { background: rgba(255,255,255,0.1); }
+.filter-btn.active { background: rgba(0,212,255,0.2); border-color: #00d4ff; color: #00d4ff; }
 
 /* 关卡怪兽技能提示 */
 .enemy-skill-hint { background: linear-gradient(135deg, rgba(255,107,107,0.2), rgba(255,193,7,0.2)); border: 1px solid rgba(255,107,107,0.3); border-radius: 10px; padding: 10px; margin: 10px 0; text-align: center; }
@@ -295,11 +313,13 @@
                 <div class="title">⚔️ 赛罗奥特曼英语大作战 ⚔️</div>
                 <div class="subtitle">打败10个怪兽，守护地球！</div>
             </div>
+            <div id="partnerMonster" style="text-align:center;margin:5px 0;cursor:pointer;" onclick="interactPartnerMonster()"></div>
             <div class="score-panel">
                 <div class="score-item"><div class="score-value" id="totalScore">0</div><div class="score-label">⚡能量</div></div>
                 <div class="score-item"><div class="score-value" id="levelDisplay">Lv.1</div><div class="score-label">🏅等级</div></div>
                 <div class="score-item"><div class="score-value" id="totalStars">0</div><div class="score-label">⭐星星</div></div>
             </div>
+            <div id="itemBar" style="display:flex;justify-content:center;gap:8px;margin:5px 0;padding:8px;background:rgba(0,0,0,0.3);border-radius:10px;"></div>
             <div class="progress" style="display:flex;justify-content:center;gap:10px;margin-bottom:10px;">
                 <button class="level-btn" id="level1Btn" onclick="switchLevel(1)" style="padding:8px 20px;border-radius:10px;border:2px solid #00d4ff;background:rgba(0,212,255,0.2);color:#00d4ff;cursor:pointer;">📘 Level 1</button>
                 <button class="level-btn" id="level2Btn" onclick="switchLevel(2)" style="padding:8px 20px;border-radius:10px;border:2px solid rgba(255,255,255,0.3);background:rgba(255,255,255,0.05);color:#aaa;cursor:pointer;">📗 Level 2</button>
@@ -329,7 +349,10 @@
                 <div id="adviceContent" style="color:#aaa;font-size:14px;line-height:1.6;">正在分析你的学习情况...</div>
             </div>
             
-            <button class="game-btn btn-battle" onclick="confirmUnitsAndBattle()">⚔️ 开始战斗</button>
+            <button id="startBattleBtn" class="game-btn btn-battle" onclick="confirmUnitsAndBattle()">⚔️ 开始战斗</button>
+            <div id="continueBattleBtn" style="display:none;margin-top:-5px;">
+                <button class="game-btn" style="background:linear-gradient(135deg, #27ae60, #2ecc71);animation:pulse 1s infinite;" onclick="resumeBattle()">🔄 继续战斗 (<span id="continueBattleInfo"></span>)</button>
+            </div>
             <button class="game-btn" style="background:linear-gradient(135deg, #9b59b6, #8e44ad);" onclick="showMonsterCollection()">👾 怪兽图鉴</button>
             <button class="game-btn" style="background:linear-gradient(135deg, #f39c12, #e67e22);" onclick="showAchievements()">🏆 成就</button>
             <button class="game-btn" style="background:linear-gradient(135deg, #00b894, #00cec9);" onclick="showStudyReport()">📊 学习报告</button>
@@ -416,6 +439,13 @@
         <!-- 战斗界面 -->
         <div id="battleGame" class="card hidden">
             <div class="title">⚔️ 第 <span id="stageNum">1</span> 关</div>
+            <div id="selectedMonsterBar" class="selected-monster-bar hidden">
+                <div class="selected-monster-emoji" id="selectedMonsterEmoji">🔥</div>
+                <div class="selected-monster-info">
+                    <div class="selected-monster-name" id="selectedMonsterName">火焰怪兽</div>
+                    <div class="selected-monster-detail" id="selectedMonsterDetail">Lv.1 | 火焰技能</div>
+                </div>
+            </div>
             <div class="battle-arena">
                 <div class="hp-container">
                     <div class="hp-section"><div class="hp-name">赛罗</div><div class="hp-bar-fight"><div class="hp-fill-zero" id="zeroHp" style="width:100%"></div></div></div>
@@ -484,6 +514,11 @@
                     <div class="unlock-info" id="monsterUnlockInfo">+0 只怪兽</div>
                 </div>
                 <div class="victory-stars" id="victoryStars"></div>
+                <div id="treasureChestArea" style="margin:15px 0;">
+                    <div style="font-size:14px;color:#aaa;margin-bottom:8px;">🎁 开启宝箱获取额外奖励！</div>
+                    <button id="openChestBtn" class="game-btn" style="background:linear-gradient(135deg, #f39c12, #e67e22);font-size:20px;" onclick="openTreasureChest()">🎁 开宝箱</button>
+                    <div id="chestReward" style="display:none;margin-top:10px;padding:12px;background:rgba(255,215,0,0.15);border-radius:12px;border:1px solid rgba(255,215,0,0.3);"></div>
+                </div>
                 <button class="game-btn btn-battle" onclick="backToMenu()">🏠 返回主页</button>
             </div>
         </div>
@@ -503,8 +538,32 @@
     </div>
 
 <script>
+// ========== 性能优化：DOM缓存系统 ==========
+var DOMCache = (function() {
+    var cache = {};
+    return {
+        get: function(id) {
+            if (!cache[id]) {
+                cache[id] = document.getElementById(id);
+            }
+            return cache[id];
+        },
+        clear: function(id) {
+            if (id) {
+                delete cache[id];
+            } else {
+                cache = {};
+            }
+        }
+    };
+})();
+
+// ========== 性能优化：数据结构优化 ==========
+// 使用Set存储已用题目，O(1)查找
+var usedQuestionsSet = new Set();
+
 // 情景对话题库 - PET口语Part1/Part3核心题型
-const DIALOGUE_SCENES = [
+var DIALOGUE_SCENES = [
     // 问候与介绍
     {scene:"打招呼",question:"Hello! How are you?",options:["I'm fine, thanks!","Goodbye!","What's your name?"],correct:0},
     {scene:"打招呼",question:"Nice to meet you!",options:["Nice to meet you too!","I'm seven.","Good morning!"],correct:0},
@@ -672,11 +731,12 @@ const SPEECH_RATES = {
 };
 
 // 兼容旧版本 - 指向当前级别的数据
-const ALL_WORDS = LEVEL_DATA[currentLevel];
+let ALL_WORDS = LEVEL_DATA[currentLevel];
 
 // 切换级别
 function switchLevel(level) {
     currentLevel = level;
+    ALL_WORDS = LEVEL_DATA[currentLevel];
     
     // 更新按钮样式
     for(let i=1;i<=3;i++){
@@ -706,11 +766,13 @@ const LEVEL_INFO = {
 };
 
 function updateLevelDisplay() {
+    let el = document.getElementById('levelTitle');
+    if(!el) return;
     const info = LEVEL_INFO[currentLevel];
     if (info) {
-        document.getElementById('levelTitle').textContent = `${info.name} (${info.exam})`;
+        el.textContent = info.name + ' (' + info.exam + ')';
     } else {
-        document.getElementById('levelTitle').textContent = 'Level ' + currentLevel;
+        el.textContent = 'Level ' + currentLevel;
     }
 }
 
@@ -909,7 +971,7 @@ function initMonsterSkills(){
     ALL_MONSTERS.forEach(function(monster, index){
         if(!monster.skillType){
             monster.skillType = skillTypes[index % 3];
-            monster.attack = 10 + Math.floor(Math.random() * 11);
+            monster.attack = 10 + (index % 11);
         }
     });
 }
@@ -926,12 +988,15 @@ let currentQuestionType=''; // 当前题型
 let recognition=null, isRecording=false, isStoppingRecording=false;
 let recordingTimeout=null;
 let currentMonsterIndex=0;
-let stageCompleted = [];
 let battleScore=0;
 let battleQuestionPool=[];
 let usedQuestions=[];
 let battleUnits=[1];
 let wrongBookTotal=0; // 错题本复习模式下的总错题数
+let battleCorrectCount=0;
+let roundWrongCount=0;
+let shieldActive=false;
+let lightningActive=false;
 
 // 升级系统
 let level=1;
@@ -971,6 +1036,16 @@ const MONSTER_SKILLS = {
 
 let playerMonsters = {};
 let selectedMonsterId = null;
+let playerItems = { expPotion: 0, shield: 0, lightning: 0, breakStone: 0 };
+
+const TREASURE_REWARDS = [
+    { id: 'energy', name: '能量', icon: '⚡', desc: '+30能量', weight: 30, apply: function(){ score += 30; } },
+    { id: 'expPotion', name: '经验药水', icon: '🧪', desc: '怪兽+50经验', weight: 20, apply: function(){ playerItems.expPotion++; } },
+    { id: 'shield', name: '护盾', icon: '🛡️', desc: '下次战斗答错一次免伤', weight: 15, apply: function(){ playerItems.shield++; } },
+    { id: 'lightning', name: '闪电', icon: '⚡', desc: '下次战斗首题伤害翻倍', weight: 15, apply: function(){ playerItems.lightning++; } },
+    { id: 'breakStone', name: '突破石', icon: '💎', desc: '怪兽突破所需材料', weight: 10, apply: function(){ playerItems.breakStone++; } },
+    { id: 'bigEnergy', name: '超级能量', icon: '🌟', desc: '+100能量', weight: 10, apply: function(){ score += 100; } }
+];
 
 // 赛罗变身系统
 let zeroState = {
@@ -1021,8 +1096,30 @@ const MONSTER_SKILLS_ENEMY = {
 // 游戏模式
 let gameMode = 'full'; // 'quick' 或 'full'
 
+// 战斗进度保存
+let battleProgress = {
+    active: false,
+    round: 1,
+    mHp: 100,
+    zHp: 100,
+    comboCount: 0,
+    comboWrongCount: 0,
+    form: 'basic',
+    formBonus: 1,
+    formDuration: 0,
+    awakening: false,
+    awakeningUsed: false,
+    enemySkill: null,
+    sleepy: false,
+    helpful: false,
+    battleMonsters: [],
+    qIdx: 0,
+    correctCount: 0,
+    battleScore: 0
+};
+
 // 数据版本管理
-const DATA_VERSION = 4;
+const DATA_VERSION = 5;
 
 // 题库管理系统
 let questionBanks = {
@@ -1125,44 +1222,51 @@ let unlockedAchievements = [];
 
 // 学习统计数据
 let studyStats = {
-    totalBattles: 0,           // 总战斗次数
-    totalQuestions: 0,         // 总答题数
-    correctAnswers: 0,         // 正确答题数
-    totalSpeakAttempts: 0,     // 口语练习次数
-    speakCorrectCount: 0,      // 口语正确次数
-    totalPronunciationScore: 0,// 发音总分
-    pronunciationCount: 0,     // 发音评分次数
-    listeningCorrect: 0,       // 听力题正确数
-    listeningTotal: 0,         // 听力题总数
-    dialogueCorrect: 0,        // 对话题正确数
-    dialogueTotal: 0,          // 对话题总数
-    dictationCorrect: 0,       // 听写题正确数
-    dictationTotal: 0,         // 听写题总数
-    studyDays: [],             // 学习日期记录
-    dailyStats: {},            // 每日统计
-    // 各题型详细统计（用于薄弱点分析）
+    totalBattles: 0,
+    totalQuestions: 0,
+    correctAnswers: 0,
+    totalSpeakAttempts: 0,
+    speakCorrectCount: 0,
+    totalPronunciationScore: 0,
+    pronunciationCount: 0,
+    listeningCorrect: 0,
+    listeningTotal: 0,
+    dialogueCorrect: 0,
+    dialogueTotal: 0,
+    dictationCorrect: 0,
+    dictationTotal: 0,
+    studyDays: [],
+    dailyStats: {},
     questionTypeStats: {
-        hearing: { correct: 0, total: 0 },      // 听力题
-        choice: { correct: 0, total: 0 },       // 选择题
-        speak: { correct: 0, total: 0 },        // 口语题
-        speakImage: { correct: 0, total: 0 },   // 看图说话
-        dialogue: { correct: 0, total: 0 },     // 对话题
-        dialogueScene: { correct: 0, total: 0 },// 情景对话
-        dictation: { correct: 0, total: 0 }     // 听写填空
+        hearing: { correct: 0, total: 0 },
+        choice: { correct: 0, total: 0 },
+        speak: { correct: 0, total: 0 },
+        speakImage: { correct: 0, total: 0 },
+        dialogue: { correct: 0, total: 0 },
+        dialogueScene: { correct: 0, total: 0 },
+        dictation: { correct: 0, total: 0 }
     }
 };
 
 // 每日任务系统
 let dailyTasks = {
-    lastLoginDate: '',         // 最后登录日期
-    loginReward: false,        // 今日登录奖励是否已领取
-    answerCount: 0,            // 今日答题数量
-    answerTarget: 10,          // 答题目标
-    answerReward: false,       // 答题奖励是否已领取
-    speakCount: 0,             // 今日口语练习数量
-    speakTarget: 5,            // 口语目标
-    speakReward: false         // 口语奖励是否已领取
+    lastLoginDate: '',
+    loginReward: false,
+    answerCount: 0,
+    answerTarget: 10,
+    answerReward: false,
+    speakCount: 0,
+    speakTarget: 5,
+    speakReward: false,
+    dailyChallenge: null,
+    dailyChallengeCompleted: false
 };
+
+const DAILY_CHALLENGES = [
+    { id: 'combo', name: '🔥 连击挑战', desc: '单场达到5连击', check: function(){ return comboData.maxCombo >= 5; }, reward: 50, rewardType: 'energy' },
+    { id: 'perfect', name: '🎯 完美挑战', desc: '单关全对不答错', check: function(){ return dailyTasks._perfectRound; }, reward: 'expPotion', rewardType: 'item' },
+    { id: 'adventure', name: '🏆 冒险挑战', desc: '完成一次困难冒险', check: function(){ return dailyTasks._hardCompleted; }, reward: 'breakStone', rewardType: 'item' }
+];
 
 // 从已解锁怪兽中随机选择10个作为本次闯关的怪兽
 function selectBattleMonsters(){
@@ -1255,22 +1359,22 @@ function checkSpecialUnlock(){
     return specialUnlocks;
 }
 
-// ========== 语音预加载系统 ==========
+// ========== 语音预加载系统（优化版） ==========
 // 语音引擎状态
 let voiceEngineReady = false;
 let voiceEngineLoading = false;
 let voicesLoaded = [];
 
-// 预加载语音引擎
+// 预加载语音引擎（移除轮询，仅使用事件驱动）
 function preloadVoices(){
     if(!('speechSynthesis' in window)){
         console.warn('浏览器不支持语音合成');
         return;
     }
     
+    if(voiceEngineLoading) return;
     voiceEngineLoading = true;
     
-    // 获取语音列表
     let voices = window.speechSynthesis.getVoices();
     
     if(voices.length > 0){
@@ -1281,36 +1385,26 @@ function preloadVoices(){
         return;
     }
     
-    // Chrome 需要等待 voices loaded 事件
-    window.speechSynthesis.onvoiceschanged = function(){
+    let resolved = false;
+    let resolveOnce = function(){
+        if(resolved) return;
+        resolved = true;
         voicesLoaded = window.speechSynthesis.getVoices();
         if(voicesLoaded.length > 0){
             voiceEngineReady = true;
             voiceEngineLoading = false;
-            console.log('语音引擎预加载完成，共 ' + voicesLoaded.length + ' 个语音');
+            console.log('语音引擎加载完成，共 ' + voicesLoaded.length + ' 个语音');
         }
     };
     
-    // 备用轮询检查（某些浏览器可能不触发 onvoiceschanged）
-    let checkCount = 0;
-    let checkInterval = setInterval(function(){
-        voices = window.speechSynthesis.getVoices();
-        if(voices.length > 0){
-            voicesLoaded = voices;
-            voiceEngineReady = true;
-            voiceEngineLoading = false;
-            clearInterval(checkInterval);
-            console.log('语音引擎轮询加载完成，共 ' + voices.length + ' 个语音');
-        }
-        checkCount++;
-        if(checkCount > 20){
-            clearInterval(checkInterval);
-            voiceEngineLoading = false;
-        }
-    }, 100);
+    window.speechSynthesis.onvoiceschanged = resolveOnce;
     
-    // 预热语音引擎（播放一个静音的语音）
-    warmupVoiceEngine();
+    setTimeout(function(){
+        if(!resolved){
+            resolveOnce();
+            if(!voiceEngineReady) voiceEngineLoading = false;
+        }
+    }, 2000);
 }
 
 // 预热语音引擎
@@ -1323,37 +1417,9 @@ function warmupVoiceEngine(){
         warmup.rate = 0.1;
         warmup.lang = 'en-US';
         window.speechSynthesis.speak(warmup);
-        console.log('语音引擎预热完成');
     } catch(e){
         console.warn('语音引擎预热失败:', e);
     }
-}
-
-// 预加载常用单词发音缓存（不实际播放，只是准备好引擎）
-function preloadCommonWords(){
-    if(!('speechSynthesis' in window)) return;
-    
-    // 常用单词列表
-    let commonWords = ['hello', 'goodbye', 'yes', 'no', 'please', 'thank', 'sorry', 'good', 'bad', 'big'];
-    
-    // 延迟执行，避免影响页面加载速度
-    setTimeout(function(){
-        // 创建语音实例但不播放，仅用于缓存
-        commonWords.forEach(function(word, index){
-            setTimeout(function(){
-                try {
-                    let utterance = new SpeechSynthesisUtterance(word);
-                    utterance.volume = 0;
-                    utterance.rate = 2;
-                    utterance.lang = 'en-US';
-                    // 不调用 speak，仅创建实例
-                } catch(e){
-                    // 忽略错误
-                }
-            }, index * 50);
-        });
-        console.log('常用单词语音缓存准备完成');
-    }, 2000);
 }
 
 function init(){
@@ -1371,7 +1437,6 @@ function init(){
     // 预加载语音引擎（异步执行，不阻塞页面加载）
     setTimeout(function(){
         preloadVoices();
-        preloadCommonWords();
     }, 100);
     
     document.body.addEventListener('click', function initAudio(){
@@ -1389,6 +1454,7 @@ function checkDailyTaskReset(){
     
     // 如果是新的一天，重置任务
     if(dailyTasks.lastLoginDate !== today){
+        let challengeIdx = Math.floor(Math.random() * DAILY_CHALLENGES.length);
         dailyTasks = {
             lastLoginDate: today,
             loginReward: false,
@@ -1397,7 +1463,9 @@ function checkDailyTaskReset(){
             answerReward: false,
             speakCount: 0,
             speakTarget: 5,
-            speakReward: false
+            speakReward: false,
+            dailyChallenge: DAILY_CHALLENGES[challengeIdx].id,
+            dailyChallengeCompleted: false
         };
         saveProgress();
     }
@@ -1517,6 +1585,25 @@ function updateDailyTaskUI(){
                     '<span class="task-count">' + dailyTasks.speakCount + '/' + dailyTasks.speakTarget + '</span>'}
             </div>
         </div>
+        
+        <!-- 每日挑战 -->
+        ${dailyTasks.dailyChallenge ? (function(){
+            let ch = DAILY_CHALLENGES.find(function(c){ return c.id === dailyTasks.dailyChallenge; });
+            if(!ch) return '';
+            let completed = dailyTasks.dailyChallengeCompleted;
+            let ready = !completed && ch.check();
+            let rewardText = ch.rewardType === 'energy' ? ch.reward + '能量' : (ch.rewardType === 'item' ? (ch.reward === 'expPotion' ? '经验药水' : (ch.reward === 'breakStone' ? '突破石' : ch.reward)) : ch.reward);
+            return '<div class="task-item" style="border-left:3px solid #9b59b6;">' +
+                '<div class="task-icon" style="background:linear-gradient(135deg,#9b59b6,#8e44ad);color:#fff;border-radius:8px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-size:16px;">🏆</div>' +
+                '<div class="task-info">' +
+                    '<div class="task-name" style="color:#e0b0ff;">' + ch.name + '</div>' +
+                    '<div style="font-size:11px;color:#aaa;margin:2px 0;">' + ch.desc + ' · 奖励: ' + rewardText + '</div>' +
+                '</div>' +
+                '<div class="task-status">' +
+                    (completed ? '<span class="task-complete-icon">✓</span>' : (ready ? '<button class="task-reward-btn" style="background:linear-gradient(135deg,#9b59b6,#8e44ad);" onclick="claimDailyChallengeReward()">领取</button>' : '<span class="task-count" style="color:#9b59b6;">进行中</span>')) +
+                '</div>' +
+            '</div>';
+        })() : ''}
     `;
     
     taskCard.innerHTML = html;
@@ -1574,6 +1661,40 @@ function incrementSpeakCount(){
     }
 }
 
+function checkDailyChallenge(){
+    if(!dailyTasks.dailyChallenge || dailyTasks.dailyChallengeCompleted) return;
+    let ch = DAILY_CHALLENGES.find(function(c){ return c.id === dailyTasks.dailyChallenge; });
+    if(!ch) return;
+    if(ch.check()){
+        showToast('🏆 每日挑战达成！快去领取奖励！');
+        playSound('victory');
+        updateDailyTaskUI();
+    }
+}
+
+function claimDailyChallengeReward(){
+    if(!dailyTasks.dailyChallenge || dailyTasks.dailyChallengeCompleted) return;
+    let ch = DAILY_CHALLENGES.find(function(c){ return c.id === dailyTasks.dailyChallenge; });
+    if(!ch) return;
+    if(!ch.check()) return;
+    
+    dailyTasks.dailyChallengeCompleted = true;
+    
+    if(ch.rewardType === 'energy'){
+        score += ch.reward;
+        showToast('🏆 获得 ' + ch.reward + ' 能量！');
+    }else if(ch.rewardType === 'item'){
+        playerItems[ch.reward] = (playerItems[ch.reward] || 0) + 1;
+        let itemName = ch.reward === 'expPotion' ? '经验药水' : (ch.reward === 'breakStone' ? '突破石' : ch.reward);
+        showToast('🏆 获得 ' + itemName + '！');
+    }
+    
+    saveProgressNow();
+    updateUI();
+    updateDailyTaskUI();
+    playSound('victory');
+}
+
 function playSound(type){
     if(!soundEnabled) return;
     
@@ -1604,7 +1725,7 @@ function playSound(type){
             oscillator.frequency.setValueAtTime(659.25, audioContext.currentTime + 0.1);
             oscillator.frequency.setValueAtTime(783.99, audioContext.currentTime + 0.2);
             gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-            gainNode.gain.exponentialDecayTo = 0.01;
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
             oscillator.start(audioContext.currentTime);
             oscillator.stop(audioContext.currentTime + 0.3);
         }else if(type === 'wrong'){
@@ -1665,14 +1786,23 @@ function setSpeechRate(rateKey){
     showToast('语速已切换为：' + SPEECH_RATES[rateKey].label);
 }
 
+let _toastEl = null;
+let _toastTimer = null;
 function showToast(message, duration){
     duration = duration || 2000;
-    let toast = document.createElement('div');
-    toast.className = 'toast';
-    toast.textContent = message;
-    document.body.appendChild(toast);
-    setTimeout(function(){
-        toast.remove();
+    if(!_toastEl){
+        _toastEl = document.createElement('div');
+        _toastEl.className = 'toast';
+        document.body.appendChild(_toastEl);
+    }
+    _toastEl.textContent = message;
+    _toastEl.style.animation = 'none';
+    _toastEl.offsetHeight;
+    _toastEl.style.animation = '';
+    _toastEl.style.display = '';
+    clearTimeout(_toastTimer);
+    _toastTimer = setTimeout(function(){
+        _toastEl.style.display = 'none';
     }, duration);
 }
 
@@ -1695,14 +1825,14 @@ function updateWrongBookUI(){
     document.getElementById('reviewBtn').style.display = 'block';
     list.innerHTML = '';
     
-    wrongBook.sort(function(a, b){ return b.count - a.count; });
+    let sortedWrongBook = wrongBook.slice().sort(function(a, b){ return b.wrongCount - a.wrongCount; });
     
-    wrongBook.forEach(function(item, index){
+    sortedWrongBook.forEach(function(item, index){
         let escapedWord = item.word.replace(/'/g, "\\'");
         let div = document.createElement('div');
         div.className = 'wrong-item';
         div.innerHTML = '<div><div class="wrong-item-word">'+item.word+'</div><div class="wrong-item-meaning">'+item.meaning+'</div></div>'+
-            '<div class="wrong-item-count">错'+item.count+'次</div>'+
+            '<div class="wrong-item-count">错'+item.wrongCount+'次</div>'+
             '<div class="wrong-item-actions">'+
                 '<button class="wrong-item-btn listen" onclick="speakWord(\''+escapedWord+'\')">🔊</button>'+
                 '<button class="wrong-item-btn remove" onclick="removeWrongWord('+index+')">✕</button>'+
@@ -1773,15 +1903,15 @@ function addToWrongBook(word, meaning){
     let found = wrongBook.find(function(item){ return item.word === word; });
     let now = new Date().toISOString();
     if(found){
-        found.count++;
+        found.wrongCount = (found.wrongCount || 0) + 1;
         found.lastWrong = now;
         found.lastReview = now;
-        found.nextReview = calculateNextReview(now, found.count);
+        found.nextReview = calculateNextReview(now, found.wrongCount);
     }else{
         wrongBook.push({
             word: word,
             meaning: meaning,
-            count: 1,
+            wrongCount: 1,
             firstWrong: now,
             lastWrong: now,
             lastReview: now,
@@ -1833,8 +1963,15 @@ function startWrongBookReview(){
     battleQuestionPool = shuffle(battleQuestionPool);
     usedQuestions = [];
     battleScore = 0;
+    battleCorrectCount = 0;
     qIdx = 0;
     correctCount = 0;
+    roundWrongCount = 0;
+    
+    shieldActive = playerItems.shield > 0;
+    lightningActive = playerItems.lightning > 0;
+    if(shieldActive) playerItems.shield--;
+    if(lightningActive) playerItems.lightning--;
     
     // 闯关模式：计算关卡数和选择怪兽
     reviewRoundCount = calculateRoundCount(wrongBookTotal);
@@ -1855,6 +1992,7 @@ function startWrongBookReview(){
     document.getElementById('monsterHpName').textContent = currentMonster.name;
     
     updateHP();
+    updateSelectedMonsterBar();
     show('battleGame');
     
     showToast('🔔 开始错题复习！共 ' + wrongBookTotal + ' 题，' + reviewRoundCount + ' 关');
@@ -1896,6 +2034,7 @@ function startQuickReview(){
     battleQuestionPool = shuffle(battleQuestionPool);
     usedQuestions = [];
     battleScore = 0;
+    battleCorrectCount = 0;
     qIdx = 0;
     correctCount = 0;
     
@@ -1918,6 +2057,7 @@ function startQuickReview(){
     document.getElementById('monsterHpName').textContent = currentMonster.name;
     
     updateHP();
+    updateSelectedMonsterBar();
     show('battleGame');
     
     showToast('🔔 开始智能复习！共 ' + wrongBookTotal + ' 题，' + reviewRoundCount + ' 关');
@@ -1928,10 +2068,10 @@ function startQuickReview(){
 }
 
 function createStars(){
-    for(let i=0;i<50;i++){
+    for(let i=0;i<30;i++){
         let s=document.createElement('div');
         s.className='star';
-        s.style.cssText='left:'+Math.random()*100+'%;top:'+Math.random()*100+'%;width:'+(Math.random()*3+1)+'px;height:'+(Math.random()*3+1)+'px';
+        s.style.cssText='left:'+Math.random()*100+'%;top:'+Math.random()*100+'%;width:'+(Math.random()*3+1)+'px;height:'+(Math.random()*3+1)+'px;animation-delay:'+(Math.random()*2).toFixed(1)+'s';
         document.getElementById('stars').appendChild(s);
     }
 }
@@ -1978,7 +2118,7 @@ function loadProgress(){
                 if(!item.nextReview){
                     let lastTime = item.lastWrong || item.firstWrong || new Date().toISOString();
                     item.lastReview = lastTime;
-                    item.nextReview = calculateNextReview(lastTime, item.correctCount || 0);
+                    item.nextReview = calculateNextReview(lastTime, item.wrongCount || 0);
                 }
                 // 迁移旧的count字段到wrongCount
                 if(item.count !== undefined && item.wrongCount === undefined){
@@ -1997,10 +2137,31 @@ function loadProgress(){
             
             if(data.playerMonsters){
                 playerMonsters = data.playerMonsters;
+                
+                for(let mid in playerMonsters){
+                    if(playerMonsters[mid].broken === undefined){
+                        playerMonsters[mid].broken = false;
+                    }
+                    if(playerMonsters[mid].evolvedAttack){
+                        let monster = ALL_MONSTERS.find(function(m){ return m.id === parseInt(mid); });
+                        if(monster && !monster._attackDoubled){
+                            monster.attack = Math.floor(monster.attack * 2);
+                            monster._attackDoubled = true;
+                        }
+                    }
+                }
             }
             
             if(data.selectedMonsterId){
                 selectedMonsterId = data.selectedMonsterId;
+            }
+            
+            if(data.playerItems){
+                playerItems = data.playerItems;
+                if(playerItems.expPotion === undefined) playerItems.expPotion = 0;
+                if(playerItems.shield === undefined) playerItems.shield = 0;
+                if(playerItems.lightning === undefined) playerItems.lightning = 0;
+                if(playerItems.breakStone === undefined) playerItems.breakStone = 0;
             }
             
             if(data.maxCombo){
@@ -2009,6 +2170,10 @@ function loadProgress(){
             
             if(data.totalCombo){
                 comboData.totalCombo = data.totalCombo;
+            }
+            
+            if(data.battleProgress){
+                battleProgress = data.battleProgress;
             }
             
             checkDailyTaskReset();
@@ -2083,11 +2248,52 @@ function migrateData(data, fromVersion){
         data.totalCombo = data.totalCombo || 0;
     }
     
+    // 版本4到版本5：道具系统、每日挑战、怪兽突破
+    if(fromVersion < 5){
+        data.playerItems = data.playerItems || { expPotion: 0, shield: 0, lightning: 0, breakStone: 0 };
+        if(data.playerMonsters){
+            for(let mid in data.playerMonsters){
+                if(data.playerMonsters[mid].broken === undefined){
+                    data.playerMonsters[mid].broken = false;
+                }
+            }
+        }
+        if(data.dailyTasks){
+            if(data.dailyTasks.dailyChallenge === undefined) data.dailyTasks.dailyChallenge = null;
+            if(data.dailyTasks.dailyChallengeCompleted === undefined) data.dailyTasks.dailyChallengeCompleted = false;
+        }
+    }
+    
     data.version = DATA_VERSION;
     return data;
 }
 
+let _saveTimer = null;
+let _pendingSave = false;
+
 function saveProgress(){
+    _pendingSave = true;
+    if(_saveTimer) clearTimeout(_saveTimer);
+    _saveTimer = setTimeout(function(){
+        if('requestIdleCallback' in window){
+            requestIdleCallback(function(){
+                if(_pendingSave) _doSave();
+            }, {timeout: 1500});
+        }else{
+            _doSave();
+        }
+    }, 1000);
+}
+
+function saveProgressNow(){
+    _pendingSave = true;
+    if(_saveTimer) clearTimeout(_saveTimer);
+    _doSave();
+}
+
+function _doSave(){
+    if(!_pendingSave) return;
+    _pendingSave = false;
     try{
         let data = {
             version: DATA_VERSION,
@@ -2105,8 +2311,10 @@ function saveProgress(){
             dailyTasks: dailyTasks,
             playerMonsters: playerMonsters,
             selectedMonsterId: selectedMonsterId,
+            playerItems: playerItems,
             maxCombo: comboData.maxCombo,
             totalCombo: comboData.totalCombo,
+            battleProgress: battleProgress,
             saveTime: new Date().toISOString()
         };
         localStorage.setItem('ultraman_progress', JSON.stringify(data));
@@ -2126,6 +2334,33 @@ function clearProgress(){
             monstersDef = 0;
             wrongBook = [];
             wrongReviewCount = 0;
+            playerMonsters = {};
+            selectedMonsterId = null;
+            comboData = { count: 0, maxCombo: 0, wrongCount: 0, totalCombo: 0 };
+            zeroState = { form: 'basic', formBonus: 1, formDuration: 0, awakening: false, awakeningUsed: false };
+            gameMode = 'full';
+            unlockedUnits = {1: [1], 2: [1], 3: [1]};
+            unlockedAchievements = [];
+            unlockedMonsterIds = [1,2,3,4,5,6,7,8,9,10];
+            studyStats = {
+                totalBattles: 0,
+                totalQuestions: 0,
+                correctAnswers: 0,
+                totalPronunciationScore: 0,
+                pronunciationCount: 0,
+                studyDays: [],
+                dailyStats: {},
+                questionTypeStats: {
+                    hearing: { correct: 0, total: 0 },
+                    choice: { correct: 0, total: 0 },
+                    speak: { correct: 0, total: 0 },
+                    speakImage: { correct: 0, total: 0 },
+                    dialogue: { correct: 0, total: 0 },
+                    dialogueScene: { correct: 0, total: 0 },
+                    dictation: { correct: 0, total: 0 }
+                }
+            };
+            initMonsterSkills();
             updateUI();
             showToast('进度已清除');
         }catch(e){
@@ -2236,9 +2471,6 @@ function triggerImport(){
 }
 
 // ========== 题库管理系统 ==========
-
-// 题库缓存
-let questionBankCache = null;
 
 // 获取当前题库
 function getCurrentQuestionBank(){
@@ -2521,44 +2753,6 @@ function toggleSound(){
 }
 
 // 增量更新题库
-function incrementalUpdateQuestionBank(newData){
-    if(!customQuestionBank){
-        return false;
-    }
-    
-    let oldVersion = customQuestionBank.version || '1.0';
-    let newVersion = newData.version || '1.0';
-    
-    if(newVersion <= oldVersion){
-        showToast('题库已是最新版本');
-        return false;
-    }
-    
-    // 增量合并
-    if(newData.levels){
-        Object.keys(newData.levels).forEach(function(levelKey){
-            if(!customQuestionBank.levels[levelKey]){
-                customQuestionBank.levels[levelKey] = newData.levels[levelKey];
-            }else{
-                Object.keys(newData.levels[levelKey]).forEach(function(unitKey){
-                    customQuestionBank.levels[levelKey][unitKey] = newData.levels[levelKey][unitKey];
-                });
-            }
-        });
-    }
-    
-    customQuestionBank.version = newVersion;
-    customQuestionBank.lastUpdateTime = new Date().toISOString();
-    
-    localStorage.setItem('custom_question_bank', JSON.stringify(customQuestionBank));
-    
-    updateQuestionBanksList();
-    updateCurrentBankDisplay();
-    
-    showToast('题库已更新到版本 ' + newVersion);
-    return true;
-}
-
 function createHomeUnitSelector(){
     let grid=document.getElementById('homeUnitSelector');
     grid.innerHTML='';
@@ -2604,17 +2798,98 @@ function toggleHomeUnit(i, btn){
     }
 }
 
+let adventureDifficulty = 'normal';
+
+const DIFFICULTY_CONFIG = {
+    normal: { name: '普通', hpMult: 1, damageMult: 1, rewardMult: 1, color: '#27ae60', desc: '标准难度' },
+    hard: { name: '困难', hpMult: 1.5, damageMult: 1.5, rewardMult: 2, color: '#e67e22', desc: '怪兽更强，奖励×2' },
+    extreme: { name: '极限', hpMult: 2, damageMult: 2, rewardMult: 3, color: '#e74c3c', desc: '极限挑战，奖励×3' }
+};
+
 function confirmUnitsAndBattle(){
     if(battleUnits.length===0) battleUnits=[1];
+    showDifficultySelect();
+}
+
+function showDifficultySelect(){
+    let menu = document.getElementById('menu');
+    let html = '<div class="title">⚔️ 选择难度</div>' +
+        '<div style="text-align:center;margin:10px 0;color:#aaa;font-size:13px;">难度越高，奖励越丰厚！</div>';
+    
+    for(let key in DIFFICULTY_CONFIG){
+        let d = DIFFICULTY_CONFIG[key];
+        html += '<button class="game-btn" style="background:' + d.color + ';" onclick="selectDifficulty(\'' + key + '\')">' +
+            d.name + ' - ' + d.desc + '</button>';
+    }
+    
+    html += '<button class="game-btn" style="background:#555;margin-top:15px;" onclick="backToMenu()">← 返回</button>';
+    menu.innerHTML = html;
+}
+
+function selectDifficulty(diff){
+    adventureDifficulty = diff;
     startBattle();
 }
 
 function updateUI(){
-    document.getElementById('totalScore').textContent=score;
-    document.getElementById('levelDisplay').textContent='Lv.'+level;
-    document.getElementById('totalStars').textContent=totalStars;
+    let totalScoreEl = DOMCache.get('totalScore');
+    let levelDisplayEl = DOMCache.get('levelDisplay');
+    let totalStarsEl = DOMCache.get('totalStars');
+    if(totalScoreEl) totalScoreEl.textContent=score;
+    if(levelDisplayEl) levelDisplayEl.textContent='Lv.'+level;
+    if(totalStarsEl) totalStarsEl.textContent=totalStars;
+    updatePartnerMonster();
+    updateItemBar();
     updateStudyAdvice();
     updateReviewReminder();
+}
+
+function updateItemBar(){
+    let bar = document.getElementById('itemBar');
+    if(!bar) return;
+    let items = [
+        { key: 'expPotion', icon: '🧪', name: '经验药水' },
+        { key: 'shield', icon: '🛡️', name: '护盾' },
+        { key: 'lightning', icon: '⚡', name: '闪电' },
+        { key: 'breakStone', icon: '💎', name: '突破石' }
+    ];
+    let html = '';
+    items.forEach(function(item){
+        let count = playerItems[item.key] || 0;
+        if(count > 0){
+            html += '<span style="background:rgba(255,255,255,0.1);padding:3px 8px;border-radius:8px;font-size:12px;color:#ddd;" title="' + item.name + '">' + item.icon + '×' + count + '</span>';
+        }
+    });
+    bar.innerHTML = html || '<span style="font-size:11px;color:#555;">🎒 道具背包空空如也，通关宝箱获取道具</span>';
+}
+
+const PARTNER_PHRASES = [
+    '一起加油吧！💪', '今天也要好好学英语哦！📚', '赛罗最棒了！⭐',
+    '我会在战斗中帮你的！🔥', '别怕，有我在！🛡️', '冲冲冲！🚀',
+    '你是最棒的！🌟', '继续努力！💪', '我能感受到你的力量！✨'
+];
+
+function updatePartnerMonster(){
+    let el = document.getElementById('partnerMonster');
+    if(!el) return;
+    if(selectedMonsterId && playerMonsters[selectedMonsterId]){
+        let monster = ALL_MONSTERS.find(function(m){ return m.id === selectedMonsterId; });
+        if(monster){
+            el.innerHTML = '<span style="font-size:32px;">' + monster.emoji + '</span> <span style="color:#00d4ff;font-size:13px;">' + monster.name + '</span>';
+            el.title = '点击和' + monster.name + '互动';
+        }
+    }else{
+        el.innerHTML = '<span style="font-size:12px;color:#666;">去怪兽图鉴选择出战怪兽吧！</span>';
+    }
+}
+
+function interactPartnerMonster(){
+    if(!selectedMonsterId || !playerMonsters[selectedMonsterId]) return;
+    let monster = ALL_MONSTERS.find(function(m){ return m.id === selectedMonsterId; });
+    if(!monster) return;
+    
+    let phrase = PARTNER_PHRASES[Math.floor(Math.random() * PARTNER_PHRASES.length)];
+    showToast(monster.emoji + ' ' + monster.name + '：' + phrase);
 }
 
 // 生成个性化学习建议
@@ -2623,7 +2898,7 @@ function updateStudyAdvice(){
     
     // 基于错题本生成建议
     if(wrongBook.length > 0){
-        let totalWrong = wrongBook.reduce(function(sum, item){ return sum + item.count; }, 0);
+        let totalWrong = wrongBook.reduce(function(sum, item){ return sum + item.wrongCount; }, 0);
         let avgWrong = totalWrong / wrongBook.length;
         
         if(avgWrong >= 3){
@@ -2635,9 +2910,9 @@ function updateStudyAdvice(){
         }
         
         // 找出错误最多的单词
-        let topWrong = wrongBook.sort(function(a, b){ return b.count - a.count; })[0];
-        if(topWrong && topWrong.count >= 2){
-            advice.push('⚠️ 重点攻克："' + topWrong.word + '" 已错' + topWrong.count + '次');
+        let topWrong = wrongBook.slice().sort(function(a, b){ return b.wrongCount - a.wrongCount; })[0];
+        if(topWrong && topWrong.wrongCount >= 2){
+            advice.push('⚠️ 重点攻克："' + topWrong.word + '" 已错' + topWrong.wrongCount + '次');
         }
     }else{
         advice.push('✨ 太棒了！暂无错题，继续保持！');
@@ -2859,12 +3134,18 @@ function showStudyReport(){
 function updateDailyStats(){
     let today = new Date().toISOString().split('T')[0];
     
-    // 记录学习日期
+    if(!studyStats.studyDays){
+        studyStats.studyDays = [];
+    }
+    
     if(!studyStats.studyDays.includes(today)){
         studyStats.studyDays.push(today);
     }
     
-    // 更新每日统计
+    if(!studyStats.dailyStats){
+        studyStats.dailyStats = {};
+    }
+    
     if(!studyStats.dailyStats[today]){
         studyStats.dailyStats[today] = {
             battles: 0,
@@ -2913,8 +3194,6 @@ function recordQuestionStats(type, isCorrect){
     }
     studyStats.dailyStats[today].questions++;
     if(isCorrect) studyStats.dailyStats[today].correct++;
-    
-    saveProgress();
 }
 
 // 题型名称映射
@@ -3002,6 +3281,11 @@ function startWeaknessPractice(type){
     battleQuestionPool=[];
     usedQuestions=[];
     currentMonsterIndex=0;
+    
+    shieldActive = playerItems.shield > 0;
+    lightningActive = playerItems.lightning > 0;
+    if(shieldActive) playerItems.shield--;
+    if(lightningActive) playerItems.lightning--;
     
     // 选择本次闯关的怪兽
     selectBattleMonsters();
@@ -3141,8 +3425,19 @@ function showWeaknessRoundQuestion(){
     }
 }
 
-function showMonsterCollection(){
+function showMonsterCollection(filter){
+    filter = filter || 'all';
+    
     let html = '<div style="text-align:center;margin-bottom:15px;"><div style="font-size:24px;color:#ffd93d;">👾 怪兽图鉴</div><div style="color:#aaa;font-size:14px;margin-top:5px;">已解锁 ' + unlockedMonsterIds.length + '/' + ALL_MONSTERS.length + '</div></div>';
+    
+    html += '<div style="display:flex;gap:8px;margin-bottom:15px;flex-wrap:wrap;justify-content:center;">';
+    html += '<button class="filter-btn' + (filter === 'all' ? ' active' : '') + '" onclick="showMonsterCollection(\'all\')">全部</button>';
+    html += '<button class="filter-btn' + (filter === 'unlocked' ? ' active' : '') + '" onclick="showMonsterCollection(\'unlocked\')">已解锁</button>';
+    html += '<button class="filter-btn' + (filter === 'locked' ? ' active' : '') + '" onclick="showMonsterCollection(\'locked\')">未解锁</button>';
+    html += '<button class="filter-btn' + (filter === 'fire' ? ' active' : '') + '" onclick="showMonsterCollection(\'fire\')">🔥火焰</button>';
+    html += '<button class="filter-btn' + (filter === 'ice' ? ' active' : '') + '" onclick="showMonsterCollection(\'ice\')">❄️冰霜</button>';
+    html += '<button class="filter-btn' + (filter === 'star' ? ' active' : '') + '" onclick="showMonsterCollection(\'star\')">⭐星星</button>';
+    html += '</div>';
     
     if(selectedMonsterId && playerMonsters[selectedMonsterId]){
         let selectedMonster = ALL_MONSTERS.find(function(m){ return m.id === selectedMonsterId; });
@@ -3163,9 +3458,19 @@ function showMonsterCollection(){
         html += '</div>';
     }
     
-    html += '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;max-height:350px;overflow-y:auto;">';
+    html += '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;max-height:500px;overflow-y:auto;padding-right:5px;">';
     
-    ALL_MONSTERS.forEach(function(monster){
+    let filteredMonsters = ALL_MONSTERS.filter(function(monster){
+        let unlocked = unlockedMonsterIds.includes(monster.id);
+        if(filter === 'unlocked') return unlocked;
+        if(filter === 'locked') return !unlocked;
+        if(filter === 'fire') return monster.skillType === 'fire';
+        if(filter === 'ice') return monster.skillType === 'ice';
+        if(filter === 'star') return monster.skillType === 'star';
+        return true;
+    });
+    
+    filteredMonsters.forEach(function(monster){
         let unlocked = unlockedMonsterIds.includes(monster.id);
         let pm = playerMonsters[monster.id] || { level: 1, stars: 0, evolved: false };
         let skill = MONSTER_SKILLS[monster.skillType];
@@ -3174,7 +3479,7 @@ function showMonsterCollection(){
         html += '<div class="monster-card' + (isSelected ? ' selected' : '') + '" onclick="' + (unlocked ? 'showMonsterDetail(' + monster.id + ')' : '') + '" style="cursor:' + (unlocked ? 'pointer' : 'default') + ';">';
         html += '<div class="monster-card-header">';
         html += '<div class="monster-emoji-large">' + (unlocked ? monster.emoji : '❓') + '</div>';
-        html += '<div class="monster-info">';
+        html += '<div class="monster-detail-info">';
         html += '<div class="monster-name-large">' + (unlocked ? monster.name : '未解锁') + (pm.evolved ? ' ✨' : '') + '<span class="monster-level-badge">Lv.' + pm.level + '</span></div>';
         if(unlocked && skill){
             html += '<div class="monster-skill-badge">' + skill.icon + ' ' + skill.name + '</div>';
@@ -3203,10 +3508,11 @@ function showMonsterDetail(monsterId){
     let monster = ALL_MONSTERS.find(function(m){ return m.id === monsterId; });
     if(!monster) return;
     
-    let pm = playerMonsters[monsterId] || { level: 1, stars: 0, evolved: false };
-    let skill = MONSTER_SKILLS[monster.skillType];
+    let pm = playerMonsters[monsterId] || { level: 1, stars: 0, evolved: false, broken: false };
+    let skill = getMonsterSkill(monsterId);
     let isSelected = selectedMonsterId === monsterId;
     let canEvolve = pm.level >= 5 && !pm.evolved;
+    let canBreakthrough = pm.evolved && pm.level >= 5 && !pm.broken && playerItems.breakStone >= 1;
     
     let html = '<div style="text-align:center;padding:20px;">';
     html += '<div style="font-size:60px;margin-bottom:10px;">' + monster.emoji + (pm.evolved ? ' ✨' : '') + '</div>';
@@ -3249,6 +3555,22 @@ function showMonsterDetail(monsterId){
     }else{
         html += '<button class="monster-action-btn evolve" disabled>Lv.5可进化</button>';
     }
+    
+    if(pm.broken){
+        html += '<button class="monster-action-btn" style="background:#9b59b6;" disabled>💎 已突破</button>';
+    }else if(canBreakthrough){
+        html += '<button class="monster-action-btn" style="background:linear-gradient(135deg, #9b59b6, #8e44ad);" onclick="breakthroughMonster(' + monsterId + ')">💎 突破 (1突破石)</button>';
+    }else if(pm.evolved && !pm.broken){
+        html += '<button class="monster-action-btn" style="background:#555;" disabled>💎 需要1突破石</button>';
+    }
+    
+    if(playerItems.expPotion > 0){
+        let maxLevel = pm.broken ? 10 : (pm.evolved ? 5 : 5);
+        if(pm.level < maxLevel){
+            html += '<button class="monster-action-btn" style="background:linear-gradient(135deg, #27ae60, #2ecc71);" onclick="useExpPotion(' + monsterId + ')">🧪 经验药水×' + playerItems.expPotion + '</button>';
+        }
+    }
+    
     html += '</div>';
     
     html += '<button class="game-btn" style="background:#555;margin-top:15px;" onclick="showMonsterCollection()">🔙 返回图鉴</button>';
@@ -3259,6 +3581,9 @@ function showMonsterDetail(monsterId){
 
 function selectMonster(monsterId){
     selectedMonsterId = monsterId;
+    if(!playerMonsters[monsterId]){
+        playerMonsters[monsterId] = { level: 1, stars: 0, evolved: false };
+    }
     saveProgress();
     let monster = ALL_MONSTERS.find(function(m){ return m.id === monsterId; });
     showToast('✅ ' + (monster ? monster.name : '怪兽') + ' 已设为出战！');
@@ -3273,13 +3598,15 @@ function evolveMonster(monsterId){
     }
     
     pm.evolved = true;
-    
-    let monster = ALL_MONSTERS.find(function(m){ return m.id === monsterId; });
-    if(monster){
-        monster.attack = Math.floor(monster.attack * 2);
-    }
+    pm.evolvedAttack = true;
     
     saveProgress();
+    
+    let monster = ALL_MONSTERS.find(function(m){ return m.id === monsterId; });
+    if(monster && !monster._attackDoubled){
+        monster.attack = Math.floor(monster.attack * 2);
+        monster._attackDoubled = true;
+    }
     
     let monsterName = monster ? monster.name : '怪兽';
     showToast('🎉 ' + monsterName + ' 进化成功！');
@@ -3287,24 +3614,28 @@ function evolveMonster(monsterId){
     showMonsterDetail(monsterId);
 }
 
+let _allCards = null;
 function show(id){
-    // 先淡出所有卡片
-    document.querySelectorAll('.card').forEach(function(c){
+    if(!_allCards){
+        _allCards = document.querySelectorAll('.card');
+    }
+    _allCards.forEach(function(c){
         if(!c.classList.contains('hidden')){
             c.classList.add('fade-out');
         }
     });
     
-    // 延迟后显示目标卡片
     setTimeout(function(){
-        document.querySelectorAll('.card').forEach(function(c){
+        _allCards.forEach(function(c){
             c.classList.add('hidden');
             c.classList.remove('fade-out');
         });
-        let target = document.getElementById(id);
-        target.classList.remove('hidden');
-        target.classList.add('fade-in');
-    }, 200);
+        let target = DOMCache.get(id) || document.getElementById(id);
+        if(target){
+            target.classList.remove('hidden');
+            target.classList.add('fade-in');
+        }
+    }, 150);
 }
 
 function backToMenu(){
@@ -3313,6 +3644,11 @@ function backToMenu(){
     isWeaknessPractice = false;
     weaknessPracticeType = '';
     playSound('click');
+    
+    let chestBtn = document.getElementById('openChestBtn');
+    if(chestBtn) chestBtn.disabled = false;
+    let chestReward = document.getElementById('chestReward');
+    if(chestReward) chestReward.style.display = 'none';
     
     // 恢复原始菜单内容
     restoreMenuContent();
@@ -3340,11 +3676,13 @@ function restoreMenuContent(){
             <div class="title">⚔️ 赛罗奥特曼英语大作战 ⚔️</div>
             <div class="subtitle">打败10个怪兽，守护地球！</div>
         </div>
+        <div id="partnerMonster" style="text-align:center;margin:5px 0;cursor:pointer;" onclick="interactPartnerMonster()"></div>
         <div class="score-panel">
             <div class="score-item"><div class="score-value" id="totalScore">0</div><div class="score-label">⚡能量</div></div>
             <div class="score-item"><div class="score-value" id="levelDisplay">Lv.1</div><div class="score-label">🏅等级</div></div>
             <div class="score-item"><div class="score-value" id="totalStars">0</div><div class="score-label">⭐星星</div></div>
         </div>
+        <div id="itemBar" style="display:flex;justify-content:center;gap:8px;margin:5px 0;padding:8px;background:rgba(0,0,0,0.3);border-radius:10px;"></div>
         <div class="progress" style="display:flex;justify-content:center;gap:10px;margin-bottom:10px;">
             <button class="level-btn" id="level1Btn" onclick="switchLevel(1)" style="padding:8px 20px;border-radius:10px;border:2px solid #00d4ff;background:rgba(0,212,255,0.2);color:#00d4ff;cursor:pointer;">📘 Level 1</button>
             <button class="level-btn" id="level2Btn" onclick="switchLevel(2)" style="padding:8px 20px;border-radius:10px;border:2px solid rgba(255,255,255,0.3);background:rgba(255,255,255,0.05);color:#aaa;cursor:pointer;">📗 Level 2</button>
@@ -3373,27 +3711,31 @@ function restoreMenuContent(){
             <div id="adviceContent" style="color:#aaa;font-size:14px;line-height:1.6;">正在分析你的学习情况...</div>
         </div>
         
-        <button class="game-btn btn-battle" onclick="confirmUnitsAndBattle()">⚔️ 开始战斗</button>
+        <button id="startBattleBtn" class="game-btn btn-battle" onclick="confirmUnitsAndBattle()">⚔️ 开始战斗</button>
+        <div id="continueBattleBtn" style="display:none;margin-top:-5px;">
+            <button class="game-btn" style="background:linear-gradient(135deg, #27ae60, #2ecc71);animation:pulse 1s infinite;" onclick="resumeBattle()">🔄 继续战斗 (<span id="continueBattleInfo"></span>)</button>
+        </div>
         <button class="game-btn" style="background:linear-gradient(135deg, #9b59b6, #8e44ad);" onclick="showMonsterCollection()">👾 怪兽图鉴</button>
         <button class="game-btn" style="background:linear-gradient(135deg, #f39c12, #e67e22);" onclick="showAchievements()">🏆 成就</button>
         <button class="game-btn" style="background:linear-gradient(135deg, #00b894, #00cec9);" onclick="showStudyReport()">📊 学习报告</button>
         <button class="game-btn" style="background:linear-gradient(135deg, #e74c3c, #c0392b);" onclick="showWrongBook()">📖 错题本</button>
     `;
     
+    if(hasBattleProgress()){
+        document.getElementById('startBattleBtn').style.display = 'none';
+        document.getElementById('continueBattleBtn').style.display = 'block';
+        let info = '第' + battleProgress.round + '关 · HP:' + battleProgress.zHp;
+        document.getElementById('continueBattleInfo').textContent = info;
+    }else{
+        document.getElementById('startBattleBtn').style.display = 'block';
+        document.getElementById('continueBattleBtn').style.display = 'none';
+    }
+    
     // 更新每日任务UI
     updateDailyTaskUI();
     
     // 更新复习提醒
     updateReviewReminder();
-}
-
-// ========== 自由练习模式 ==========
-function startFreeMode(){
-    startBattle();
-}
-
-function startFreeBattle(){
-    startBattle();
 }
 
 function startQuickBattle(){
@@ -3407,6 +3749,7 @@ function startQuickBattle(){
     weaknessPracticeType = '';
     qIdx=0;correctCount=0;mHp=100;zHp=100;
     battleScore=0;
+    battleCorrectCount=0;
     battleQuestionPool=[];
     usedQuestions=[];
     currentMonsterIndex=0;
@@ -3421,6 +3764,11 @@ function startQuickBattle(){
     zeroState.formDuration = 0;
     zeroState.awakening = false;
     zeroState.awakeningUsed = false;
+    
+    shieldActive = playerItems.shield > 0;
+    lightningActive = playerItems.lightning > 0;
+    if(shieldActive) playerItems.shield--;
+    if(lightningActive) playerItems.lightning--;
     
     selectBattleMonsters();
     battleMonsters = battleMonsters.slice(0, 3);
@@ -3441,13 +3789,19 @@ function startQuickBattle(){
 }
 
 function startQuickRound(round){
-    qIdx=0;correctCount=0;mHp=80;zHp=100;
+    let stageConfig = STAGE_CONFIG.quick[round - 1] || STAGE_CONFIG.quick[0];
+    let diffConfig = DIFFICULTY_CONFIG[adventureDifficulty] || DIFFICULTY_CONFIG.normal;
+    qIdx=0;correctCount=0;roundWrongCount=0;mHp=Math.floor(stageConfig.monsterHp * diffConfig.hpMult);zHp=100;
     currentMonster=battleMonsters[round-1];
     
     zeroState.awakeningUsed = false;
     zeroState.formDuration = 0;
     
-    currentMonster.enemySkill = null;
+    if(stageConfig.skill){
+        currentMonster.enemySkill = stageConfig.skill;
+    }else{
+        currentMonster.enemySkill = null;
+    }
     currentMonster.sleepy = false;
     currentMonster.helpful = false;
     
@@ -3459,7 +3813,8 @@ function startQuickRound(round){
     
     currentMonsterIndex=round;
     updateHP();
-    showRoundQuestion();
+    updateSelectedMonsterBar();
+    showMonsterDialogue(round);
     show('battleGame');
 }
 
@@ -3474,6 +3829,7 @@ function startBattle(){
     weaknessPracticeType = '';
     qIdx=0;correctCount=0;mHp=100;zHp=100;
     battleScore=0;
+    battleCorrectCount=0;
     battleQuestionPool=[];
     usedQuestions=[];
     currentMonsterIndex=0;
@@ -3489,9 +3845,15 @@ function startBattle(){
     zeroState.awakening = false;
     zeroState.awakeningUsed = false;
     
+    shieldActive = playerItems.shield > 0;
+    lightningActive = playerItems.lightning > 0;
+    if(shieldActive) playerItems.shield--;
+    if(lightningActive) playerItems.lightning--;
+    
     selectBattleMonsters();
     
     battleUnits.forEach(function(u){
+        if(!ALL_WORDS[u]) return;
         ALL_WORDS[u].words.forEach(function(w){
             battleQuestionPool.push({type:'word', eng:w[0], chn:w[1]});
         });
@@ -3505,19 +3867,16 @@ function startBattle(){
 }
 
 function startRound(round){
-    qIdx=0;correctCount=0;mHp=100;zHp=100;
+    let stageConfig = STAGE_CONFIG.full[round - 1] || STAGE_CONFIG.full[0];
+    let diffConfig = DIFFICULTY_CONFIG[adventureDifficulty] || DIFFICULTY_CONFIG.normal;
+    qIdx=0;correctCount=0;roundWrongCount=0;mHp=Math.floor(stageConfig.monsterHp * diffConfig.hpMult);zHp=100;
     currentMonster=battleMonsters[round-1];
     
     zeroState.awakeningUsed = false;
     zeroState.formDuration = 0;
     
-    let stageConfig = STAGE_CONFIG.full[round - 1] || STAGE_CONFIG.full[0];
-    if(round >= 4 && round <= 6){
-        let skills = ['playful', 'slow', 'sleepy', 'helpful'];
-        currentMonster.enemySkill = skills[Math.floor(Math.random() * skills.length)];
-    }else if(round >= 7){
-        let skills = ['playful', 'slow', 'sleepy', 'helpful'];
-        currentMonster.enemySkill = skills[Math.floor(Math.random() * skills.length)];
+    if(stageConfig.skill){
+        currentMonster.enemySkill = stageConfig.skill;
     }else{
         currentMonster.enemySkill = null;
     }
@@ -3533,8 +3892,9 @@ function startRound(round){
     
     currentMonsterIndex=round;
     updateHP();
+    updateSelectedMonsterBar();
     showEnemySkillHint();
-    showRoundQuestion();
+    showMonsterDialogue(round);
     show('battleGame');
 }
 
@@ -3560,6 +3920,44 @@ function showEnemySkillHint(){
     setTimeout(function(){
         if(div.parentNode) div.remove();
     }, 3000);
+}
+
+const MONSTER_DIALOGUES = [
+    ['你休想过去！','来吧，我不怕你！','哈哈哈，你太弱了！'],
+    ['我变强了，你怕不怕？','这次可没那么容易！','准备好迎接挑战了吗？'],
+    ['我是最强的！','你不可能赢我！','放弃吧，赛罗！'],
+    ['来吧，让我看看你的实力！','这次我不会手软！','你准备好了吗？'],
+    ['我的力量又增长了！','你无法阻止我！','赛罗，来战吧！'],
+    ['我是不可战胜的！','你的英语够好吗？','来挑战我吧！'],
+    ['越到后面越难哦！','我可是精英怪兽！','你敢继续吗？'],
+    ['我是黑暗的化身！','光明终将被打败！','来吧，最后一战！'],
+    ['你走到这里已经很不错了！','但我不会让你过去！','这是终极挑战！'],
+    ['我是BOSS！你不可能赢！','来吧，最终决战！','哈哈哈，你完了！']
+];
+
+function showMonsterDialogue(round){
+    if(!currentMonster) { showRoundQuestion(); return; }
+    
+    let dialogues = MONSTER_DIALOGUES[(round - 1) % MONSTER_DIALOGUES.length];
+    let text = dialogues[Math.floor(Math.random() * dialogues.length)];
+    
+    let div = document.createElement('div');
+    div.id = 'monsterDialogue';
+    div.style.cssText = 'text-align:center;padding:15px;margin:10px 0;background:rgba(255,0,0,0.1);border-radius:15px;border:1px solid rgba(255,0,0,0.3);animation:fadeIn 0.3s ease;';
+    div.innerHTML = '<div style="font-size:40px;margin-bottom:8px;">' + currentMonster.emoji + '</div>' +
+        '<div style="color:#ff6b6b;font-size:16px;font-weight:bold;">' + currentMonster.name + '</div>' +
+        '<div style="color:#ddd;font-size:14px;margin-top:5px;">"' + text + '"</div>';
+    
+    let battleGame = document.getElementById('battleGame');
+    let arena = battleGame.querySelector('.battle-arena');
+    if(arena){
+        arena.parentNode.insertBefore(div, arena);
+    }
+    
+    setTimeout(function(){
+        if(div.parentNode) div.remove();
+        showRoundQuestion();
+    }, 2000);
 }
 
 function getDifficulty(round){
@@ -3611,24 +4009,67 @@ function getDifficulty(round){
     return difficulty;
 }
 
+function updateSelectedMonsterBar(){
+    let bar = document.getElementById('selectedMonsterBar');
+    if(!bar) return;
+    
+    if(selectedMonsterId && playerMonsters[selectedMonsterId]){
+        let monster = ALL_MONSTERS.find(function(m){ return m.id === selectedMonsterId; });
+        let pm = playerMonsters[selectedMonsterId];
+        let skill = getMonsterSkill(selectedMonsterId);
+        
+        if(monster && pm){
+            document.getElementById('selectedMonsterEmoji').textContent = monster.emoji;
+            document.getElementById('selectedMonsterName').textContent = monster.name + (pm.evolved ? ' ✨' : '');
+            
+            let detailText = 'Lv.' + pm.level;
+            if(skill){
+                detailText += ' | ' + skill.icon + skill.name;
+            }
+            let itemIcons = [];
+            if(shieldActive) itemIcons.push('🛡️');
+            if(lightningActive) itemIcons.push('⚡');
+            if(itemIcons.length > 0) detailText += ' | ' + itemIcons.join('');
+            document.getElementById('selectedMonsterDetail').textContent = detailText;
+            
+            bar.classList.remove('hidden');
+        }else{
+            bar.classList.add('hidden');
+        }
+    }else{
+        bar.classList.add('hidden');
+    }
+}
+
 function updateHP(){
-    document.getElementById('monsterHp').style.width=Math.max(0,mHp)+'%';
-    document.getElementById('zeroHp').style.width=Math.max(0,zHp)+'%';
+    let monsterHpEl = DOMCache.get('monsterHp');
+    let zeroHpEl = DOMCache.get('zeroHp');
+    if(monsterHpEl) monsterHpEl.style.width=Math.max(0,mHp)+'%';
+    if(zeroHpEl) zeroHpEl.style.width=Math.max(0,zHp)+'%';
 }
 
 function showRoundQuestion(){
-    // 怪兽血量清零 → 过关
     if(mHp<=0){
         nextRound();
         return;
     }
     
-    // 赛罗血量清零 → 失败
     if(zHp<=0){
         endBattle();
         return;
     }
     
+    if(currentMonster && currentMonster.enemySkill === 'slow'){
+        let area = document.getElementById('questionArea');
+        area.innerHTML = '<div style="text-align:center;padding:40px;"><div style="font-size:40px;animation:bounce 0.5s ease-in-out infinite;">🐢</div><div style="color:#aaa;margin-top:10px;">怪兽慢吞吞的，题目马上就来...</div></div>';
+        setTimeout(function(){ showRoundQuestionInternal(); }, 1500);
+        return;
+    }
+    
+    showRoundQuestionInternal();
+}
+
+function showRoundQuestionInternal(){
     let difficulty = getDifficulty(currentMonsterIndex);
     
     // 题目池空了
@@ -3868,8 +4309,15 @@ function nextRound(){
 
     let maxRounds = gameMode === 'quick' ? 3 : 10;
     if(currentMonsterIndex >= maxRounds){
+        if(roundWrongCount === 0 && correctCount > 0){
+            dailyTasks._perfectRound = true;
+        }
         endAllBattles();
         return;
+    }
+    
+    if(roundWrongCount === 0 && correctCount > 0){
+        dailyTasks._perfectRound = true;
     }
     
     let area=document.getElementById('questionArea');
@@ -3921,6 +4369,26 @@ function showChoiceQuestion(area, word, pool){
     
     let opts=shuffle([word.chn].concat(wrongItems.map(function(item){return item.chn;})));
     let optArea=document.getElementById('options');
+    
+    if(currentMonster && currentMonster.enemySkill === 'playful' && Math.random() < 0.3 && opts.length > 2){
+        let wrongOpts = opts.filter(function(o){ return o !== word.chn; });
+        if(wrongOpts.length > 1){
+            let hideTarget = wrongOpts[Math.floor(Math.random() * wrongOpts.length)];
+            let hideIdx = opts.indexOf(hideTarget);
+            if(hideIdx >= 0){
+                opts.splice(hideIdx, 1);
+                showToast('😜 怪兽藏起了一个选项！');
+            }
+        }
+    }
+    
+    if(currentMonster && currentMonster.helpful){
+        currentMonster.helpful = false;
+        let correctIdx = opts.indexOf(word.chn);
+        if(correctIdx >= 0){
+            showToast('🤗 提示：正确答案在第' + (correctIdx + 1) + '个！');
+        }
+    }
     
     opts.forEach(function(o){
         let b=document.createElement('button');
@@ -4200,52 +4668,6 @@ function stopBattleRecordClick(){
     try{ recognition.abort(); }catch(e){}
 }
 
-// 战斗模式 - 按住说话开始（已废弃，保留兼容）
-function startBattleRecordHold(){
-    if(isRecording) return;
-    
-    if(!recognition) preInitSpeechRecognition();
-    if(!recognition){
-        document.getElementById('speakResultArea').innerHTML='<div style="color:#ff6b6b;">⚠️ 浏览器不支持</div>';
-        return;
-    }
-    
-    if(recordingTimeout){ clearTimeout(recordingTimeout); recordingTimeout = null; }
-    try{ recognition.abort(); }catch(e){}
-    
-    document.getElementById('recBtn').classList.add('recording');
-    document.getElementById('recText').textContent='松开结束';
-    document.getElementById('speakResultArea').innerHTML='<div style="color:#ffd93d;">🎤 正在录音...</div><div style="color:#aaa;font-size:12px;margin-top:5px;">请说英文</div>';
-    
-    recordingTimeout = setTimeout(function(){ if(isRecording) stopBattleRecordHold(); }, 10000);
-    
-    setTimeout(function(){
-        try{
-            recognition.start();
-            isRecording = true;
-        }catch(e){
-            stopBattleRecordHold();
-            document.getElementById('speakResultArea').innerHTML='<div style="color:#ff6b6b;">启动失败</div>';
-        }
-    }, 100);
-}
-
-// 战斗模式 - 按住说话结束
-function stopBattleRecordHold(){
-    if(!isRecording) return;
-    isRecording = false;
-    if(recordingTimeout){ clearTimeout(recordingTimeout); recordingTimeout = null; }
-    document.getElementById('recBtn').classList.remove('recording');
-    document.getElementById('recText').textContent='按住说话';
-    try{ recognition.abort(); }catch(e){}
-}
-
-// 战斗模式录音切换（已废弃）
-function toggleBattleRecord(){}
-
-// 战斗模式录音（已废弃）
-function startBattleRecording(){}
-
 // 看图说话题型 - PET口语Part2核心题型
 function showSpeakImageQuestion(area, word){
     currentText=word.eng;
@@ -4319,52 +4741,6 @@ function stopSpeakImageClick(){
     document.getElementById('recTextImage').textContent='点击录音';
     try{ recognition.abort(); }catch(e){}
 }
-
-// 看图说话 - 按住说话开始（已废弃，保留兼容）
-function startSpeakImageHold(){
-    if(isRecording) return;
-    
-    if(!recognition) preInitSpeechRecognition();
-    if(!recognition){
-        document.getElementById('speakImageResult').innerHTML='<div style="color:#ff6b6b;">⚠️ 浏览器不支持</div>';
-        return;
-    }
-    
-    if(recordingTimeout){ clearTimeout(recordingTimeout); recordingTimeout = null; }
-    try{ recognition.abort(); }catch(e){}
-    
-    document.getElementById('recBtnImage').classList.add('recording');
-    document.getElementById('recTextImage').textContent='松开结束';
-    document.getElementById('speakImageResult').innerHTML='<div style="color:#ffd93d;">🎤 正在录音...</div><div style="color:#aaa;font-size:12px;margin-top:5px;">请说英文</div>';
-    
-    recordingTimeout = setTimeout(function(){ if(isRecording) stopSpeakImageHold(); }, 10000);
-    
-    setTimeout(function(){
-        try{
-            recognition.start();
-            isRecording = true;
-        }catch(e){
-            stopSpeakImageHold();
-            document.getElementById('speakImageResult').innerHTML='<div style="color:#ff6b6b;">启动失败</div>';
-        }
-    }, 100);
-}
-
-// 看图说话 - 按住说话结束
-function stopSpeakImageHold(){
-    if(!isRecording) return;
-    isRecording = false;
-    if(recordingTimeout){ clearTimeout(recordingTimeout); recordingTimeout = null; }
-    document.getElementById('recBtnImage').classList.remove('recording');
-    document.getElementById('recTextImage').textContent='按住说话';
-    try{ recognition.abort(); }catch(e){}
-}
-
-// 看图说话录音切换（已废弃）
-function toggleSpeakImageRecord(){}
-
-// 看图说话录音（已废弃）
-function startSpeakImageRecording(){}
 
 function showSpeakImageHint(word){
     let hint = word.charAt(0).toUpperCase() + '_'.repeat(word.length - 1);
@@ -4479,8 +4855,8 @@ function showDictationQuestion(area, word){
     let displaySentence = sentence.replace(words[blankIndex], '______');
     let escapedSentence = sentence.replace(/'/g, "\\'").replace(/"/g, '\\"');
     
-    // 生成打乱的字母
-    let letters = blankWord.toUpperCase().split('');
+    // 生成打乱的字母 - 保持原始大小写
+    let letters = blankWord.split('');
     let shuffled = shuffle(letters.slice());
     
     // 存储正确答案
@@ -4622,161 +4998,203 @@ function toggleLetter(letter, idx, btn){
     }
 }
 
-function checkAnswer(correct, btn){
-    recordQuestionStats(currentQuestionType, correct);
-    incrementAnswerCount();
+function handleBattleCorrect(){
+    correctCount++;
+    battleCorrectCount++;
     
-    if(correct){
-        correctCount++;
-        
-        comboData.count++;
-        comboData.wrongCount = 0;
-        if(comboData.count > comboData.maxCombo){
-            comboData.maxCombo = comboData.count;
-        }
-        comboData.totalCombo++;
-        
-        let comboBonus = getComboBonus(comboData.count);
-        let baseEnergy = ENERGY_PER_CORRECT;
-        let bonusEnergy = comboBonus.bonus;
-        let totalEnergy = baseEnergy + bonusEnergy;
-        
-        if(selectedMonsterId && playerMonsters[selectedMonsterId]){
-            let skill = getMonsterSkill(selectedMonsterId);
-            if(skill && skill.energyBonus){
-                totalEnergy += skill.energyBonus;
-            }
-        }
-        
-        battleScore += totalEnergy;
-        
-        let difficulty = getDifficulty(currentMonsterIndex);
-        let baseDamage = 15;
-        let comboDamageBonus = 1 + (comboData.count * 0.05);
-        let monsterDamageBonus = 1;
-        
-        if(selectedMonsterId && playerMonsters[selectedMonsterId]){
-            let skill = getMonsterSkill(selectedMonsterId);
-            if(skill && skill.damageBonus){
-                monsterDamageBonus = 1 + skill.damageBonus;
-            }
-        }
-        
-        let formBonus = zeroState.formBonus || 1;
-        let totalDamage = Math.floor(baseDamage * comboDamageBonus * monsterDamageBonus * formBonus);
-        
-        if(currentMonster && currentMonster.enemySkill === 'sleepy' && Math.random() < 0.2){
-            currentMonster.sleepy = true;
-            totalDamage = Math.floor(totalDamage * 1.5);
-            showToast('😴 怪兽睡着了！伤害+50%！');
-        }
-        
-        if(currentMonster && currentMonster.enemySkill === 'helpful' && Math.random() < 0.15){
-            currentMonster.helpful = true;
-        }
-        
-        mHp -= totalDamage;
-        showEff('💥');
-        playSound('correct');
-        if(btn) btn.classList.add('correct');
-        
-        showComboDisplay();
-        showEncourage('correct');
-        
-        if(COMBO_CONFIG[comboData.count]){
-            showComboBonusPopup(comboData.count);
-        }
-        
-        if(comboData.count === 3 && !zeroState.awakeningUsed && zHp <= 30){
-            triggerAwakening();
-        }
-        
-        if(comboData.count >= 3 && comboData.count % 3 === 0){
-            checkAutoTransform();
-        }
-        
-        if(selectedMonsterId && playerMonsters[selectedMonsterId]){
-            addMonsterExp(selectedMonsterId, 10);
-        }
-        
-        if(isWrongBookReview && currentText){
-            let wrongItem = wrongBook.find(function(item){ return item.word === currentText; });
-            if(wrongItem){
-                wrongItem.count = Math.max(0, wrongItem.count - 1);
-                if(wrongItem.count <= 0){
-                    removeFromWrongBook(currentText);
-                }else{
-                    let now = new Date().toISOString();
-                    wrongItem.lastReview = now;
-                    wrongItem.nextReview = calculateNextReview(now, wrongItem.count);
-                    saveProgress();
-                }
-            }
-        }
-    }else{
-        comboData.wrongCount++;
-        
-        let prevCombo = comboData.count;
-        if(comboData.count > 0){
-            comboData.count = Math.max(0, comboData.count - 1);
-        }
-        
-        let baseDamage = 12;
-        let defenseBonus = 0;
-        
-        if(selectedMonsterId && playerMonsters[selectedMonsterId]){
-            let skill = getMonsterSkill(selectedMonsterId);
-            if(skill && skill.defenseBonus){
-                defenseBonus = skill.defenseBonus;
-            }
-        }
-        
-        if(zeroState.awakening){
-            zeroState.awakening = false;
-            showEncourage('awakening_protect');
-            showToast('🌟 觉醒保护！本次不扣血');
-        }else{
-            let actualDamage = Math.floor(baseDamage * (1 - defenseBonus));
-            actualDamage = Math.max(5, actualDamage);
-            zHp -= actualDamage;
-        }
-        
-        showEff('💢');
-        playSound('wrong');
-        if(btn) btn.classList.add('wrong');
-        
-        showComboDisplay();
-        
-        if(prevCombo >= 3){
-            showEncourage('comboBreak');
-        }else{
-            showEncourage('wrong');
-        }
-        
-        if(comboData.wrongCount >= 3){
-            showEncourage('continuousWrong');
-        }
-        
-        if(comboData.wrongCount >= 3 && !zeroState.awakeningUsed && zHp > 0){
-            triggerAwakening();
-        }
-        
-        if(isWrongBookReview && currentText){
-            let wrongItem = wrongBook.find(function(item){ return item.word === currentText; });
-            if(wrongItem){
-                wrongItem.count = (wrongItem.count || 0) + 1;
-                let now = new Date().toISOString();
-                wrongItem.lastReview = now;
-                wrongItem.nextReview = calculateNextReview(now, wrongItem.count);
-                saveProgress();
-            }
-        }else if(currentText){
-            let meaning = getWordMeaning(currentText);
-            if(meaning) addToWrongBook(currentText, meaning);
+    comboData.count++;
+    comboData.wrongCount = 0;
+    if(comboData.count > comboData.maxCombo){
+        comboData.maxCombo = comboData.count;
+    }
+    comboData.totalCombo++;
+    checkDailyChallenge();
+    
+    let comboBonus = getComboBonus(comboData.count);
+    let totalEnergy = ENERGY_PER_CORRECT + comboBonus.bonus;
+    
+    if(selectedMonsterId && playerMonsters[selectedMonsterId]){
+        let skill = getMonsterSkill(selectedMonsterId);
+        if(skill && skill.energyBonus) totalEnergy += skill.energyBonus;
+    }
+    
+    battleScore += totalEnergy;
+    
+    let baseDamage = 15;
+    let comboDamageBonus = 1 + (comboData.count * 0.05);
+    let monsterDamageBonus = 1;
+    
+    if(selectedMonsterId && playerMonsters[selectedMonsterId]){
+        let skill = getMonsterSkill(selectedMonsterId);
+        if(skill && skill.damageBonus) monsterDamageBonus = 1 + skill.damageBonus;
+    }
+    
+    let formBonus = zeroState.formBonus || 1;
+    let lightningBonus = 1;
+    if(lightningActive && qIdx === 0){
+        lightningBonus = 2;
+        lightningActive = false;
+        showToast('⚡ 闪电加持！首题伤害翻倍！');
+    }
+    let totalDamage = Math.floor(baseDamage * comboDamageBonus * monsterDamageBonus * formBonus * lightningBonus);
+    
+    if(selectedMonsterId && playerMonsters[selectedMonsterId]){
+        let skill = getMonsterSkill(selectedMonsterId);
+        if(skill){
+            if(skill.damageBonus) showMonsterSkillEffect('🔥 火焰之力！伤害+20%', '#ff6b35');
+            if(skill.energyBonus) showMonsterSkillEffect('⭐ 星星能量+5', '#ffd93d');
         }
     }
+    
+    if(currentMonster && currentMonster.enemySkill === 'sleepy' && Math.random() < 0.2){
+        currentMonster.sleepy = true;
+        totalDamage = Math.floor(totalDamage * 1.5);
+        showToast('😴 怪兽睡着了！伤害+50%！');
+    }
+    
+    if(currentMonster && currentMonster.enemySkill === 'helpful' && Math.random() < 0.15){
+        currentMonster.helpful = true;
+        showToast('🤗 怪兽想帮忙！下题会提示答案哦！');
+    }
+    
+    mHp -= totalDamage;
+    showEff('💥');
+    playSound('correct');
+    
+    showComboDisplay();
+    showEncourage('correct');
+    
+    if(COMBO_CONFIG[comboData.count]){
+        showComboBonusPopup(comboData.count);
+    }
+    
+    if(!zeroState.awakeningUsed && zHp <= 30){
+        triggerAwakening();
+    }
+    
+    if(comboData.count >= 3 && comboData.count % 3 === 0){
+        checkAutoTransform();
+    }
+    
+    if(selectedMonsterId && playerMonsters[selectedMonsterId]){
+        addMonsterExp(selectedMonsterId, 10);
+    }
+    
+    if(currentMonster && currentMonster.enemySkill === 'boss' && qIdx > 0 && qIdx % 3 === 0){
+        mHp = Math.min(mHp + 10, 150);
+        showToast('👑 BOSS恢复了10点血量！');
+    }
+    
+    if(isWrongBookReview && currentText){
+        let wrongItem = wrongBook.find(function(item){ return item.word === currentText; });
+        if(wrongItem){
+            wrongItem.wrongCount = Math.max(0, wrongItem.wrongCount - 1);
+            if(wrongItem.wrongCount <= 0){
+                removeFromWrongBook(currentText);
+            }else{
+                let now = new Date().toISOString();
+                wrongItem.lastReview = now;
+                wrongItem.nextReview = calculateNextReview(now, wrongItem.wrongCount);
+                saveProgress();
+            }
+        }
+    }
+}
+
+function handleBattleWrong(){
+    comboData.wrongCount++;
+    roundWrongCount++;
+    let prevCombo = comboData.count;
+    comboData.count = 0;
+    
+    let baseDamage = 12;
+    let defenseBonus = 0;
+    let diffConfig = DIFFICULTY_CONFIG[adventureDifficulty] || DIFFICULTY_CONFIG.normal;
+    
+    if(selectedMonsterId && playerMonsters[selectedMonsterId]){
+        let skill = getMonsterSkill(selectedMonsterId);
+        if(skill && skill.defenseBonus) defenseBonus = skill.defenseBonus;
+    }
+    
+    if(zeroState.awakening){
+        zeroState.awakening = false;
+        showEncourage('awakening_protect');
+        showToast('🌟 觉醒保护！本次不扣血');
+    }else if(shieldActive){
+        shieldActive = false;
+        showToast('🛡️ 护盾抵挡了伤害！');
+        showMonsterSkillEffect('🛡️ 护盾生效！免伤一次', '#3498db');
+    }else{
+        let actualDamage = Math.max(5, Math.floor(baseDamage * diffConfig.damageMult * (1 - defenseBonus)));
+        if(currentMonster && currentMonster.enemySkill === 'boss' && mHp <= 30){
+            actualDamage = Math.floor(actualDamage * 2);
+            showToast('👑 BOSS狂暴！伤害翻倍！');
+        }
+        if(defenseBonus > 0){
+            showMonsterSkillEffect('❄️ 冰霜护盾！减伤' + Math.round(defenseBonus * 100) + '%', '#00d4ff');
+        }
+        zHp -= actualDamage;
+    }
+    
+    showEff('💢');
+    playSound('wrong');
+    
+    showComboDisplay();
+    
+    if(prevCombo >= 3){
+        showEncourage('comboBreak');
+    }else{
+        showEncourage('wrong');
+    }
+    
+    if(comboData.wrongCount >= 3){
+        showEncourage('continuousWrong');
+    }
+    
+    if(comboData.wrongCount >= 2 && !zeroState.awakeningUsed && zHp > 0){
+        triggerAwakening();
+    }
+    
+    if(currentMonster && currentMonster.enemySkill === 'boss'){
+        let bossDamage = 5;
+        if(zeroState.awakening){
+            zeroState.awakening = false;
+            showToast('🌟 觉醒保护！BOSS反击无效！');
+        }else{
+            zHp -= bossDamage;
+            showToast('👑 BOSS强力反击！额外扣' + bossDamage + '血！');
+        }
+    }
+    
+    if(isWrongBookReview && currentText){
+        let wrongItem = wrongBook.find(function(item){ return item.word === currentText; });
+        if(wrongItem){
+            wrongItem.wrongCount = (wrongItem.wrongCount || 0) + 1;
+            let now = new Date().toISOString();
+            wrongItem.lastReview = now;
+            wrongItem.nextReview = calculateNextReview(now, wrongItem.wrongCount);
+            saveProgress();
+        }
+    }else if(currentText){
+        let meaning = getWordMeaning(currentText);
+        if(meaning) addToWrongBook(currentText, meaning);
+    }
+}
+
+function handlePostAnswer(){
     updateHP();
     qIdx++;
+    
+    if(zeroState.formDuration > 0){
+        zeroState.formDuration--;
+        if(zeroState.formDuration <= 0){
+            zeroState.form = 'basic';
+            zeroState.formBonus = 1;
+            showToast('🔄 变身结束，恢复基础形态');
+        }
+    }
+    
+    saveBattleProgress();
     
     if(mHp<=0){
         mHp=0;
@@ -4789,6 +5207,119 @@ function checkAnswer(correct, btn){
     }else{
         setTimeout(function(){showRoundQuestion();},800);
     }
+}
+
+function saveBattleProgress(){
+    battleProgress = {
+        active: true,
+        round: currentMonsterIndex,
+        mHp: mHp,
+        zHp: zHp,
+        comboCount: comboData.count,
+        comboWrongCount: comboData.wrongCount,
+        form: zeroState.form,
+        formBonus: zeroState.formBonus,
+        formDuration: zeroState.formDuration,
+        awakening: zeroState.awakening,
+        awakeningUsed: zeroState.awakeningUsed,
+        enemySkill: currentMonster ? currentMonster.enemySkill : null,
+        sleepy: currentMonster ? currentMonster.sleepy : false,
+        helpful: currentMonster ? currentMonster.helpful : false,
+        battleMonsters: battleMonsters.map(function(m){ return { id: m.id, emoji: m.emoji, name: m.name, desc: m.desc, enemySkill: m.enemySkill, sleepy: m.sleepy, helpful: m.helpful }; }),
+        qIdx: qIdx,
+        correctCount: correctCount,
+        battleScore: battleScore,
+        gameMode: gameMode
+    };
+    saveProgress();
+}
+
+function clearBattleProgress(){
+    battleProgress = {
+        active: false,
+        round: 1,
+        mHp: 100,
+        zHp: 100,
+        comboCount: 0,
+        comboWrongCount: 0,
+        form: 'basic',
+        formBonus: 1,
+        formDuration: 0,
+        awakening: false,
+        awakeningUsed: false,
+        enemySkill: null,
+        sleepy: false,
+        helpful: false,
+        battleMonsters: [],
+        qIdx: 0,
+        correctCount: 0,
+        battleScore: 0,
+        gameMode: 'full'
+    };
+}
+
+function hasBattleProgress(){
+    return battleProgress.active && battleProgress.zHp > 0;
+}
+
+function resumeBattle(){
+    if(!battleProgress.active){
+        showToast('没有保存的战斗进度');
+        return;
+    }
+    
+    gameMode = battleProgress.gameMode || 'full';
+    currentMonsterIndex = battleProgress.round;
+    mHp = battleProgress.mHp;
+    zHp = battleProgress.zHp;
+    comboData.count = battleProgress.comboCount;
+    comboData.wrongCount = battleProgress.comboWrongCount;
+    zeroState.form = battleProgress.form;
+    zeroState.formBonus = battleProgress.formBonus;
+    zeroState.formDuration = battleProgress.formDuration;
+    zeroState.awakening = battleProgress.awakening;
+    zeroState.awakeningUsed = battleProgress.awakeningUsed;
+    qIdx = battleProgress.qIdx;
+    correctCount = battleProgress.correctCount;
+    battleScore = battleProgress.battleScore;
+    
+    battleMonsters = battleProgress.battleMonsters;
+    currentMonster = battleMonsters[currentMonsterIndex - 1];
+    
+    if(currentMonster){
+        currentMonster.enemySkill = battleProgress.enemySkill;
+        currentMonster.sleepy = battleProgress.sleepy;
+        currentMonster.helpful = battleProgress.helpful;
+    }
+    
+    isWrongBookReview = false;
+    isWeaknessPractice = false;
+    
+    let maxRounds = gameMode === 'quick' ? 3 : 10;
+    document.querySelector('#battleGame .title').innerHTML = (gameMode === 'quick' ? '⚡ 快速闯关 ' : '⚔️ ') + '第 <span id="stageNum">' + currentMonsterIndex + '</span>/' + maxRounds + ' 关';
+    document.getElementById('monsterEmoji').textContent = currentMonster.emoji;
+    document.getElementById('monsterName').textContent = currentMonster.name;
+    document.getElementById('monsterDesc').textContent = currentMonster.desc;
+    document.getElementById('monsterHpName').textContent = currentMonster.name;
+    
+    updateHP();
+    show('battleGame');
+    showRoundQuestion();
+    showToast('✅ 已恢复战斗进度！');
+}
+
+function checkAnswer(correct, btn){
+    recordQuestionStats(currentQuestionType, correct);
+    incrementAnswerCount();
+    
+    if(correct){
+        handleBattleCorrect();
+        if(btn) btn.classList.add('correct');
+    }else{
+        handleBattleWrong();
+        if(btn) btn.classList.add('wrong');
+    }
+    handlePostAnswer();
 }
 
 function getComboBonus(count){
@@ -4807,19 +5338,35 @@ function getComboBonus(count){
 function getMonsterSkill(monsterId){
     let monster = ALL_MONSTERS.find(function(m){ return m.id === monsterId; });
     if(!monster || !monster.skillType) return null;
-    return MONSTER_SKILLS[monster.skillType];
+    let skill = MONSTER_SKILLS[monster.skillType];
+    if(!skill) return null;
+    
+    let isBroken = playerMonsters[monsterId] && playerMonsters[monsterId].broken;
+    if(isBroken){
+        let boosted = {};
+        for(let k in skill) boosted[k] = skill[k];
+        if(boosted.damageBonus) boosted.damageBonus = boosted.damageBonus * 2;
+        if(boosted.defenseBonus) boosted.defenseBonus = Math.min(0.8, boosted.defenseBonus * 2);
+        if(boosted.energyBonus) boosted.energyBonus = boosted.energyBonus * 2;
+        boosted.name = skill.name + '+';
+        return boosted;
+    }
+    return skill;
 }
 
 function addMonsterExp(monsterId, exp){
     if(!playerMonsters[monsterId]){
-        playerMonsters[monsterId] = { level: 1, stars: 0, evolved: false };
+        playerMonsters[monsterId] = { level: 1, stars: 0, evolved: false, broken: false };
     }
-    playerMonsters[monsterId].stars += exp;
     
     let lvl = playerMonsters[monsterId].level;
+    let maxLevel = playerMonsters[monsterId].broken ? 10 : 5;
+    if(lvl >= maxLevel) return;
+    
+    playerMonsters[monsterId].stars += exp;
     let expNeeded = lvl * 100;
     
-    while(playerMonsters[monsterId].stars >= expNeeded && lvl < 5){
+    while(playerMonsters[monsterId].stars >= expNeeded && lvl < maxLevel){
         playerMonsters[monsterId].stars -= expNeeded;
         playerMonsters[monsterId].level++;
         lvl = playerMonsters[monsterId].level;
@@ -4828,28 +5375,75 @@ function addMonsterExp(monsterId, exp){
         let monster = ALL_MONSTERS.find(function(m){ return m.id === monsterId; });
         if(monster) monsterName = monster.name;
         showToast('🎉 ' + monsterName + ' 升级到 Lv.' + lvl + '！');
+        if(lvl >= 5 && !playerMonsters[monsterId].evolved){
+            evolveMonster(monsterId);
+        }
+    }
+    
+    if(lvl >= maxLevel){
+        playerMonsters[monsterId].stars = 0;
     }
     
     saveProgress();
 }
 
-function showComboDisplay(){
-    let existing = document.getElementById('comboDisplay');
-    if(existing) existing.remove();
+function breakthroughMonster(monsterId){
+    if(!playerMonsters[monsterId]) return;
+    let pm = playerMonsters[monsterId];
+    if(pm.broken) { showToast('已经突破过了！'); return; }
+    if(pm.level < 5 || !pm.evolved) { showToast('需要先进化到Lv.5！'); return; }
+    if(playerItems.breakStone < 1) { showToast('需要1个突破石！'); return; }
     
-    if(comboData.count < 2) return;
+    playerItems.breakStone--;
+    pm.broken = true;
+    pm.level = 6;
+    
+    let monster = ALL_MONSTERS.find(function(m){ return m.id === monsterId; });
+    let monsterName = monster ? monster.name : '怪兽';
+    showToast('💎 ' + monsterName + ' 突破成功！技能效果翻倍！');
+    saveProgressNow();
+}
+
+function useExpPotion(monsterId){
+    if(playerItems.expPotion <= 0) { showToast('没有经验药水了！'); return; }
+    if(!playerMonsters[monsterId]) return;
+    let pm = playerMonsters[monsterId];
+    let maxLevel = pm.broken ? 10 : 5;
+    if(pm.level >= maxLevel) { showToast('怪兽已满级！'); return; }
+    
+    playerItems.expPotion--;
+    addMonsterExp(monsterId, 50);
+    
+    let monster = ALL_MONSTERS.find(function(m){ return m.id === monsterId; });
+    let monsterName = monster ? monster.name : '怪兽';
+    showToast('🧪 ' + monsterName + ' 获得50经验！');
+    saveProgressNow();
+    showMonsterDetail(monsterId);
+}
+
+function showComboDisplay(){
+    let div = document.getElementById('comboDisplay');
+    if(!div){
+        div = document.createElement('div');
+        div.id = 'comboDisplay';
+        div.className = 'combo-display';
+        document.body.appendChild(div);
+    }
+    
+    if(comboData.count < 2){
+        div.style.display = 'none';
+        return;
+    }
     
     let comboBonus = getComboBonus(comboData.count);
-    let div = document.createElement('div');
-    div.id = 'comboDisplay';
-    div.className = 'combo-display';
     div.innerHTML = '<div class="combo-count">' + comboData.count + '连击</div>' +
         '<div class="combo-label">' + (comboBonus.name || '继续加油') + '</div>' +
         (comboBonus.effect ? '<div class="combo-effect">' + comboBonus.effect + '</div>' : '');
-    document.body.appendChild(div);
+    div.style.display = '';
     
-    setTimeout(function(){
-        if(div.parentNode) div.remove();
+    clearTimeout(div._hideTimer);
+    div._hideTimer = setTimeout(function(){
+        div.style.display = 'none';
     }, 2000);
 }
 
@@ -4867,7 +5461,29 @@ function showComboBonusPopup(count){
     setTimeout(function(){ div.remove(); }, 1000);
 }
 
+let _skillEffectEl = null;
+function showMonsterSkillEffect(text, color){
+    if(!_skillEffectEl){
+        _skillEffectEl = document.createElement('div');
+        _skillEffectEl.id = 'monsterSkillEffect';
+        document.body.appendChild(_skillEffectEl);
+    }
+    _skillEffectEl.textContent = text;
+    _skillEffectEl.style.color = color || '#ffd93d';
+    _skillEffectEl.style.animation = 'none';
+    _skillEffectEl.offsetHeight;
+    _skillEffectEl.style.animation = 'skillFloat 1.5s ease forwards';
+    _skillEffectEl.style.display = '';
+    clearTimeout(_skillEffectEl._timer);
+    _skillEffectEl._timer = setTimeout(function(){
+        _skillEffectEl.style.display = 'none';
+    }, 1500);
+}
+
 function showEncourage(type){
+    let existing = document.querySelector('.encourage-popup');
+    if(existing) existing.remove();
+    
     let words;
     switch(type){
         case 'correct':
@@ -4926,15 +5542,24 @@ function checkAutoTransform(){
     let unlockedForms = [];
     for(let key in ZERO_FORMS){
         let form = ZERO_FORMS[key];
-        if(form.unlockLevel && level >= form.unlockLevel && zeroState.form === 'basic'){
-            unlockedForms.push({ key: key, form: form });
+        if(form.unlockLevel && level >= form.unlockLevel){
+            unlockedForms.push({ key: key, form: form, bonus: form.bonus });
         }
     }
     
-    if(unlockedForms.length > 0 && zeroState.form === 'basic'){
+    if(unlockedForms.length === 0) return;
+    
+    if(zeroState.form === 'basic'){
         let randomIdx = Math.floor(Math.random() * unlockedForms.length);
-        let randomForm = unlockedForms[randomIdx];
-        autoTransform(randomForm.key);
+        autoTransform(unlockedForms[randomIdx].key);
+    }else if(comboData.count === 6){
+        let currentBonus = zeroState.formBonus;
+        let betterForms = unlockedForms.filter(function(f){ return f.bonus > currentBonus; });
+        if(betterForms.length > 0){
+            let randomIdx = Math.floor(Math.random() * betterForms.length);
+            autoTransform(betterForms[randomIdx].key);
+            showToast('🔥 变身升级！');
+        }
     }
 }
 
@@ -4944,7 +5569,7 @@ function autoTransform(formKey){
     
     zeroState.form = formKey;
     zeroState.formBonus = form.bonus;
-    zeroState.formDuration = 3;
+    zeroState.formDuration = 5;
     
     let overlay = document.createElement('div');
     overlay.className = 'transform-animation';
@@ -4958,11 +5583,19 @@ function autoTransform(formKey){
 }
 
 function showEff(e){
-    let d=document.createElement('div');
-    d.className='attack-effect';
-    d.textContent=e;
-    document.body.appendChild(d);
-    setTimeout(function(){d.remove();},500);
+    let d = document.getElementById('attackEffect');
+    if(!d){
+        d = document.createElement('div');
+        d.id = 'attackEffect';
+        d.className = 'attack-effect';
+        document.body.appendChild(d);
+    }
+    d.textContent = e;
+    d.style.animation = 'none';
+    d.offsetHeight;
+    d.style.animation = '';
+    clearTimeout(d._hideTimer);
+    d._hideTimer = setTimeout(function(){ d.style.display = 'none'; }, 500);
 }
 
 function endBattle(){
@@ -4988,19 +5621,71 @@ function endBattle(){
     }
     
     isWrongBookReview = false;
-    saveProgress();
+    clearBattleProgress();
+    saveProgressNow();
     updateUI();
     show('result');
 }
 
+let _chestOpened = false;
+function openTreasureChest(){
+    if(_chestOpened) return;
+    _chestOpened = true;
+    
+    let btn = document.getElementById('openChestBtn');
+    if(btn) btn.disabled = true;
+    
+    let totalWeight = 0;
+    TREASURE_REWARDS.forEach(function(r){ totalWeight += r.weight; });
+    let rand = Math.random() * totalWeight;
+    let reward = TREASURE_REWARDS[0];
+    let cumWeight = 0;
+    for(let i = 0; i < TREASURE_REWARDS.length; i++){
+        cumWeight += TREASURE_REWARDS[i].weight;
+        if(rand <= cumWeight){
+            reward = TREASURE_REWARDS[i];
+            break;
+        }
+    }
+    
+    reward.apply();
+    saveProgressNow();
+    
+    let rewardDiv = document.getElementById('chestReward');
+    if(rewardDiv){
+        rewardDiv.style.display = '';
+        rewardDiv.innerHTML = '<div style="font-size:36px;animation:bounce 0.5s ease;">' + reward.icon + '</div>' +
+            '<div style="color:#ffd93d;font-size:18px;font-weight:bold;margin-top:5px;">' + reward.name + '</div>' +
+            '<div style="color:#aaa;font-size:13px;">' + reward.desc + '</div>';
+    }
+    
+    playSound('correct');
+}
+
 function endAllBattles(){
-    let energyGained=battleScore;
-    let starGained=1;
+    _chestOpened = false;
+    let diffConfig = DIFFICULTY_CONFIG[adventureDifficulty] || DIFFICULTY_CONFIG.normal;
+    let energyGained=Math.floor(battleScore * diffConfig.rewardMult);
+    let starGained= diffConfig.rewardMult >= 3 ? 3 : (diffConfig.rewardMult >= 2 ? 2 : 1);
+    
+    if(adventureDifficulty === 'hard' || adventureDifficulty === 'extreme'){
+        dailyTasks._hardCompleted = true;
+    }
+    
+    checkDailyChallenge();
+    
+    adventureDifficulty = 'normal';
     
     score+=energyGained;
     totalStars+=starGained;
     
     let unlockedMonsters = [];
+    
+    // 给出战怪兽通关经验奖励
+    if(selectedMonsterId && playerMonsters[selectedMonsterId]){
+        let bonusExp = battleCorrectCount * 5; // 每答对一题额外奖励5点经验
+        addMonsterExp(selectedMonsterId, bonusExp);
+    }
     
     studyStats.totalBattles++;
     updateDailyStats();
@@ -5036,12 +5721,13 @@ function endAllBattles(){
     }
     let levelUp=level>oldLevel;
     
-    saveProgress();
+    clearBattleProgress();
+    saveProgressNow();
     
-    document.getElementById('victoryCorrect').textContent=battleScore/ENERGY_PER_CORRECT;
+    document.getElementById('victoryCorrect').textContent=battleCorrectCount;
     document.getElementById('victoryEnergy').textContent='+'+energyGained;
     document.getElementById('victoryStar').textContent='+'+starGained;
-    document.getElementById('victoryStars').innerHTML='⭐'.repeat(Math.min(10, Math.floor(battleScore/ENERGY_PER_CORRECT/5)));
+    document.getElementById('victoryStars').innerHTML='⭐'.repeat(Math.min(10, battleCorrectCount));
     
     if(levelUp){
         document.getElementById('levelUpNotice').style.display='block';
@@ -5050,15 +5736,16 @@ function endAllBattles(){
         document.getElementById('levelUpNotice').style.display='none';
     }
     
-    // 显示解锁怪兽数量
+    // 显示解锁怪兽
     if(!isWrongBookReview && unlockedMonsters && unlockedMonsters.length > 0){
         document.getElementById('monsterUnlockNotice').style.display='block';
-        document.getElementById('monsterUnlockInfo').textContent='+'+unlockedMonsters.length+' 只怪兽';
+        let monsterNames = unlockedMonsters.map(function(m){ return m.emoji + m.name; }).join(' ');
+        document.getElementById('monsterUnlockInfo').textContent=monsterNames;
     }else{
         document.getElementById('monsterUnlockNotice').style.display='none';
     }
     
-    monstersDef+=10;
+    monstersDef += (gameMode === 'quick' ? 3 : 10);
     isWrongBookReview = false;
     updateUI();
     checkAchievements();
@@ -5361,7 +6048,7 @@ function preInitSpeechRecognition(){
                         let recBtn = document.getElementById('recBtn') || document.getElementById('recBtnImage');
                         if(recBtn) recBtn.classList.remove('recording');
                         let recText = document.getElementById('recText') || document.getElementById('recTextImage');
-                        if(recText) recText.textContent='按住说话';
+                        if(recText) recText.textContent='点击录音';
                         let waveContainer = document.getElementById('waveContainer');
                         if(waveContainer) waveContainer.style.display='none';
                         document.querySelectorAll('.wave-bar').forEach(function(bar){ bar.classList.remove('active'); });
@@ -5373,38 +6060,11 @@ function preInitSpeechRecognition(){
                         if(isCorrect){
                             incrementSpeakCount();
                             if(isBattleMode || isSpeakImageMode){
-                                correctCount++;
-                                battleScore+=ENERGY_PER_CORRECT;
-                                let difficulty = getDifficulty(currentMonsterIndex);
-                                let damage = Math.ceil(100 / difficulty.questionCount);
-                                mHp -= damage;
-                                showEff('💥');
-                                playSound('correct');
+                                recordQuestionStats(currentQuestionType, true);
+                                incrementAnswerCount();
+                                handleBattleCorrect();
                                 showPronunciationResult(resultElement, pronScore.score, pronScore.feedback, true, spoken, correct);
-                                updateHP();
-                                
-                                if(isWrongBookReview && currentText){
-                                    let wrongItem = wrongBook.find(function(item){ return item.word === currentText; });
-                                    if(wrongItem){
-                                        wrongItem.count = Math.max(0, wrongItem.count - 1);
-                                        if(wrongItem.count <= 0){
-                                            removeFromWrongBook(currentText);
-                                        }else{
-                                            let now = new Date().toISOString();
-                                            wrongItem.lastReview = now;
-                                            wrongItem.nextReview = calculateNextReview(now, wrongItem.count);
-                                            saveProgress();
-                                        }
-                                    }
-                                }
-                                
-                                if(mHp <= 0){
-                                    mHp = 0;
-                                    updateHP();
-                                    setTimeout(function(){nextRound();},2000);
-                                }else{
-                                    setTimeout(function(){showRoundQuestion();},2000);
-                                }
+                                handlePostAnswer();
                             }else{
                                 speakCorrect++;
                                 playSound('correct');
@@ -5413,33 +6073,11 @@ function preInitSpeechRecognition(){
                             }
                         }else{
                             if(isBattleMode || isSpeakImageMode){
-                                zHp -= 15;
-                                showEff('💢');
-                                playSound('wrong');
+                                recordQuestionStats(currentQuestionType, false);
+                                incrementAnswerCount();
+                                handleBattleWrong();
                                 showPronunciationResult(resultElement, pronScore.score, pronScore.feedback, false, spoken, correct);
-                                updateHP();
-                                
-                                if(isWrongBookReview && currentText){
-                                    let wrongItem = wrongBook.find(function(item){ return item.word === currentText; });
-                                    if(wrongItem){
-                                        wrongItem.count = (wrongItem.count || 0) + 1;
-                                        let now = new Date().toISOString();
-                                        wrongItem.lastReview = now;
-                                        wrongItem.nextReview = calculateNextReview(now, wrongItem.count);
-                                        saveProgress();
-                                    }
-                                }else if(currentText){
-                                    let meaning = getWordMeaning(currentText);
-                                    if(meaning) addToWrongBook(currentText, meaning);
-                                }
-                                
-                                if(zHp <= 0){
-                                    zHp = 0;
-                                    updateHP();
-                                    setTimeout(function(){endBattle();},2000);
-                                }else{
-                                    setTimeout(function(){showRoundQuestion();},2000);
-                                }
+                                handlePostAnswer();
                             }else{
                                 playSound('wrong');
                                 showPronunciationResult(resultElement, pronScore.score, pronScore.feedback, false, spoken, correct);
@@ -5460,7 +6098,7 @@ function preInitSpeechRecognition(){
             };
             
             recognition.onerror=function(e){
-                if(e.error==='aborted') return; // 正常中止
+                if(e.error==='aborted') return;
                 
                 console.error('语音识别错误:', e.error);
                 isRecording = false;
@@ -5468,22 +6106,28 @@ function preInitSpeechRecognition(){
                 let recBtn = document.getElementById('recBtn') || document.getElementById('recBtnImage');
                 if(recBtn) recBtn.classList.remove('recording');
                 let recText = document.getElementById('recText') || document.getElementById('recTextImage');
-                if(recText) recText.textContent='按住说话';
+                if(recText) recText.textContent='点击录音';
                 let waveContainer = document.getElementById('waveContainer');
                 if(waveContainer) waveContainer.style.display='none';
                 
-                let resultEl = document.getElementById('speakResultArea') || document.getElementById('speakResult') || document.getElementById('speakImageResult');
-                if(!resultEl) return;
-                
                 let errorTips = {
                     'not-allowed': '请授权麦克风权限',
-                    'no-speech': '没有检测到语音',
+                    'no-speech': '没有检测到语音，请重试',
                     'network': '网络错误，请检查连接',
                     'audio-capture': '未检测到麦克风',
                     'language-not-supported': '不支持英语识别',
-                    'timeout': '录音超时，请重试'
+                    'timeout': '录音超时，请重试',
+                    'service-not-allowed': '语音服务不可用'
                 };
-                resultEl.innerHTML='<div style="color:#ff6b6b;">⚠️ '+(errorTips[e.error] || '错误：'+e.error)+'</div>';
+                
+                let errorMsg = errorTips[e.error] || '识别错误：' + (e.error || '未知');
+                
+                let resultEl = document.getElementById('speakResultArea') || document.getElementById('speakResult') || document.getElementById('speakImageResult');
+                if(resultEl){
+                    resultEl.innerHTML='<div style="color:#ff6b6b;">⚠️ ' + errorMsg + '</div>';
+                }
+                
+                showToast('⚠️ ' + errorMsg);
             };
             
             recognition.onend=function(){
@@ -5493,7 +6137,7 @@ function preInitSpeechRecognition(){
                     let recBtn = document.getElementById('recBtn') || document.getElementById('recBtnImage');
                     if(recBtn) recBtn.classList.remove('recording');
                     let recText = document.getElementById('recText') || document.getElementById('recTextImage');
-                    if(recText) recText.textContent='按住说话';
+                    if(recText) recText.textContent='点击录音';
                     let waveContainer = document.getElementById('waveContainer');
                     if(waveContainer) waveContainer.style.display='none';
                 }
@@ -5573,10 +6217,6 @@ function speakCurrentWord(){
     if(currentText){
         speakWord(currentText,'speakListenBtn');
     }
-}
-
-function toggleRecord(){
-    // 已废弃，改为按住说话模式
 }
 
 // 点击录音 - 切换录音状态
@@ -5682,198 +6322,6 @@ function stopRecordClick(){
     try{ recognition.abort(); }catch(e){}
 }
 
-// 按住说话 - 开始录音（已废弃，保留兼容）
-function startRecordHold(){
-    if(isRecording) return;
-    
-    console.log('按住说话 - 开始录音');
-    
-    // 检查环境
-    if(window.location.protocol !== 'https:' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1'){
-        document.getElementById('speakResult').innerHTML='<div style="color:#ff6b6b;">⚠️ 需要HTTPS环境</div><div style="color:#aaa;font-size:12px;margin-top:5px;">请使用HTTPS访问</div>';
-        return;
-    }
-    
-    if(window.location.protocol === 'file:'){
-        let isChrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
-        if(isChrome){
-            document.getElementById('speakResult').innerHTML='<div style="color:#ff6b6b;">⚠️ Chrome不支持本地文件</div><div style="color:#aaa;font-size:12px;margin-top:5px;">请用Edge或部署到服务器</div>';
-            return;
-        }
-    }
-    
-    if(!recognition){
-        preInitSpeechRecognition();
-    }
-    
-    if(!recognition){
-        document.getElementById('speakResult').innerHTML='<div style="color:#ff6b6b;">⚠️ 浏览器不支持</div><div style="color:#aaa;font-size:12px;margin-top:5px;">请用Chrome或Edge</div>';
-        return;
-    }
-    
-    document.getElementById('nextSpeakBtn').style.display='none';
-    
-    // 清除超时
-    if(recordingTimeout){
-        clearTimeout(recordingTimeout);
-        recordingTimeout = null;
-    }
-    
-    // 停止之前的识别
-    try{ recognition.abort(); }catch(e){}
-    
-    // 更新UI
-    document.getElementById('recBtn').classList.add('recording');
-    document.getElementById('recText').textContent='松开结束';
-    document.getElementById('waveContainer').style.display='flex';
-    document.querySelectorAll('.wave-bar').forEach(function(bar){ bar.classList.add('active'); });
-    document.getElementById('speakResult').innerHTML='<div style="color:#ffd93d;">🎤 正在录音...</div><div style="color:#aaa;font-size:12px;margin-top:5px;">请说英文</div>';
-    
-    // 设置超时（最多10秒）
-    recordingTimeout = setTimeout(function(){
-        if(isRecording){
-            stopRecordHold();
-        }
-    }, 10000);
-    
-    // 启动识别
-    setTimeout(function(){
-        try{
-            recognition.start();
-            isRecording = true;
-            console.log('录音已启动');
-        }catch(e){
-            console.error('启动录音失败:', e);
-            stopRecordHold();
-            document.getElementById('speakResult').innerHTML='<div style="color:#ff6b6b;">启动失败</div><div style="color:#aaa;font-size:12px;margin-top:5px;">'+escapeHtml(e.message || '未知错误')+'</div>';
-        }
-    }, 100);
-}
-
-// 按住说话 - 停止录音
-function stopRecordHold(){
-    if(!isRecording) return;
-    
-    console.log('松开 - 停止录音');
-    isRecording = false;
-    
-    // 清除超时
-    if(recordingTimeout){
-        clearTimeout(recordingTimeout);
-        recordingTimeout = null;
-    }
-    
-    // 更新UI
-    document.getElementById('recBtn').classList.remove('recording');
-    document.getElementById('recText').textContent='按住说话';
-    document.getElementById('waveContainer').style.display='none';
-    document.querySelectorAll('.wave-bar').forEach(function(bar){ bar.classList.remove('active'); });
-    
-    // 停止识别
-    try{ recognition.abort(); }catch(e){}
-}
-
-function startRecording(){
-    console.log('startRecording 被调用');
-    console.log('当前协议:', window.location.protocol);
-    console.log('当前主机名:', window.location.hostname);
-    
-    if(window.location.protocol !== 'https:' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1'){
-        document.getElementById('speakResult').innerHTML='<div style="color:#ff6b6b;">⚠️ 语音识别需要HTTPS环境</div><div style="color:#aaa;font-size:12px;margin-top:5px;">请使用HTTPS连接访问</div>';
-        return;
-    }
-    
-    if(window.location.protocol === 'file:'){
-        let isChrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
-        if(isChrome){
-            document.getElementById('speakResult').innerHTML='<div style="color:#ff6b6b;">⚠️ Chrome本地文件不支持语音识别</div><div style="color:#aaa;font-size:12px;margin-top:5px;">请使用Edge浏览器，或将文件部署到服务器</div>';
-            return;
-        }
-    }
-    
-    if(!recognition){
-        console.log('recognition 未初始化，尝试初始化...');
-        preInitSpeechRecognition();
-    }
-    
-    if(!recognition){
-        console.error('recognition 初始化失败');
-        document.getElementById('speakResult').innerHTML='<div style="color:#ff6b6b;">⚠️ 浏览器不支持语音识别</div><div style="color:#aaa;font-size:12px;margin-top:5px;">请使用Chrome或Edge浏览器</div>';
-        return;
-    }
-    
-    console.log('recognition 已准备好，准备启动录音');
-    
-    document.getElementById('nextSpeakBtn').style.display='none';
-    
-    // 清除之前的超时
-    if(recordingTimeout){
-        clearTimeout(recordingTimeout);
-        recordingTimeout = null;
-    }
-    
-    // 先停止之前的识别
-    isStoppingRecording = true;
-    try{
-        recognition.abort();
-    }catch(stopErr){}
-    
-    // 更新UI
-    document.getElementById('recBtn').classList.add('recording');
-    document.getElementById('recText').textContent='点击停止';
-    document.getElementById('speakResult').innerHTML='<div style="color:#ffd93d;">🎤 正在录音...</div><div style="color:#aaa;font-size:12px;margin-top:5px;">请说英文单词</div>';
-    
-    // 设置超时检测，防止录音状态卡死
-    recordingTimeout = setTimeout(function(){
-        if(isRecording){
-            console.warn('录音超时，自动停止');
-            isRecording = false;
-            isStoppingRecording = true;
-            document.getElementById('recBtn').classList.remove('recording');
-            document.getElementById('recText').textContent='点击录音';
-            document.getElementById('speakResult').innerHTML='<div style="color:#ffd93d;">⚠️ 录音超时</div><div style="color:#aaa;font-size:12px;margin-top:5px;">请重新尝试</div>';
-            try{ recognition.abort(); }catch(e){}
-            setTimeout(function(){isStoppingRecording=false;},200);
-        }
-    }, 15000);
-    
-    // 延迟后启动新识别
-    setTimeout(function(){
-        isStoppingRecording = true;
-        
-        try{
-            let isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-            console.log('是否移动设备:', isMobile);
-            
-            console.log('调用 recognition.start()...');
-            recognition.start();
-            console.log('recognition.start() 调用成功');
-            
-            isStoppingRecording = false;
-            isRecording = true;
-        }catch(e){
-            console.error('启动录音失败:', e);
-            console.error('错误名称:', e.name);
-            console.error('错误消息:', e.message);
-            clearTimeout(recordingTimeout);
-            isRecording=false;
-            isStoppingRecording=false;
-            document.getElementById('recBtn').classList.remove('recording');
-            document.getElementById('recText').textContent='点击录音';
-            
-            if(e.name === 'NotAllowedError' || e.message.indexOf('not allowed') !== -1){
-                document.getElementById('speakResult').innerHTML='<div style="color:#ff6b6b;">⚠️ 麦克风权限被拒绝</div><div style="color:#aaa;font-size:12px;margin-top:5px;">请在浏览器地址栏左侧允许麦克风访问</div>';
-            }else if(e.message.indexOf('already started') !== -1){
-                document.getElementById('speakResult').innerHTML='<div style="color:#ffd93d;">⚠️ 录音已在运行</div><div style="color:#aaa;font-size:12px;margin-top:5px;">请直接说话</div>';
-            }else if(e.message.indexOf('https') !== -1 || e.message.indexOf('secure') !== -1){
-                document.getElementById('speakResult').innerHTML='<div style="color:#ff6b6b;">⚠️ 需要HTTPS连接</div><div style="color:#aaa;font-size:12px;margin-top:5px;">语音识别在移动设备上需要HTTPS环境</div>';
-            }else{
-                document.getElementById('speakResult').innerHTML='<div style="color:#ff6b6b;">启动录音失败</div><div style="color:#aaa;font-size:12px;margin-top:5px;">'+escapeHtml(e.message || '未知错误')+'</div>';
-            }
-        }
-    }, 500);
-}
-
 function nextSpeakQuestion(){
     speakIdx++;
     document.getElementById('nextSpeakBtn').style.display='none';
@@ -5887,7 +6335,8 @@ function endSpeaking(){
     document.getElementById('resultScore').textContent='+'+score_add;
     document.getElementById('resultMsg').textContent='正确：'+speakCorrect+'/'+speakData.length;
     document.getElementById('resultStars').innerHTML='⭐'.repeat(Math.ceil(speakCorrect/2));
-    document.getElementById('nextBtn').style.display='none';
+    let nextBtn = document.getElementById('nextBtn') || document.getElementById('nextSpeakBtn');
+    if(nextBtn) nextBtn.style.display='none';
     show('result');
 }
 
@@ -5935,21 +6384,22 @@ function speakWord(w, btnId){
     // 备选方案：使用Web Audio API生成简单的提示音
     function playFallbackSound(){
         try {
-            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            const oscillator = audioContext.createOscillator();
-            const gainNode = audioContext.createGain();
+            let ctx = window.audioContext || new (window.AudioContext || window.webkitAudioContext)();
+            if(!window.audioContext) window.audioContext = ctx;
+            const oscillator = ctx.createOscillator();
+            const gainNode = ctx.createGain();
             
             oscillator.connect(gainNode);
-            gainNode.connect(audioContext.destination);
+            gainNode.connect(ctx.destination);
             
-            oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
-            oscillator.frequency.exponentialRampToValueAtTime(400, audioContext.currentTime + 0.3);
+            oscillator.frequency.setValueAtTime(800, ctx.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(400, ctx.currentTime + 0.3);
             
-            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+            gainNode.gain.setValueAtTime(0.3, ctx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
             
-            oscillator.start(audioContext.currentTime);
-            oscillator.stop(audioContext.currentTime + 0.3);
+            oscillator.start(ctx.currentTime);
+            oscillator.stop(ctx.currentTime + 0.3);
             
             setTimeout(() => {
                 if(btn){
@@ -6067,7 +6517,14 @@ function speakWord(w, btnId){
 }
 
 function shuffle(a){
-    return a.slice().sort(function(){return Math.random()-0.5;});
+    let arr = a.slice();
+    for(let i = arr.length - 1; i > 0; i--){
+        let j = Math.floor(Math.random() * (i + 1));
+        let tmp = arr[i];
+        arr[i] = arr[j];
+        arr[j] = tmp;
+    }
+    return arr;
 }
 
 init();
