@@ -204,15 +204,20 @@
 .task-icon.login { background: linear-gradient(135deg, #27ae60, #2ecc71); }
 .task-icon.answer { background: linear-gradient(135deg, #3498db, #2980b9); }
 .task-icon.speak { background: linear-gradient(135deg, #f39c12, #e67e22); }
+.task-icon.challenge { background: linear-gradient(135deg, #9b59b6, #8e44ad); }
 .task-info { flex: 1; }
 .task-name { color: white; font-size: 14px; margin-bottom: 4px; }
+.task-name.challenge { color: #e0b0ff; }
+.task-desc { font-size: 11px; color: #aaa; margin: 2px 0; }
 .task-progress-bar { height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden; }
 .task-progress-fill { height: 100%; background: linear-gradient(90deg, #00d4ff, #00ff88); border-radius: 3px; transition: width 0.3s; }
 .task-progress-fill.complete { background: linear-gradient(90deg, #27ae60, #2ecc71); }
 .task-status { width: 60px; text-align: right; }
 .task-count { color: #aaa; font-size: 12px; }
+.task-count.challenge { color: #9b59b6; }
 .task-count.complete { color: #27ae60; }
 .task-reward-btn { padding: 4px 10px; border-radius: 10px; border: none; font-size: 11px; cursor: pointer; background: linear-gradient(135deg, #ffd93d, #ff6b35); color: #0a0a1a; font-weight: bold; }
+.task-reward-btn.challenge { background: linear-gradient(135deg, #9b59b6, #8e44ad); color: #fff; }
 .task-reward-btn:disabled { background: #555; color: #888; cursor: not-allowed; }
 .task-complete-icon { color: #27ae60; font-size: 18px; }
 
@@ -1593,14 +1598,14 @@ function updateDailyTaskUI(){
             let completed = dailyTasks.dailyChallengeCompleted;
             let ready = !completed && ch.check();
             let rewardText = ch.rewardType === 'energy' ? ch.reward + '能量' : (ch.rewardType === 'item' ? (ch.reward === 'expPotion' ? '经验药水' : (ch.reward === 'breakStone' ? '突破石' : ch.reward)) : ch.reward);
-            return '<div class="task-item" style="border-left:3px solid #9b59b6;">' +
-                '<div class="task-icon" style="background:linear-gradient(135deg,#9b59b6,#8e44ad);color:#fff;border-radius:8px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-size:16px;">🏆</div>' +
+            return '<div class="task-item">' +
+                '<div class="task-icon challenge">🏆</div>' +
                 '<div class="task-info">' +
-                    '<div class="task-name" style="color:#e0b0ff;">' + ch.name + '</div>' +
-                    '<div style="font-size:11px;color:#aaa;margin:2px 0;">' + ch.desc + ' · 奖励: ' + rewardText + '</div>' +
+                    '<div class="task-name challenge">' + ch.name + '</div>' +
+                    '<div class="task-desc">' + ch.desc + ' · 奖励: ' + rewardText + '</div>' +
                 '</div>' +
                 '<div class="task-status">' +
-                    (completed ? '<span class="task-complete-icon">✓</span>' : (ready ? '<button class="task-reward-btn" style="background:linear-gradient(135deg,#9b59b6,#8e44ad);" onclick="claimDailyChallengeReward()">领取</button>' : '<span class="task-count" style="color:#9b59b6;">进行中</span>')) +
+                    (completed ? '<span class="task-complete-icon">✓</span>' : (ready ? '<button class="task-reward-btn challenge" onclick="claimDailyChallengeReward()">领取</button>' : '<span class="task-count challenge">进行中</span>')) +
                 '</div>' +
             '</div>';
         })() : ''}
@@ -2894,6 +2899,9 @@ function interactPartnerMonster(){
 
 // 生成个性化学习建议
 function updateStudyAdvice(){
+    let adviceEl = document.getElementById('adviceContent');
+    if(!adviceEl) return;
+    
     let advice = [];
     
     // 基于错题本生成建议
@@ -2934,7 +2942,7 @@ function updateStudyAdvice(){
     
     // 显示建议
     let adviceHtml = advice.map(function(a){ return '<div style="margin:5px 0;">' + a + '</div>'; }).join('');
-    document.getElementById('adviceContent').innerHTML = adviceHtml;
+    adviceEl.innerHTML = adviceHtml;
 }
 
 // 成就系统
@@ -5284,13 +5292,18 @@ function resumeBattle(){
     battleScore = battleProgress.battleScore;
     
     battleMonsters = battleProgress.battleMonsters;
-    currentMonster = battleMonsters[currentMonsterIndex - 1];
+    currentMonster = battleMonsters ? battleMonsters[currentMonsterIndex - 1] : null;
     
-    if(currentMonster){
-        currentMonster.enemySkill = battleProgress.enemySkill;
-        currentMonster.sleepy = battleProgress.sleepy;
-        currentMonster.helpful = battleProgress.helpful;
+    if(!currentMonster){
+        showToast('战斗进度已失效，请重新开始');
+        battleProgress.active = false;
+        show('mainMenu');
+        return;
     }
+    
+    currentMonster.enemySkill = battleProgress.enemySkill;
+    currentMonster.sleepy = battleProgress.sleepy;
+    currentMonster.helpful = battleProgress.helpful;
     
     isWrongBookReview = false;
     isWeaknessPractice = false;
